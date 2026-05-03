@@ -1,0 +1,18 @@
+@mixin fix {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+@mixin fullscreen {
+  @include fix;
+  width: 100vw;
+  height: 100vh;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

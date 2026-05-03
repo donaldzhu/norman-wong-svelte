@@ -1,0 +1,12 @@
+@mixin serif {
+  font-family: "Items", "Times New Roman", Times, serif;
+}
+
+@mixin sans-serif {
+  font-family: "Phonic", "Helvetica", "Arial", sans-serif;
+}
+
+@mixin ui {
+  @include sans-serif;
+  font-size: var(--ui-font-size);
+}

@@ -1,0 +1,1 @@
+export const DESKTOP_GRID_COUNT = 24

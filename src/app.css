@@ -1,0 +1,67 @@
+@font-face {
+  font-family: "Phonic";
+  src: url("/fonts/PhonicTrial-MonospacedLight.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Items";
+  src: url("/fonts/ItemsTrial-CondensedThin.otf") format("opentype");
+  font-weight: 100;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Items";
+  src: url("/fonts/ItemsTrial-CondensedThinItalic.otf") format("opentype");
+  font-weight: 100;
+  font-style: italic;
+}
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+a, a:hover, a:focus, a:active, a:visited,
+button,
+button:hover,
+button:focus,
+button:active,
+button:visited {
+  all: unset;
+  cursor: pointer;
+  padding: var(--button-padding);
+}
+a:hover,
+button:hover {
+  color: #a0a0a0;
+}
+
+h1,
+h2,
+h3 {
+  all: unset;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
+
+:root {
+  font-size: 10px;
+  --button-padding: 1rem;
+  --header-spacing: 1.5rem;
+  --x-margin: 3rem;
+  --y-margin-top: 4rem;
+  --y-margin-bottom: 3.5rem;
+  --page-spacing-top: 13rem;
+  --all-projects-inner-gap: 4.5rem;
+  --all-projects-gap: 2.5rem;
+  --project-slide-gap: 2rem;
+  --ui-font-size: 1.5rem;
+  --info-font-size: 4.5rem;
+  --all-projects-font-size: 11rem;
+}
