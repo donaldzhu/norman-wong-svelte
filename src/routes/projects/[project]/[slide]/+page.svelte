@@ -70,6 +70,7 @@
   button:hover {
     all: unset;
     @include fullscreen;
+    cursor: pointer;
   }
 
   .project-slide__media-container {
