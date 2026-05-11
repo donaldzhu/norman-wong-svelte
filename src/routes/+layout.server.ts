@@ -2,6 +2,29 @@ import type { SanityData } from '$lib/types/sanity'
 import { client } from '$lib/sanity'
 
 export async function load() {
+  const hydrateImage = `
+  asset-> {
+    _id,
+    altText,
+    description,
+    title,
+    url,
+    metadata {
+      dimensions {
+        width,
+        height,
+        aspectRatio
+      }
+    }
+  }
+  `
+
+  const hydrateSlideIds = `
+    "slideMediaIds": slides[] {
+      "ids": media[].image.asset->_id
+    }.ids
+  `
+
   const query = `
   {
     "header": *[_type == "header"][0] {
@@ -17,33 +40,36 @@ export async function load() {
         phone
       }
     },
-    "selectedWorks": *[_type == "selectedWorks"][0],
+    "selectedWorks": *[_type == "selectedWorks"][0] {
+      desktopLayout {
+        projects[] {
+          media[] {
+            mediaType,
+            image {
+              ...,
+              ${hydrateImage}
+            }
+          },
+          project->{
+            _id,
+            slug,
+            ${hydrateSlideIds}
+          }
+        },
+        rowSettings
+      }
+    },
     "allProjects": *[_type == "allProjects"][0] {
       projects[]-> {
         _id,
         title,
         subtitle,
         slug,
-        "slideMediaIds": slides[] {
-          "ids": media[].image.asset->_id
-        }.ids,
+        ${hydrateSlideIds},
         'thumbnails': allProjectsThumbnails[]{
           image {
             ...,
-            asset->{
-              _id,
-              altText,
-              description,
-              title,
-              url,
-              metadata {
-                dimensions {
-                  width,
-                  height,
-                  aspectRatio
-                }
-              }
-            }
+            ${hydrateImage}
           },
           desktopSize,
           mobileSize,

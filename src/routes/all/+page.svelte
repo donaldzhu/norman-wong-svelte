@@ -1,10 +1,9 @@
 <script lang="ts">
-  import ProjectSection from "./_components/projectSection.svelte"
+  import ProjectSection from "./_components/allProjectSection.svelte"
 
   let { data } = $props()
 
   const projects = $derived(data?.allProjects?.projects ?? [])
-  console.log(projects)
 </script>
 
 <div>

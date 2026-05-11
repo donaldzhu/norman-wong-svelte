@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation"
   import type { ProjectSlideData } from "$lib/types/sanity"
-  import { vw, wrap } from "$lib/utils/common"
+  import { wrap } from "$lib/utils/common"
   import _ from "lodash"
   import ProjectSlideMedia from "./_components/projectSlideMedia.svelte"
 
@@ -18,21 +18,28 @@
   const { slides } = $derived(data.project)
   const slide = $derived(slides[parseInt(slideNumber) - 1])
 
-  const handleClick = (direction: 1 | -1) => {
-    const newSlideNumber = parseInt(slideNumber) + direction
+  const onclick = (increment: 1 | -1) => {
+    const newSlideNumber = parseInt(slideNumber) + increment
     goto(`/projects/${projectSlug}/${wrap(newSlideNumber, 1, slides.length)}`)
   }
 
-  const onclick = ({ clientX }: MouseEvent) =>
-    handleClick(clientX >= vw(50) ? 1 : -1)
-
   const onkeydown = ({ key }: KeyboardEvent) => {
-    if (key === "ArrowRight") handleClick(1)
-    else if (key === "ArrowLeft") handleClick(-1)
+    if (key === "ArrowRight") onclick(1)
+    else if (key === "ArrowLeft") onclick(-1)
   }
 </script>
 
-<button class="project-slide" {onclick}>
+<div class="project-slide">
+  <button
+    class="project-slide__button project-slide__button--previous"
+    onclick={() => onclick(-1)}
+    aria-label="Previous slide"
+  ></button>
+  <button
+    class="project-slide__button project-slide__button--next"
+    onclick={() => onclick(1)}
+    aria-label="Next slide"
+  ></button>
   <div class="project-slide__media-container">
     {#each slide.media as media (media.image.asset._id)}
       <ProjectSlideMedia {media} />
@@ -60,17 +67,31 @@
       {slideNumber} of {slides.length}
     </div>
   </div>
-</button>
+</div>
 <svelte:window on:keydown={onkeydown} />
 
 <style lang="scss">
   @use "$lib/styles/_entry.scss" as *;
 
-  button,
-  button:hover {
-    all: unset;
+  .project-slide {
     @include fullscreen;
+    @include flex-column;
+  }
+
+  .project-slide__button {
+    all: unset;
+    position: fixed;
+    width: 35vw;
+    height: 100dvh;
     cursor: pointer;
+
+    &--previous {
+      left: 0;
+    }
+
+    &--next {
+      right: 0;
+    }
   }
 
   .project-slide__media-container {

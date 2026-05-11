@@ -36,7 +36,6 @@ export async function load({ params }: { params: { project: string } }) {
 
   // TODO
   const data = await client.fetch<SanityData>(query, { slug: params.project })
-  console.log(data)
   if (!data) {
     return {
       status: 500,

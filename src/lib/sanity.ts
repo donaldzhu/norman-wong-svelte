@@ -6,5 +6,5 @@ export const client = createClient({
   projectId: PUBLIC_SANITY_PROJECT_ID,
   dataset: PUBLIC_SANITY_DATASET,
   useCdn: true,
-  apiVersion: '2026-04-27',
+  apiVersion: '2026-05-01',
 })

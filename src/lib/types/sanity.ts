@@ -24,28 +24,22 @@ export interface InfoData {
   contacts: ContactData[]
 }
 
-export interface SelectedWorksData {
-  media: MediaData[]
-}
-
-export interface MediaData {
-  image: SanityImageObject
-  mediaType: string
-}
-
 export interface AllProjectsData {
   projects: ProjectData[]
 }
 
+type SlideMediaIds = string[][]
+
+export interface Slug {
+  current: string
+}
 export interface ProjectData {
   _id: string
   title: string
   subtitle?: string
-  slug: {
-    current: string
-  }
+  slug: Slug
   thumbnails: AllProjectsThumbnailData[]
-  slideMediaIds: string[][]
+  slideMediaIds: SlideMediaIds
   hidden: boolean
 }
 
@@ -107,4 +101,28 @@ export interface SlideMediaData {
   mobileStart: number
   mobileEnd: number
   image: SanityImageObjectWithAsset
+}
+
+export interface SelectedWorksData {
+  desktopLayout: SelectedWorksLayoutData
+  mobileLayout: SelectedWorksLayoutData
+}
+
+export interface SelectedWorksLayoutData {
+  projects: SelectedWorksProjectData[]
+  rowSettings: number[]
+}
+
+export interface SelectedWorksProjectData {
+  media: SelectedWorksMediaData[]
+  project: {
+    _id: string
+    slug: Slug
+    slideMediaIds: SlideMediaIds
+  }
+}
+
+export interface SelectedWorksMediaData {
+  image: SanityImageObjectWithAsset
+  mediaType: string
 }
