@@ -9,7 +9,7 @@
   }: { data: HeaderData; infoIsVisible: boolean } = $props()
 
   const links = {
-    [data.selectedWorksDisplayText]: "/selected",
+    [data.selectedWorksDisplayText]: "/",
     [data.allProjectsDisplayText]: "/all",
   }
 
@@ -17,7 +17,7 @@
 </script>
 
 <header class:info-visible={infoIsVisible}>
-  <a href="/" {onclick}><h1>{data.nameDisplayText}</h1></a>
+  <h1>{data.nameDisplayText}</h1>
   <nav>
     <ul>
       {#each Object.entries(links) as [text, href]}

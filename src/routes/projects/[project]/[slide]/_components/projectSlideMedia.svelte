@@ -13,7 +13,7 @@
   src={media.image.asset.url}
   alt={media.image.asset.altText}
   style:grid-column-start={start}
-  style:grid-column-end={end + 1}
+  style:grid-column-end={end}
 />
 
 <style lang="scss">

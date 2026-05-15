@@ -39,7 +39,6 @@ export const stretchToContainer = ({ minGap, maxGap, contentWidth, containerWidt
 
   scalingFactor = (containerWidth - gap * gapCount) / contentWidth
 
-  console.log(scalingFactor, gap, minGap, maxGap)
   return {
     scalingFactor,
     gap,

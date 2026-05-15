@@ -17,16 +17,22 @@
     HOVER_EDGE_SCROLL_ZONE,
     INFINITE_SCROLL_COPY_COUNT,
     INFINITE_SCROLL_EDGE_CUSHION_PX,
-    MAX_FADE_IN_DELAY,
     MAX_GAP,
     MAX_GAP_RAMP,
     MIN_GAP,
-    FADE_DURATION,
     THUMB_IN_FRAME,
     THUMB_NEGATIVE_MARGIN,
     ThumbnailRatio,
   } from "./configs"
   import gsap from "gsap"
+  import {
+    FADE_DURATION,
+    FADE_EASE,
+    MAX_FADE_IN_DELAY,
+    DEBOUNCE_MS,
+    DEBOUNCE_TRANSITION,
+  } from "../../_components/config"
+  import { withDebounce, type TimeOut } from "$lib/utils/animation"
 
   const { project }: { project: ProjectData } = $props()
   const { _id, title, subtitle, thumbnails } = $derived(project)
@@ -34,7 +40,7 @@
   const imageThumbnails = $derived(
     (thumbnails ?? []).filter(
       (t): t is AllProjectsThumbnailData =>
-        t.type === "image" && Boolean(t.image),
+        t.mediaType === "image" && Boolean(t.image),
     ),
   )
 
@@ -85,7 +91,38 @@
 
   onMount(() => {
     isMounted = true
-    // TODO: seems to presist on route nav?
+
+    for (let index = 0; index < THUMB_IN_FRAME; index++) {
+      gsap.to(thumbnailRefs[INFINITE_SCROLL_CENTER_INDEX][index], {
+        opacity: 1,
+        delay: FADE_DURATION + Math.random() * MAX_FADE_IN_DELAY,
+        duration: FADE_DURATION,
+        ease: FADE_EASE,
+      })
+    }
+
+    tick().then(() => {
+      if (!scrollTrackRef || !scrollContainerRef) return
+      resizeObserver = new ResizeObserver(() => onObserverResize())
+      resizeObserver.observe(scrollTrackRef)
+      adjustSize()
+      onObserverResize()
+    })
+  })
+
+  const getThumbnailAnchor = (thumbnail: AllProjectsThumbnailData) => {
+    const id = thumbnail.image.asset._id
+    const slideIndex = project.slideMediaIds.findIndex(ids => ids.includes(id))
+    return `projects/${project.slug.current}/${slideIndex + 1}`
+  }
+
+  const getSegmentWidth = () =>
+    !scrollTrackRef
+      ? 0
+      : scrollTrackRef.scrollWidth / INFINITE_SCROLL_COPY_COUNT
+
+  const adjustSize = () => {
+    scalingFactors = 1
     const allImageWidth = project.thumbnails
       .slice(0, THUMB_IN_FRAME)
       .reduce(
@@ -104,36 +141,16 @@
 
     scalingFactors = sizeConfig.scalingFactor
     gap = sizeConfig.gap
-
-    for (let index = 0; index < THUMB_IN_FRAME; index++) {
-      gsap.to(thumbnailRefs[INFINITE_SCROLL_CENTER_INDEX][index], {
-        opacity: 1,
-        delay: FADE_DURATION + Math.random() * MAX_FADE_IN_DELAY,
-        duration: FADE_DURATION,
-        ease: "power2.inOut",
-      })
-    }
-
-    tick().then(() => {
-      if (!scrollTrackRef || !scrollContainerRef) return
-      resizeObserver = new ResizeObserver(() => onWindowResize())
-      resizeObserver.observe(scrollTrackRef)
-      onWindowResize()
-    })
-  })
-
-  const getThumbnailAnchor = (thumbnail: AllProjectsThumbnailData) => {
-    const id = thumbnail.image.asset._id
-    const slideIndex = project.slideMediaIds.findIndex(ids => ids.includes(id))
-    return `projects/${project.slug.current}/${slideIndex + 1}`
   }
 
-  const getSegmentWidth = () =>
-    !scrollTrackRef
-      ? 0
-      : scrollTrackRef.scrollWidth / INFINITE_SCROLL_COPY_COUNT
+  let adjustSizeDebounceTimer: TimeOut | undefined = $state(undefined)
+  const adjustSizeDebounce = withDebounce(
+    () => adjustSizeDebounceTimer,
+    debounce => (adjustSizeDebounceTimer = debounce),
+    adjustSize,
+  )
 
-  const onWindowResize = (isInitialResize = false) => {
+  const onObserverResize = (isInitialResize = false) => {
     if (!scrollContainerRef || !scrollTrackRef) return
     const newSegmentWidth = getSegmentWidth()
     if (newSegmentWidth <= 0) return
@@ -195,6 +212,7 @@
   }
 
   const onHoverMove = ({ clientX }: MouseEvent) => {
+    if (adjustSizeDebounceTimer) return
     const leftBound = vw(HOVER_EDGE_SCROLL_ZONE)
     const rightBound = vw(100 - HOVER_EDGE_SCROLL_ZONE)
 
@@ -229,8 +247,13 @@
     role="region"
     bind:this={scrollContainerRef}
     {onscroll}
+    onmouseenter={onHoverMove}
     onmousemove={onHoverMove}
     onmouseleave={stopHoverScrol}
+    style:opacity={adjustSizeDebounceTimer ? 0 : 1}
+    style:transition={!adjustSizeDebounceTimer
+      ? DEBOUNCE_TRANSITION
+      : undefined}
   >
     <div
       class="all-projects__thumbnail-scroll-track"
@@ -262,6 +285,8 @@
     </div>
   </div>
 </section>
+
+<svelte:window on:resize={adjustSizeDebounce} />
 
 <style lang="scss">
   @use "$lib/styles/_entry.scss" as *;

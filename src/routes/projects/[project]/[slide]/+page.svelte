@@ -99,6 +99,7 @@
     grid-template-columns: repeat(24, 1fr);
     align-items: center;
     gap: var(--project-slide-gap);
+    width: 100vw;
   }
 
   .project-slide__info {

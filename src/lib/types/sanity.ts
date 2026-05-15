@@ -76,7 +76,7 @@ export type SanityImageObjectWithAsset = SanityImageObject & {
 
 export interface AllProjectsThumbnailData {
   image: SanityImageObjectWithAsset
-  type: MediaType
+  mediaType: MediaType
   desktopSize: ThumbnailSize
   mobileSize: Exclude<ThumbnailSize, 'm'>
 }
@@ -106,10 +106,10 @@ export interface SlideMediaData {
 export interface SelectedWorksData {
   desktopLayout: SelectedWorksLayoutData
   mobileLayout: SelectedWorksLayoutData
+  projects: SelectedWorksProjectData[]
 }
 
 export interface SelectedWorksLayoutData {
-  projects: SelectedWorksProjectData[]
   rowSettings: number[]
 }
 

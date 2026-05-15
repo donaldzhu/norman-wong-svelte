@@ -18,7 +18,6 @@ export async function load() {
     }
   }
   `
-
   const hydrateSlideIds = `
     "slideMediaIds": slides[] {
       "ids": media[].image.asset->_id
@@ -42,22 +41,25 @@ export async function load() {
     },
     "selectedWorks": *[_type == "selectedWorks"][0] {
       desktopLayout {
-        projects[] {
-          media[] {
-            mediaType,
-            image {
-              ...,
-              ${hydrateImage}
-            }
-          },
-          project->{
-            _id,
-            slug,
-            ${hydrateSlideIds}
-          }
-        },
         rowSettings
-      }
+      },
+      mobileLayout {
+        rowSettings
+      },
+      projects[] {
+        project-> {
+          _id,
+          slug,
+          ${hydrateSlideIds}
+        },
+        media[] {
+          mediaType,
+          image {
+            ...,
+            ${hydrateImage}
+          }
+        }
+      },
     },
     "allProjects": *[_type == "allProjects"][0] {
       projects[]-> {
@@ -73,7 +75,7 @@ export async function load() {
           },
           desktopSize,
           mobileSize,
-          type
+          mediaType
         },
         hidden,
       }

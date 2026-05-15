@@ -1,3 +1,5 @@
+import type { Falsey } from 'lodash'
+
 export const isLandscape = (aspectRatio: number) => aspectRatio > 1
 
 export const wrap = (value: number, min: number, max: number) => {
@@ -7,3 +9,5 @@ export const wrap = (value: number, min: number, max: number) => {
 
 export const quickArray = <T = number>(length: number, mapFunction: (index: number) => T = i => i as T) =>
   Array(length).fill(0).map((_, i) => mapFunction(i))
+
+export const filterFalsey = <T>(array: (T | Falsey)[]): T[] => array.filter(Boolean) as T[]

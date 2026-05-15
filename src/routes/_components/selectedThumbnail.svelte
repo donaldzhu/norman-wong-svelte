@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { onDestroy } from "svelte"
+  import { onDestroy, onMount } from "svelte"
   import type { SelectedThumbnailData } from "./types"
+  import { FADE_DURATION, FADE_EASE, MAX_FADE_IN_DELAY } from "./config"
+  import gsap from "gsap"
+  import type { TimeOut } from "$lib/utils/animation"
 
   let {
     mediaData,
@@ -14,7 +17,7 @@
 
   const MOUSEOUT_DEBOUNCE_MS = 300
 
-  let mouseoutTimer: ReturnType<typeof setTimeout> | undefined
+  let mouseoutTimer: TimeOut | undefined
   const { media, thumbnailData } = $derived(mediaData)
   const { anchor, projectId } = $derived(
     thumbnailData || { anchor: undefined, projectId: undefined },
@@ -48,6 +51,17 @@
     if (!projectId || hoverProjectId === copySpecificProjectId)
       scheduleHoverClear()
   }
+
+  let thumbnailRef = $state<HTMLImageElement>()
+  onMount(() => {
+    if (!thumbnailRef) return
+    gsap.to(thumbnailRef, {
+      opacity: 1,
+      delay: FADE_DURATION + Math.random() * MAX_FADE_IN_DELAY,
+      duration: FADE_DURATION,
+      ease: FADE_EASE,
+    })
+  })
 </script>
 
 <a
@@ -62,7 +76,12 @@
       ? 1
       : 0.6}
 >
-  <img src={media.image.asset.url} alt={media.image.asset.altText} />
+  <img
+    src={media.image.asset.url}
+    alt={media.image.asset.altText}
+    bind:this={thumbnailRef}
+    style:opacity={0}
+  />
 </a>
 
 <style lang="scss">

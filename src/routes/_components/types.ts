@@ -6,4 +6,5 @@ export interface SelectedThumbnailData {
     anchor: string
     projectId: string
   }
+  isUnfilled: boolean
 }
