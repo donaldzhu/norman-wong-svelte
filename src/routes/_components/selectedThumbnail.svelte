@@ -4,6 +4,7 @@
   import { FADE_DURATION, FADE_EASE, MAX_FADE_IN_DELAY } from "./config"
   import gsap from "gsap"
   import type { TimeOut } from "$lib/utils/animation"
+  import Media from "$lib/components/media.svelte"
 
   let {
     mediaData,
@@ -76,19 +77,18 @@
       ? 1
       : 0.6}
 >
-  <img
-    src={media.image.asset.url}
-    alt={media.image.asset.altText}
-    bind:this={thumbnailRef}
-    style:opacity={0}
-  />
+  <Media {media} bind:ref={thumbnailRef} style="opacity: 0" />
 </a>
 
 <style lang="scss">
   @use "$lib/styles/_entry.scss" as *;
 
-  img {
-    height: var(--height);
+  a {
+    height: calc(var(--height) * var(--scaling-factor));
+
+    @include mobile {
+      max-height: var(--selected-works-row-height);
+    }
   }
 
   a,

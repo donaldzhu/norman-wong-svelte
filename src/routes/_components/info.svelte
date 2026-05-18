@@ -34,5 +34,9 @@
   h3,
   p {
     line-height: 1em;
+
+    @include mobile {
+      line-height: 1.05em;
+    }
   }
 </style>

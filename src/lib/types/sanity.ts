@@ -1,4 +1,7 @@
+import { MediaType } from './../utils/media'
 import type { SanityImageObject } from '@sanity/image-url'
+
+import type { Orientation } from '$lib/utils/dom'
 
 export interface SanityData {
   header: HeaderData
@@ -8,10 +11,14 @@ export interface SanityData {
 }
 
 export interface HeaderData {
-  nameDisplayText: string
-  selectedWorksDisplayText: string
-  allProjectsDisplayText: string
-  informationDisplayText: string
+  nameDisplayTextDesktop: string
+  nameDisplayTextMobile: string
+  selectedWorksDisplayTextDesktop: string
+  selectedWorksDisplayTextMobile: string
+  allProjectsDisplayTextDesktop: string
+  allProjectsDisplayTextMobile: string
+  informationDisplayTextDesktop: string
+  informationDisplayTextMobile: string
 }
 
 export interface ContactData {
@@ -53,7 +60,6 @@ export interface PortableTextBlock {
   children?: PortableTextSpan[]
 }
 
-export type MediaType = 'image' | 'video'
 export type ThumbnailSize = 's' | 'm' | 'l'
 
 export type SanityImageObjectWithAsset = SanityImageObject & {
@@ -74,9 +80,7 @@ export type SanityImageObjectWithAsset = SanityImageObject & {
   }
 }
 
-export interface AllProjectsThumbnailData {
-  image: SanityImageObjectWithAsset
-  mediaType: MediaType
+export type AllProjectsThumbnailData = MediaData & {
   desktopSize: ThumbnailSize
   mobileSize: Exclude<ThumbnailSize, 'm'>
 }
@@ -92,15 +96,17 @@ export interface SlideData {
   description: PortableTextBlock[]
   year: number
   media: SlideMediaData[]
+  mobileOrientation: Orientation
+  automaticMobileLayout: boolean
 }
 
-export interface SlideMediaData {
+export type SlideMediaData = MediaData & {
+  _key: string
   automaticMobileLayout: boolean
   desktopStart: number
   desktopEnd: number
-  mobileStart: number
-  mobileEnd: number
-  image: SanityImageObjectWithAsset
+  mobileStart?: number
+  mobileEnd?: number
 }
 
 export interface SelectedWorksData {
@@ -122,7 +128,25 @@ export interface SelectedWorksProjectData {
   }
 }
 
-export interface SelectedWorksMediaData {
+export type SelectedWorksMediaData = MediaData & {
+  hideOnMobile: boolean
+}
+
+export type MediaData = {
+  mediaType: MediaType.Image
   image: SanityImageObjectWithAsset
-  mediaType: string
+} | {
+  mediaType: MediaType.Video
+  video: SanityVideoObject
+}
+
+export interface SanityVideoObject {
+  asset: {
+    _id: string
+    playbackId?: string
+    status: 'ready' | 'preparing' | 'error'
+    data: {
+      aspect_ratio: string
+    }
+  }
 }

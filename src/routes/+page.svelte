@@ -1,9 +1,15 @@
 <script lang="ts">
   import type { SanityImageObjectWithAsset } from "$lib/types/sanity"
+  import { withDebounce, type TimeOut } from "$lib/utils/animation"
   import { filterFalsey, quickArray } from "$lib/utils/common"
+  import { isMobile, vw } from "$lib/utils/dom"
   import _ from "lodash"
+  import { onMount } from "svelte"
+  import { DEBOUNCE_TRANSITION } from "./_components/config"
   import SelectedThumbnailRow from "./_components/selectedThumbnailRow.svelte"
-  import type { SelectedThumbnailData } from "./_components/types.js"
+  import type { SelectedThumbnailData } from "./_components/types"
+  import type { MediaData } from "$lib/types/sanity"
+  import { getMediaId } from "$lib/utils/media"
 
   let { data } = $props()
   const layout = $derived(data.selectedWorks?.desktopLayout)
@@ -17,10 +23,7 @@
     data.selectedWorks?.mobileLayout?.rowSettings,
   )
 
-  const getThumbnailData = (
-    { asset }: SanityImageObjectWithAsset,
-    index: number,
-  ) => {
+  const getThumbnailData = (media: MediaData, index: number) => {
     if (!layout || !projects) return
 
     let result = 0
@@ -32,7 +35,7 @@
           const { slug } = project
 
           const slideIndex = project.slideMediaIds.findIndex(ids =>
-            ids.includes(asset._id),
+            ids.includes(getMediaId(media)),
           )
           return {
             anchor: `projects/${slug.current}/${slideIndex + 1}`,
@@ -43,18 +46,30 @@
       }
   }
 
+  let prevIsMobile = $state(false)
+
+  // TODO: not working when resizing
   const getRows = (): SelectedThumbnailData[][] | undefined => {
     if (!layout || !projectList) return []
+    const windowIsMobile = isMobile()
+    if (rows && prevIsMobile === windowIsMobile) return rows
+
+    const filteredProjectList = projectList.filter(
+      project => !windowIsMobile || !project.hideOnMobile,
+    )
     let mediaIndex = 0
-    const isUnfilled = projectList.length % _.sum(desktopRowSettings) > 0
-    return desktopRowSettings?.map((rowCellCount, rowIndex) => {
+    const rowSettings = windowIsMobile ? mobileRowSettings : desktopRowSettings
+
+    const isUnfilled = filteredProjectList.length % _.sum(rowSettings) > 0
+    prevIsMobile = windowIsMobile
+    return rowSettings?.map((rowCellCount, rowIndex) => {
       const row = quickArray(rowCellCount, () => {
-        const media = projectList[mediaIndex]
-        const isLastRow = rowIndex === desktopRowSettings.length - 1
+        const media = filteredProjectList[mediaIndex]
+        const isLastRow = rowIndex === rowSettings.length - 1
         if (!media) return
         return {
           media,
-          thumbnailData: getThumbnailData(media.image, mediaIndex++),
+          thumbnailData: getThumbnailData(media, mediaIndex++),
           isUnfilled: isLastRow && isUnfilled,
         }
       })
@@ -64,10 +79,23 @@
 
   let hoverProjectId = $state<string | undefined>()
 
-  const rows = $derived(getRows())
+  let rows = $state<SelectedThumbnailData[][] | undefined>(undefined)
+
+  onMount(() => (rows = getRows()))
+
+  let getRowDebounceTimer: TimeOut | undefined = $state(undefined)
+  const getRowWithDebounce = withDebounce(
+    () => getRowDebounceTimer,
+    debounce => (getRowDebounceTimer = debounce),
+    () => (rows = getRows()),
+  )
 </script>
 
-<div class="selected-works">
+<div
+  class="selected-works"
+  style:opacity={getRowDebounceTimer ? 0 : 1}
+  style:transition={!getRowDebounceTimer ? DEBOUNCE_TRANSITION : undefined}
+>
   {#each quickArray(2) as tempCopyIndex}
     {#each rows as rowData}
       <SelectedThumbnailRow
@@ -79,6 +107,8 @@
     {/each}
   {/each}
 </div>
+
+<svelte:window on:resize={getRowWithDebounce} />
 
 <style lang="scss">
   @use "$lib/styles/_entry.scss" as *;

@@ -1,3 +1,4 @@
+import { MOBILE_BREAKPOINT } from '../../routes/_components/config'
 import _ from 'lodash'
 
 export const vw = (percentage = 100) => window.innerWidth * percentage / 100
@@ -31,7 +32,14 @@ interface StretchToContainerConfig {
   containerWidth: number,
   itemCount: number,
 }
-export const stretchToContainer = ({ minGap, maxGap, contentWidth, containerWidth, itemCount }: StretchToContainerConfig) => {
+
+export const stretchToContainer = ({
+  minGap,
+  maxGap,
+  contentWidth,
+  containerWidth,
+  itemCount,
+}: StretchToContainerConfig) => {
   const gapCount = itemCount - 1
   let remainingGap = (containerWidth - contentWidth) / gapCount
   let scalingFactor = 1
@@ -44,3 +52,15 @@ export const stretchToContainer = ({ minGap, maxGap, contentWidth, containerWidt
     gap,
   }
 }
+
+export enum Device {
+  Mobile = 'mobile',
+  Desktop = 'desktop',
+}
+
+export enum Orientation {
+  Portrait = 'portrait',
+  Landscape = 'landscape',
+}
+
+export const isMobile = () => vw() <= MOBILE_BREAKPOINT

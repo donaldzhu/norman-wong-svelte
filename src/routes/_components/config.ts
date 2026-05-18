@@ -4,6 +4,7 @@ export const FADE_EASE = "power2.inOut"
 
 export const DEBOUNCE_MS = 250
 export const DEBOUNCE_TRANSITION = `opacity ${DEBOUNCE_MS / 1000}s ease-in-out`
+export const MOBILE_BREAKPOINT = 768
 
 
 export const SELECTED_WORKS_MIN_GAP = 40

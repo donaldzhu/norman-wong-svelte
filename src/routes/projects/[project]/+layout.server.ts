@@ -1,7 +1,7 @@
 import type { SanityData } from '$lib/types/sanity'
 import { client } from '$lib/sanity'
 
-export async function load({ params }: { params: { project: string } }) {
+export const load = async ({ params }: { params: { project: string } }) => {
   const query = `
   {
     "project": *[_type == "project" && slug.current == $slug][0] {
@@ -27,6 +27,9 @@ export async function load({ params }: { params: { project: string } }) {
                 }
               }
             }
+          },
+          video {
+            asset->
           }
         }
       }

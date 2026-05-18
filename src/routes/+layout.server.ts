@@ -1,36 +1,43 @@
 import type { SanityData } from '$lib/types/sanity'
 import { client } from '$lib/sanity'
 
-export async function load() {
+export const load = async () => {
   const hydrateImage = `
-  asset-> {
-    _id,
-    altText,
-    description,
-    title,
-    url,
-    metadata {
-      dimensions {
-        width,
-        height,
-        aspectRatio
+    asset-> {
+      _id,
+      altText,
+      description,
+      title,
+      url,
+      metadata {
+        dimensions {
+          width,
+          height,
+          aspectRatio
+        }
       }
     }
-  }
   `
+
   const hydrateSlideIds = `
     "slideMediaIds": slides[] {
-      "ids": media[].image.asset->_id
+      "ids": media[] {
+        "id": coalesce(image.asset->_id, video.asset->_id)
+      }.id
     }.ids
   `
 
   const query = `
   {
     "header": *[_type == "header"][0] {
-      nameDisplayText,
-      selectedWorksDisplayText,
-      allProjectsDisplayText,
-      informationDisplayText
+      nameDisplayTextDesktop,
+      nameDisplayTextMobile,
+      selectedWorksDisplayTextDesktop,
+      selectedWorksDisplayTextMobile,
+      allProjectsDisplayTextDesktop,
+      allProjectsDisplayTextMobile,
+      informationDisplayTextDesktop,
+      informationDisplayTextMobile,
     },
     "info": *[_type == "info"][0] {
       contacts[] {
@@ -57,7 +64,11 @@ export async function load() {
           image {
             ...,
             ${hydrateImage}
-          }
+          },
+          video {
+            asset->
+          },
+          hideOnMobile
         }
       },
     },
@@ -72,6 +83,9 @@ export async function load() {
           image {
             ...,
             ${hydrateImage}
+          },
+          video {
+            asset->
           },
           desktopSize,
           mobileSize,

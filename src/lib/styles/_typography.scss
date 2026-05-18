@@ -9,4 +9,5 @@
 @mixin ui {
   @include sans-serif;
   font-size: var(--ui-font-size);
+  line-height: 1.2;
 }

@@ -4,6 +4,8 @@
   import { wrap } from "$lib/utils/common"
   import _ from "lodash"
   import ProjectSlideMedia from "./_components/projectSlideMedia.svelte"
+  import { DESKTOP_GRID_COUNT, MOBILE_GRID_COUNT } from "../_components/configs"
+  import { Orientation } from "$lib/utils/dom"
 
   let {
     data,
@@ -17,6 +19,7 @@
   const { title, subtitle } = $derived(data.project)
   const { slides } = $derived(data.project)
   const slide = $derived(slides[parseInt(slideNumber) - 1])
+  const { mobileOrientation, automaticMobileLayout } = $derived(slide)
 
   const onclick = (increment: 1 | -1) => {
     const newSlideNumber = parseInt(slideNumber) + increment
@@ -40,9 +43,19 @@
     onclick={() => onclick(1)}
     aria-label="Next slide"
   ></button>
-  <div class="project-slide__media-container">
-    {#each slide.media as media (media.image.asset._id)}
-      <ProjectSlideMedia {media} />
+  <div
+    class="project-slide__media-container"
+    class:landscape={mobileOrientation === Orientation.Landscape}
+    class:portrait={mobileOrientation === Orientation.Portrait}
+    style:--desktop-grid-count={DESKTOP_GRID_COUNT}
+    style:--mobile-grid-count={MOBILE_GRID_COUNT}
+  >
+    {#each slide.media as media (media._key)}
+      <ProjectSlideMedia
+        {media}
+        orientation={mobileOrientation}
+        {automaticMobileLayout}
+      />
     {/each}
   </div>
   <div class="project-slide__info">
@@ -84,6 +97,7 @@
     width: 35vw;
     height: 100dvh;
     cursor: pointer;
+    z-index: 999;
 
     &--previous {
       left: 0;
@@ -96,10 +110,34 @@
 
   .project-slide__media-container {
     display: grid;
-    grid-template-columns: repeat(24, 1fr);
+    grid-template-columns: repeat(var(--desktop-grid-count), 1fr);
     align-items: center;
     gap: var(--project-slide-gap);
     width: 100vw;
+
+    @include mobile {
+      position: fixed;
+      left: 0;
+
+      --ui-text-height: calc(var(--ui-font-size) * var(--ui-line-height));
+      top: calc(
+        var(--y-margin-top) + var(--ui-text-height) +
+          var(--project-slide-mobile-padding)
+      );
+      right: 0;
+      bottom: calc(
+        var(--y-margin-bottom) + var(--ui-text-height) * 2 +
+          var(--project-slide-mobile-padding)
+      );
+      grid-template-columns: repeat(var(--mobile-grid-count), 1fr);
+
+      &.portrait {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(var(--mobile-grid-count), 1fr);
+        align-items: stretch;
+        justify-items: center;
+      }
+    }
   }
 
   .project-slide__info {

@@ -21,6 +21,7 @@
   font-style: italic;
 }
 
+:root,
 body {
   margin: 0;
   overflow-x: hidden;
@@ -28,6 +29,7 @@ body {
 
 a,
 button {
+
   &,
   &:hover,
   &:focus,
@@ -68,12 +70,27 @@ p {
   --y-margin-bottom: 3.5rem;
   --page-spacing-top: 13rem;
   --selected-works-row-gap: 3rem;
+  --all-projects-x-margin: var(--x-margin);
   --all-projects-inner-gap: 3.75rem;
   --all-projects-gap: 3rem;
   --project-slide-gap: 2rem;
+  --project-slide-mobile-padding: 2rem;
 
   // typography
   --ui-font-size: 1.5rem;
+  --ui-line-height: 1.2;
+
   --info-font-size: 4.5rem;
   --all-projects-font-size: 11rem;
+
+  @include mobile {
+    --x-margin: 4rem;
+    --page-spacing-top: 8.5rem;
+    --selected-works-row-height: 10rem;
+    --all-projects-x-margin: 1.5rem;
+
+    --ui-font-size: 1.2rem;
+    --info-font-size: 3.8rem;
+    --all-projects-font-size: 6.8rem;
+  }
 }
