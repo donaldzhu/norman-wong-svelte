@@ -52,7 +52,7 @@
   const getRows = (): SelectedThumbnailData[][] | undefined => {
     if (!layout || !projectList) return []
     const windowIsMobile = isMobile()
-    if (rows && prevIsMobile === windowIsMobile) return rows
+    if (rows || prevIsMobile === windowIsMobile) return rows
 
     const filteredProjectList = projectList.filter(
       project => !windowIsMobile || !project.hideOnMobile,
