@@ -64,6 +64,9 @@
     aspect-ratio: var(--aspect-ratio);
     object-fit: cover;
     position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
   }
 
   .video-paused {
@@ -71,7 +74,6 @@
   }
 
   mux-player {
-    width: var(--width, 100%);
-    height: var(--height, 100%);
+    background-color: $light-gray;
   }
 </style>

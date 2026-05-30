@@ -72,7 +72,7 @@ p {
 }
 @media (max-width: 768px) {
   :root {
-    --x-margin: 4rem;
+    --x-margin: 3.5rem;
     --page-spacing-top: 8.5rem;
     --selected-works-row-height: 10rem;
     --all-projects-x-margin: 1.5rem;

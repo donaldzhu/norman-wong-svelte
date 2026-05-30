@@ -11,3 +11,5 @@ export const quickArray = <T = number>(length: number, mapFunction: (index: numb
   Array(length).fill(0).map((_, i) => mapFunction(i))
 
 export const filterFalsey = <T>(array: (T | Falsey)[]): T[] => array.filter(Boolean) as T[]
+
+export const ceil50 = (value: number) => Math.ceil(value / 50) * 50

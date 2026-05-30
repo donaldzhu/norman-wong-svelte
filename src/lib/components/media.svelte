@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { MediaData } from "$lib/types/sanity"
+  import type { SizeSettings } from "$lib/utils/media"
   import Image from "./image.svelte"
   import Video from "./video.svelte"
 
@@ -7,10 +8,12 @@
     media,
     style,
     ref = $bindable<HTMLImageElement | HTMLVideoElement | null>(),
+    sizeSettings,
   }: {
     media: MediaData
     style?: string
     ref?: HTMLImageElement | HTMLVideoElement | null
+    sizeSettings?: SizeSettings
   } = $props()
 </script>
 
@@ -18,6 +21,7 @@
   <Image
     image={media.image}
     {style}
+    {sizeSettings}
     bind:ref={ref as HTMLImageElement | null}
   />
 {:else}

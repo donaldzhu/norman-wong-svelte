@@ -77,7 +77,16 @@
       ? 1
       : 0.6}
 >
-  <Media {media} bind:ref={thumbnailRef} style="opacity: 0" />
+  <Media
+    {media}
+    bind:ref={thumbnailRef}
+    style="opacity: 0"
+    sizeSettings={{
+      mobile: { height: 200 },
+      desktop: { height: 300 },
+      largeDesktop: { height: 400 },
+    }}
+  />
 </a>
 
 <style lang="scss">

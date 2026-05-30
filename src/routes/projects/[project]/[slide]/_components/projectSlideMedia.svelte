@@ -2,34 +2,57 @@
   import Media from "$lib/components/media.svelte"
   import type { SlideMediaData } from "$lib/types/sanity"
   import { Orientation } from "$lib/utils/dom"
+  import {
+    EXTRA_LARGE_DESKTOP_BREAKPOINT,
+    LARGE_DESKTOP_BREAKPOINT,
+    MOBILE_BREAKPOINT,
+  } from "../../../../_components/config"
+  import {
+    DESKTOP_GRID_COUNT,
+    MOBILE_GRID_COUNT,
+  } from "../../_components/configs"
 
   let {
     media,
     orientation,
-    automaticMobileLayout,
   }: {
     media: SlideMediaData
     orientation: Orientation
-    automaticMobileLayout: boolean
   } = $props()
-  const { desktopStart, desktopEnd } = $derived(media)
+  const { desktopStart, desktopEnd, mobileStart, mobileEnd } = $derived(media)
 
-  const mobileStart = $derived(
-    automaticMobileLayout ? Math.ceil(desktopStart / 2) : media.mobileStart,
+  const isLandscape = $derived(orientation === Orientation.Landscape)
+  const desktopPercentage = $derived(
+    ((desktopEnd - desktopStart) / DESKTOP_GRID_COUNT) * 1.2,
   )
-  const mobileEnd = $derived(
-    automaticMobileLayout ? Math.ceil(desktopEnd / 2) : media.mobileEnd,
+  const mobilePercentage = $derived(
+    (mobileEnd - mobileStart) / MOBILE_GRID_COUNT,
   )
 </script>
 
-<!-- TODO image component with preload, sanity sizing, etc. -->
 <div
   class:portrait={orientation === Orientation.Portrait}
   class:landscape={orientation === Orientation.Landscape}
   style:--desktop-grid-layout="{desktopStart} / {desktopEnd}"
   style:--mobile-grid-layout="{mobileStart} / {mobileEnd}"
 >
-  <Media {media} />
+  <Media
+    {media}
+    sizeSettings={{
+      mobile: isLandscape
+        ? { width: mobilePercentage * MOBILE_BREAKPOINT }
+        : {
+            height:
+              mobilePercentage <= 0.5
+                ? 0.5 * MOBILE_BREAKPOINT
+                : MOBILE_BREAKPOINT,
+          },
+      desktop: { width: desktopPercentage * LARGE_DESKTOP_BREAKPOINT },
+      largeDesktop: {
+        width: desktopPercentage * EXTRA_LARGE_DESKTOP_BREAKPOINT,
+      },
+    }}
+  />
 </div>
 
 <style lang="scss">

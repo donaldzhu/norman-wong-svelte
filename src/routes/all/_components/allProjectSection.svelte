@@ -90,7 +90,6 @@
 
   const getThumbnailAnchor = (thumbnail: AllProjectsThumbnailData) => {
     const id = getMediaId(thumbnail)
-    if (!id.match(/image/)) console.log(project.slideMediaIds)
 
     const slideIndex = project.slideMediaIds.findIndex(ids => ids.includes(id))
     return `projects/${project.slug.current}/${slideIndex + 1}`
@@ -302,6 +301,11 @@
                   : 1
               }`}
               bind:ref={thumbnailRefs[segmentIndex][index]}
+              sizeSettings={{
+                mobile: { height: 300 },
+                desktop: { height: 500 },
+                largeDesktop: { height: 600 },
+              }}
             />
           </a>
         {/each}

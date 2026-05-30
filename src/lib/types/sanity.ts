@@ -1,7 +1,6 @@
 import { MediaType } from './../utils/media'
-import type { SanityImageObject } from '@sanity/image-url'
-
 import type { Orientation } from '$lib/utils/dom'
+import type { SanityImageObject } from '@sanity/image-url'
 
 // Common
 export interface PortableTextSpan {
@@ -120,16 +119,14 @@ export interface SlideData {
   year: number
   media: SlideMediaData[]
   mobileOrientation: Orientation
-  automaticMobileLayout: boolean
 }
 
 export type SlideMediaData = MediaData & {
   _key: string
-  automaticMobileLayout: boolean
   desktopStart: number
   desktopEnd: number
-  mobileStart?: number
-  mobileEnd?: number
+  mobileStart: number
+  mobileEnd: number
 }
 
 export interface SelectedWorksData {

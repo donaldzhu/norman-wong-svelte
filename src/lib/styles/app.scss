@@ -29,7 +29,6 @@ body {
 
 a,
 button {
-
   &,
   &:hover,
   &:focus,
@@ -84,7 +83,7 @@ p {
   --all-projects-font-size: 11rem;
 
   @include mobile {
-    --x-margin: 4rem;
+    --x-margin: 3.5rem;
     --page-spacing-top: 8.5rem;
     --selected-works-row-height: 10rem;
     --all-projects-x-margin: 1.5rem;

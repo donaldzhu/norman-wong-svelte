@@ -19,7 +19,7 @@
   const { title, subtitle } = $derived(data.project)
   const { slides } = $derived(data.project)
   const slide = $derived(slides[parseInt(slideNumber) - 1])
-  const { mobileOrientation, automaticMobileLayout } = $derived(slide)
+  const { mobileOrientation } = $derived(slide)
 
   const onclick = (increment: 1 | -1) => {
     const newSlideNumber = parseInt(slideNumber) + increment
@@ -51,11 +51,7 @@
     style:--mobile-grid-count={MOBILE_GRID_COUNT}
   >
     {#each slide.media as media (media._key)}
-      <ProjectSlideMedia
-        {media}
-        orientation={mobileOrientation}
-        {automaticMobileLayout}
-      />
+      <ProjectSlideMedia {media} orientation={mobileOrientation} />
     {/each}
   </div>
   <div class="project-slide__info">

@@ -49,7 +49,6 @@
         : SELECTED_WORKS_ROW_HEIGHT +
           vwRamp(vw(), 0, SELECTED_WORKS_ROW_HEIGHT_RAMP)
       const aspectRatio = getMediaAspectRatio(mediaData.media)
-      console.log(aspectRatio, height)
       return totalWidth + fitToHeight(aspectRatio, height)
     }, 0)
 
