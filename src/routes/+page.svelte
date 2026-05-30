@@ -52,6 +52,7 @@
   const getRows = (): SelectedThumbnailData[][] | undefined => {
     if (!layout || !projectList) return []
     const windowIsMobile = isMobile()
+    prevIsMobile = windowIsMobile
     if (rows) return rows
 
     const filteredProjectList = projectList.filter(
@@ -61,7 +62,6 @@
     const rowSettings = windowIsMobile ? mobileRowSettings : desktopRowSettings
 
     const isUnfilled = filteredProjectList.length % _.sum(rowSettings) > 0
-    prevIsMobile = windowIsMobile
     return rowSettings?.map((rowCellCount, rowIndex) => {
       const row = quickArray(rowCellCount, () => {
         const media = filteredProjectList[mediaIndex]
