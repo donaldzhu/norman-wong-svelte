@@ -52,7 +52,7 @@
   const getRows = (): SelectedThumbnailData[][] | undefined => {
     if (!layout || !projectList) return []
     const windowIsMobile = isMobile()
-    if (rows || prevIsMobile === windowIsMobile) return rows
+    if (rows) return rows
 
     const filteredProjectList = projectList.filter(
       project => !windowIsMobile || !project.hideOnMobile,
@@ -84,11 +84,14 @@
   onMount(() => (rows = getRows()))
 
   let getRowDebounceTimer: TimeOut | undefined = $state(undefined)
-  const getRowWithDebounce = withDebounce(
-    () => getRowDebounceTimer,
-    debounce => (getRowDebounceTimer = debounce),
-    () => (rows = getRows()),
-  )
+  const getRowWithDebounce = () => {
+    if (prevIsMobile === isMobile()) return
+    withDebounce(
+      () => getRowDebounceTimer,
+      debounce => (getRowDebounceTimer = debounce),
+      () => (rows = getRows()),
+    )()
+  }
 </script>
 
 <div
