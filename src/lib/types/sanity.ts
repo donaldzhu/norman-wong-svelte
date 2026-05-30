@@ -3,6 +3,41 @@ import type { SanityImageObject } from '@sanity/image-url'
 
 import type { Orientation } from '$lib/utils/dom'
 
+// Common
+export interface PortableTextSpan {
+  _type: 'span'
+  text: string
+}
+
+export interface PortableTextBlock {
+  _type: 'block'
+  children?: PortableTextSpan[]
+}
+
+export type ThumbnailSize = 's' | 'm' | 'l'
+
+export interface SanityVideoObject {
+  asset: {
+    _id: string
+    playbackId?: string
+    status: 'ready' | 'preparing' | 'error'
+    data: {
+      aspect_ratio: string
+    }
+  }
+}
+
+
+export type MediaData = {
+  mediaType: MediaType.Image
+  image: SanityImageObjectWithAsset
+} | {
+  mediaType: MediaType.Video
+  video: SanityVideoObject
+}
+
+
+
 export interface SanityData {
   header: HeaderData
   info: InfoData
@@ -49,18 +84,6 @@ export interface ProjectData {
   slideMediaIds: SlideMediaIds
   hidden: boolean
 }
-
-export interface PortableTextSpan {
-  _type: 'span'
-  text: string
-}
-
-export interface PortableTextBlock {
-  _type: 'block'
-  children?: PortableTextSpan[]
-}
-
-export type ThumbnailSize = 's' | 'm' | 'l'
 
 export type SanityImageObjectWithAsset = SanityImageObject & {
   alt?: string
@@ -130,23 +153,4 @@ export interface SelectedWorksProjectData {
 
 export type SelectedWorksMediaData = MediaData & {
   hideOnMobile: boolean
-}
-
-export type MediaData = {
-  mediaType: MediaType.Image
-  image: SanityImageObjectWithAsset
-} | {
-  mediaType: MediaType.Video
-  video: SanityVideoObject
-}
-
-export interface SanityVideoObject {
-  asset: {
-    _id: string
-    playbackId?: string
-    status: 'ready' | 'preparing' | 'error'
-    data: {
-      aspect_ratio: string
-    }
-  }
 }
