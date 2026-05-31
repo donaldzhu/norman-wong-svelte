@@ -93,6 +93,7 @@
   @use "$lib/styles/_entry.scss" as *;
 
   a {
+    width: auto;
     height: calc(var(--height) * var(--scaling-factor));
 
     @include mobile {
