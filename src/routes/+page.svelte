@@ -1,15 +1,14 @@
 <script lang="ts">
-  import type { SanityImageObjectWithAsset } from "$lib/types/sanity"
+  import type { MediaData } from "$lib/types/sanity"
   import { withDebounce, type TimeOut } from "$lib/utils/animation"
   import { filterFalsey, quickArray } from "$lib/utils/common"
-  import { isMobile, vw } from "$lib/utils/dom"
+  import { isMobile } from "$lib/utils/dom"
+  import { getMediaId } from "$lib/utils/media"
   import _ from "lodash"
   import { onMount } from "svelte"
   import { DEBOUNCE_TRANSITION } from "./_components/config"
   import SelectedThumbnailRow from "./_components/selectedThumbnailRow.svelte"
   import type { SelectedThumbnailData } from "./_components/types"
-  import type { MediaData } from "$lib/types/sanity"
-  import { getMediaId } from "$lib/utils/media"
 
   let { data } = $props()
   const layout = $derived(data.selectedWorks?.desktopLayout)
@@ -47,7 +46,6 @@
   }
 
   let prevIsMobile = $state(false)
-
   // TODO: not working when resizing
   const getRows = (): SelectedThumbnailData[][] | undefined => {
     if (!layout || !projectList) return []
@@ -84,14 +82,13 @@
   onMount(() => (rows = getRows()))
 
   let getRowDebounceTimer: TimeOut | undefined = $state(undefined)
-  const getRowWithDebounce = () => {
-    if (prevIsMobile === isMobile()) return
+  const getRowWithDebounce = () =>
     withDebounce(
+      prevIsMobile,
       () => getRowDebounceTimer,
       debounce => (getRowDebounceTimer = debounce),
       () => (rows = getRows()),
-    )()
-  }
+    )
 </script>
 
 <div

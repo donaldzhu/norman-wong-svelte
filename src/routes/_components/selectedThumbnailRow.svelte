@@ -1,15 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte"
-  import SelectedThumbnail from "./selectedThumbnail.svelte"
-  import type { SelectedThumbnailData } from "./types"
-  import {
-    SELECTED_WORKS_MAX_GAP,
-    SELECTED_WORKS_MAX_GAP_RAMP,
-    SELECTED_WORKS_MIN_GAP,
-    SELECTED_WORKS_ROW_HEIGHT,
-    SELECTED_WORKS_ROW_HEIGHT_RAMP,
-    SELECTED_WORKS_X_MARGIN,
-  } from "./config"
+  import { withDebounce, type TimeOut } from "$lib/utils/animation"
   import {
     fitToHeight,
     isMobile,
@@ -17,10 +7,20 @@
     vw,
     vwRamp,
   } from "$lib/utils/dom"
-  import { DEBOUNCE_TRANSITION } from "./config"
-  import { withDebounce, type TimeOut } from "$lib/utils/animation"
+  import { getMediaAspectRatio } from "$lib/utils/media"
+  import { onMount } from "svelte"
   import { SELECTED_WORKS_ROW_MOBILE_GAPS } from "../all/_components/configs"
-  import { getMediaAspectRatio, MediaType } from "$lib/utils/media"
+  import {
+    DEBOUNCE_TRANSITION,
+    SELECTED_WORKS_MAX_GAP,
+    SELECTED_WORKS_MAX_GAP_RAMP,
+    SELECTED_WORKS_MIN_GAP,
+    SELECTED_WORKS_ROW_HEIGHT,
+    SELECTED_WORKS_ROW_HEIGHT_RAMP,
+    SELECTED_WORKS_X_MARGIN,
+  } from "./config"
+  import SelectedThumbnail from "./selectedThumbnail.svelte"
+  import type { SelectedThumbnailData } from "./types"
 
   let {
     rowData,
@@ -38,13 +38,14 @@
 
   let height = $state(SELECTED_WORKS_ROW_HEIGHT)
   let maxGap = $state(SELECTED_WORKS_MAX_GAP)
-  let windowIsMobile = $state(false)
+  let prevIsMobile = $state(false)
   const mobileGap =
     SELECTED_WORKS_ROW_MOBILE_GAPS[rowData.length] ?? SELECTED_WORKS_MIN_GAP
 
   const adjustSize = () => {
+    prevIsMobile = isMobile()
     const allImageWidth = rowData.reduce((totalWidth, mediaData) => {
-      height = windowIsMobile
+      height = prevIsMobile
         ? SELECTED_WORKS_ROW_HEIGHT
         : SELECTED_WORKS_ROW_HEIGHT +
           vwRamp(vw(), 0, SELECTED_WORKS_ROW_HEIGHT_RAMP)
@@ -52,8 +53,8 @@
       return totalWidth + fitToHeight(aspectRatio, height)
     }, 0)
 
-    const minGap = windowIsMobile ? mobileGap : SELECTED_WORKS_MIN_GAP
-    maxGap = windowIsMobile
+    const minGap = prevIsMobile ? mobileGap : SELECTED_WORKS_MIN_GAP
+    maxGap = prevIsMobile
       ? mobileGap
       : SELECTED_WORKS_MAX_GAP + vwRamp(vw(), 0, SELECTED_WORKS_MAX_GAP_RAMP)
     const containerWidth = vw() - SELECTED_WORKS_X_MARGIN * 2
@@ -68,20 +69,20 @@
   }
 
   let adjustSizeDebounceTimer: TimeOut | undefined = $state(undefined)
-  const adjustSizeDebounce = withDebounce(
-    () => adjustSizeDebounceTimer,
-    debounce => (adjustSizeDebounceTimer = debounce),
-    adjustSize,
-  )
-  onMount(() => {
-    windowIsMobile = isMobile()
-    adjustSize()
-  })
+  const adjustSizeDebounce = () =>
+    withDebounce(
+      prevIsMobile,
+      () => adjustSizeDebounceTimer,
+      debounce => (adjustSizeDebounceTimer = debounce),
+      adjustSize,
+    )
+
+  onMount(() => adjustSize())
 </script>
 
 <div
   class="selected-works__row"
-  class:selected-works__row--mobile={windowIsMobile}
+  class:selected-works__row--mobile={prevIsMobile}
   class:is-unfilled={isUnfilled}
   style:--x-margin="{SELECTED_WORKS_X_MARGIN}px"
   style:--scaling-factor={isUnfilled ? 1 : scalingFactor}

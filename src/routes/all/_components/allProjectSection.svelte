@@ -100,16 +100,15 @@
       ? 0
       : scrollTrackRef.scrollWidth / INFINITE_SCROLL_COPY_COUNT
 
+  let prevIsMobile = $state(false)
   const onWindowResize = () => {
+    prevIsMobile = isMobile()
     scalingFactors = 1
-    const windowIsMobile = isMobile()
-    thumbInFrame = windowIsMobile
-      ? MOBILE_THUMB_IN_FRAME
-      : DESKTOP_THUMB_IN_FRAME
+    thumbInFrame = prevIsMobile ? MOBILE_THUMB_IN_FRAME : DESKTOP_THUMB_IN_FRAME
 
-    const minGap = windowIsMobile ? MOBILE_MIN_GAP : DESKTOP_MIN_GAP
-    const maxGap = windowIsMobile ? MOBILE_MAX_GAP : DESKTOP_MAX_GAP
-    const maxGapRamp = windowIsMobile ? 0 : DESKTOP_MAX_GAP_RAMP
+    const minGap = prevIsMobile ? MOBILE_MIN_GAP : DESKTOP_MIN_GAP
+    const maxGap = prevIsMobile ? MOBILE_MAX_GAP : DESKTOP_MAX_GAP
+    const maxGapRamp = prevIsMobile ? 0 : DESKTOP_MAX_GAP_RAMP
 
     const allImageWidth = project.thumbnails
       .slice(0, thumbInFrame)
@@ -132,11 +131,13 @@
   }
 
   let windowResizeDebounceTimer: TimeOut | undefined = $state(undefined)
-  const windowResizeDebounce = withDebounce(
-    () => windowResizeDebounceTimer,
-    debounce => (windowResizeDebounceTimer = debounce),
-    onWindowResize,
-  )
+  const windowResizeDebounce = () =>
+    withDebounce(
+      prevIsMobile,
+      () => windowResizeDebounceTimer,
+      debounce => (windowResizeDebounceTimer = debounce),
+      onWindowResize,
+    )
 
   let isMounted = $state(false)
 
