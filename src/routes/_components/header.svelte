@@ -87,7 +87,6 @@
     @include fullscreen;
     height: initial;
     justify-content: space-between;
-    -webkit-justify-content: space-between;
     padding: var(--y-margin-top) var(--x-margin) 0;
     box-sizing: border-box;
     z-index: 999;
@@ -135,7 +134,6 @@
       width: 100%;
       display: flex;
       justify-content: space-between;
-      -webkit-justify-content: space-between;
     }
   }
 

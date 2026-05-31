@@ -80,7 +80,7 @@
   <Media
     {media}
     bind:ref={thumbnailRef}
-    style="opacity: 0"
+    style="opacity: 0; width: auto;"
     sizeSettings={{
       mobile: { height: 200 },
       desktop: { height: 300 },
@@ -93,7 +93,6 @@
   @use "$lib/styles/_entry.scss" as *;
 
   a {
-    width: auto;
     height: calc(var(--height) * var(--scaling-factor));
 
     @include mobile {

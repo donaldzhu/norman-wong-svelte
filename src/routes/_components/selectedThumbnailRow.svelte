@@ -110,7 +110,6 @@
     padding: 0 var(--x-margin);
     box-sizing: border-box;
     justify-content: space-between;
-    -webkit-justify-content: space-between;
     flex: none;
 
     @include mobile {
