@@ -8,8 +8,6 @@
   let infoIsVisible = $state(false)
 </script>
 
-{@render children()}
-
 {#if data?.header}
   <Header data={data.header} bind:infoIsVisible />
 {/if}
@@ -17,3 +15,5 @@
 {#if data?.info && infoIsVisible}
   <Info data={data.info} />
 {/if}
+
+{@render children()}

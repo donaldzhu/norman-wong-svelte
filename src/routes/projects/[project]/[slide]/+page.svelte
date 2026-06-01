@@ -143,6 +143,9 @@
     bottom: 0;
     width: 100vw;
     box-sizing: border-box;
-    margin: var(--page-spacing-top) var(--x-margin) var(--y-margin-bottom);
+    margin: 0 var(--x-margin);
+    padding-top: var(--header-spacing);
+    padding-bottom: var(--y-margin-bottom);
+    background-color: white;
   }
 </style>
