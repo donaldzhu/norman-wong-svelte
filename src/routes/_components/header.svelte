@@ -39,7 +39,10 @@
     }
   }
 
-  const onInfoClick = () => (infoIsVisible = !infoIsVisible)
+  const onInfoClick = () => {
+    infoIsVisible = !infoIsVisible
+    document.documentElement.style.overflow = infoIsVisible ? "hidden" : "auto"
+  }
 </script>
 
 {#each [Device.Mobile, Device.Desktop] as device}

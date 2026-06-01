@@ -9,6 +9,7 @@
   import { DEBOUNCE_TRANSITION } from "./_components/config"
   import SelectedThumbnailRow from "./_components/selectedThumbnailRow.svelte"
   import type { SelectedThumbnailData } from "./_components/types"
+  import { getTitle } from "$lib/utils/meta.js"
 
   let { data } = $props()
   const layout = $derived(data.selectedWorks?.desktopLayout)
@@ -46,7 +47,6 @@
   }
 
   let prevIsMobile = $state(false)
-  // TODO: not working when resizing
   const getRows = (): SelectedThumbnailData[][] | undefined => {
     if (!layout || !projectList) return []
     const windowIsMobile = isMobile()
@@ -90,6 +90,10 @@
       () => (rows = getRows()),
     )
 </script>
+
+<svelte:head>
+  <title>{getTitle()}</title>
+</svelte:head>
 
 <div
   class="selected-works"

@@ -25,6 +25,7 @@
     font-size: var(--info-font-size);
     @include flex-column;
     gap: 1em;
+    z-index: 9;
   }
 
   .contact-container {
