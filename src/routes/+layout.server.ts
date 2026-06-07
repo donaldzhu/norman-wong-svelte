@@ -47,7 +47,7 @@ export const load = async () => {
         phone
       }
     },
-    "allProjects": *[_type == "selectedWorks"][0] {
+    "allProjects": *[_type == "allProjects"][0] {
       desktopLayout {
         rowSettings
       },
@@ -73,14 +73,14 @@ export const load = async () => {
         }
       },
     },
-    "selectedWorks": *[_type == "allProjects"][0] {
+    "selectedWorks": *[_type == "selectedWorks"][0] {
       projects[]-> {
         _id,
         title,
         subtitle,
         slug,
         ${hydrateSlideIds},
-        'thumbnails': allProjectsThumbnails[]{
+        'thumbnails': selectedWorksThumbnails[]{
           image {
             ...,
             ${hydrateImage}

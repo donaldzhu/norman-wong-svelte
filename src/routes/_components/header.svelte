@@ -32,13 +32,13 @@
     }
   }
 
-  const ALL_PROJECTS_LINK = "/all"
   const SELECTED_WORKS_LINK = "/selected"
+  const ALL_PROJECTS_LINK = "/all"
 
   const getLinks = (device: Device) => {
     return {
-      [getCopy(device).allProjects]: ALL_PROJECTS_LINK,
       [getCopy(device).selectedWorks]: SELECTED_WORKS_LINK,
+      [getCopy(device).allProjects]: ALL_PROJECTS_LINK,
     }
   }
 
@@ -54,7 +54,7 @@
     class:mobile={device === Device.Mobile}
   >
     {#if device === Device.Desktop}
-      <a href={ALL_PROJECTS_LINK}>
+      <a href={SELECTED_WORKS_LINK}>
         <h1>{getCopy(device).name}</h1>
       </a>
     {/if}
@@ -62,7 +62,7 @@
       <ul>
         {#if device !== Device.Desktop}
           <li>
-            <a href={ALL_PROJECTS_LINK}>
+            <a href={SELECTED_WORKS_LINK}>
               <h1>{getCopy(device).name}</h1>
             </a>
           </li>
