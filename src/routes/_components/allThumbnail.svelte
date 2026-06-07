@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte"
-  import type { SelectedThumbnailData } from "./types"
+  import type { AllThumbnailData } from "./types"
   import { FADE_DURATION, FADE_EASE, MAX_FADE_IN_DELAY } from "./config"
   import gsap from "gsap"
   import type { TimeOut } from "$lib/utils/animation"
@@ -11,7 +11,7 @@
     hoverProjectId = $bindable<string | undefined>(),
     tempCopyIndex,
   }: {
-    mediaData: SelectedThumbnailData
+    mediaData: AllThumbnailData
     hoverProjectId?: string
     tempCopyIndex: number // TODO
   } = $props()
@@ -96,7 +96,7 @@
     height: calc(var(--height) * var(--scaling-factor));
 
     @include mobile {
-      max-height: var(--selected-works-row-height);
+      max-height: var(--all-projects-row-height);
     }
   }
 

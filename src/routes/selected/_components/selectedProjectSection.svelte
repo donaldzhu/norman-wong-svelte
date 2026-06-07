@@ -1,6 +1,6 @@
 <script lang="ts">
   import Media from "$lib/components/media.svelte"
-  import type { AllProjectsThumbnailData, ProjectData } from "$lib/types/sanity"
+  import type { ProjectData, SelectedWorksThumbnailData } from "$lib/types/sanity"
   import { withDebounce, type TimeOut } from "$lib/utils/animation"
   import { isLandscape, quickArray } from "$lib/utils/common"
   import {
@@ -62,7 +62,7 @@
   )
   let isHovering = $state(false)
 
-  const getDimensions = (thumbnail: AllProjectsThumbnailData) => {
+  const getDimensions = (thumbnail: SelectedWorksThumbnailData) => {
     if (!isMounted) return { width: 0, height: 0 }
     const aspectRatio = getMediaAspectRatio(thumbnail)
 
@@ -87,7 +87,7 @@
 
   let resizeObserver: ResizeObserver
 
-  const getThumbnailAnchor = (thumbnail: AllProjectsThumbnailData) => {
+  const getThumbnailAnchor = (thumbnail: SelectedWorksThumbnailData) => {
     const id = getMediaId(thumbnail)
 
     const slideIndex = project.slideMediaIds.findIndex(ids => ids.includes(id))
@@ -112,7 +112,7 @@
     const allImageWidth = project.thumbnails
       .slice(0, thumbInFrame)
       .reduce(
-        (totalWidth: number, thumbnail: AllProjectsThumbnailData) =>
+        (totalWidth: number, thumbnail: SelectedWorksThumbnailData) =>
           totalWidth + getDimensions(thumbnail).width,
         0,
       )
@@ -255,7 +255,7 @@
 </script>
 
 <section
-  class="all-projects__section"
+  class="selected-works__section"
   style:--scaling-factor={scalingFactors}
   style:--gap="{gap}px"
   style:--fade-duration="{FADE_DURATION}s"
@@ -265,7 +265,7 @@
     {title}{#if subtitle}, <i>{subtitle}</i>{/if}
   </h2>
   <div
-    class="all-projects__thumbnail-scroll-container"
+    class="selected-works__thumbnail-scroll-container"
     role="region"
     bind:this={scrollContainerRef}
     {onscroll}
@@ -281,7 +281,7 @@
       : undefined}
   >
     <div
-      class="all-projects__thumbnail-scroll-track"
+      class="selected-works__thumbnail-scroll-track"
       bind:this={scrollTrackRef}
     >
       {#each INFINITE_SCROLL_SEGMENT_INDICES as segment, segmentIndex (segment)}
@@ -325,7 +325,7 @@
 
   section {
     @include flex-column;
-    gap: var(--all-projects-inner-gap);
+    gap: var(--selected-works-inner-gap);
     transition: opacity var(--fade-duration) ease-in-out;
   }
 
@@ -338,7 +338,7 @@
 
   h2 {
     @include serif;
-    font-size: var(--all-projects-font-size);
+    font-size: var(--selected-works-font-size);
     line-height: 0.9;
     text-align: center;
     transition: color $fade-duration ease-in-out;
@@ -354,13 +354,13 @@
     }
   }
 
-  .all-projects__thumbnail-container {
+  .selected-works__thumbnail-container {
     @include flex;
     gap: var(--gap);
     width: 100vw;
   }
 
-  .all-projects__thumbnail-scroll-container {
+  .selected-works__thumbnail-scroll-container {
     width: 100vw;
     overflow: auto hidden;
     -webkit-overflow-scrolling: touch;
@@ -372,7 +372,7 @@
     }
   }
 
-  .all-projects__thumbnail-scroll-track {
+  .selected-works__thumbnail-scroll-track {
     @include flex;
     width: max-content;
     justify-content: flex-start;

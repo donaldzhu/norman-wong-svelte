@@ -65,7 +65,7 @@ export interface InfoData {
   contacts: ContactData[]
 }
 
-export interface AllProjectsData {
+export interface SelectedWorksData {
   projects: ProjectData[]
 }
 
@@ -79,7 +79,7 @@ export interface ProjectData {
   title: string
   subtitle?: string
   slug: Slug
-  thumbnails: AllProjectsThumbnailData[]
+  thumbnails: SelectedWorksThumbnailData[]
   slideMediaIds: SlideMediaIds
   hidden: boolean
 }
@@ -103,7 +103,7 @@ export type SanityImageObjectWithAsset = SanityImageObject & {
   }
 }
 
-export type AllProjectsThumbnailData = MediaData & {
+export type SelectedWorksThumbnailData = MediaData & {
   desktopSize: ThumbnailSize
   mobileSize: Exclude<ThumbnailSize, 'm'>
 }
@@ -130,18 +130,18 @@ export type SlideMediaData = MediaData & {
   mobileEnd: number
 }
 
-export interface SelectedWorksData {
-  desktopLayout: SelectedWorksLayoutData
-  mobileLayout: SelectedWorksLayoutData
-  projects: SelectedWorksProjectData[]
+export interface AllProjectsData {
+  desktopLayout: AllProjectsLayoutData
+  mobileLayout: AllProjectsLayoutData
+  projects: AllProjectsProjectData[]
 }
 
-export interface SelectedWorksLayoutData {
+export interface AllProjectsLayoutData {
   rowSettings: number[]
 }
 
-export interface SelectedWorksProjectData {
-  media: SelectedWorksMediaData[]
+export interface AllProjectsProjectData {
+  media: AllProjectsMediaData[]
   project: {
     _id: string
     slug: Slug
@@ -149,6 +149,6 @@ export interface SelectedWorksProjectData {
   }
 }
 
-export type SelectedWorksMediaData = MediaData & {
+export type AllProjectsMediaData = MediaData & {
   hideOnMobile: boolean
 }

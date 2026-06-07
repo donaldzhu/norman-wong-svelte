@@ -1,7 +1,7 @@
-import type { SelectedWorksMediaData } from '$lib/types/sanity'
+import type { AllProjectsMediaData } from '$lib/types/sanity'
 
-export interface SelectedThumbnailData {
-  media: SelectedWorksMediaData
+export interface AllThumbnailData {
+  media: AllProjectsMediaData
   thumbnailData?: {
     anchor: string
     projectId: string

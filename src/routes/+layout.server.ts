@@ -47,7 +47,7 @@ export const load = async () => {
         phone
       }
     },
-    "selectedWorks": *[_type == "selectedWorks"][0] {
+    "allProjects": *[_type == "selectedWorks"][0] {
       desktopLayout {
         rowSettings
       },
@@ -73,7 +73,7 @@ export const load = async () => {
         }
       },
     },
-    "allProjects": *[_type == "allProjects"][0] {
+    "selectedWorks": *[_type == "allProjects"][0] {
       projects[]-> {
         _id,
         title,
