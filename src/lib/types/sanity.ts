@@ -98,6 +98,7 @@ export type SanityImageObjectWithAsset = SanityImageObject & {
         height: number
         aspectRatio: number
       }
+      lqip?: string
     }
   }
 }

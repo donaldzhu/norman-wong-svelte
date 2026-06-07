@@ -24,7 +24,8 @@ export const load = async ({ params }: { params: { project: string } }) => {
                   width,
                   height,
                   aspectRatio
-                }
+                },
+                lqip
               }
             }
           },

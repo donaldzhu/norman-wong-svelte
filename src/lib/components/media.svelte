@@ -7,12 +7,12 @@
   let {
     media,
     style,
-    ref = $bindable<HTMLImageElement | HTMLVideoElement | null>(),
+    ref = $bindable<HTMLDivElement | HTMLVideoElement | null>(),
     sizeSettings,
   }: {
     media: MediaData
     style?: string
-    ref?: HTMLImageElement | HTMLVideoElement | null
+    ref?: HTMLDivElement | HTMLVideoElement | null
     sizeSettings?: SizeSettings
   } = $props()
 </script>
@@ -22,7 +22,7 @@
     image={media.image}
     {style}
     {sizeSettings}
-    bind:ref={ref as HTMLImageElement | null}
+    bind:ref={ref as HTMLDivElement | null}
   />
 {:else}
   <Video

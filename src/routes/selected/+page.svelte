@@ -6,9 +6,9 @@
   import { getMediaId } from "$lib/utils/media"
   import _ from "lodash"
   import { onMount } from "svelte"
-  import { DEBOUNCE_TRANSITION } from "./_components/config"
-  import SelectedThumbnailRow from "./_components/selectedThumbnailRow.svelte"
-  import type { SelectedThumbnailData } from "./_components/types"
+  import { DEBOUNCE_TRANSITION } from "../_components/config"
+  import SelectedThumbnailRow from "../_components/selectedThumbnailRow.svelte"
+  import type { SelectedThumbnailData } from "../_components/types"
   import { getTitle } from "$lib/utils/meta.js"
 
   let { data } = $props()
@@ -120,6 +120,6 @@
   .selected-works {
     @include flex-column;
     gap: var(--selected-works-row-gap);
-    margin: var(--page-spacing-top) 0 var(--y-margin-top);
+    margin: var(--page-spacing-top) 0 var(--y-margin-bottom);
   }
 </style>

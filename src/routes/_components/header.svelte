@@ -32,10 +32,13 @@
     }
   }
 
+  const SELECTED_WORKS_LINK = "/selected"
+  const ALL_PROJECTS_LINK = "/all"
+
   const getLinks = (device: Device) => {
     return {
-      [getCopy(device).selectedWorks]: "/",
-      [getCopy(device).allProjects]: "/all",
+      [getCopy(device).selectedWorks]: SELECTED_WORKS_LINK,
+      [getCopy(device).allProjects]: ALL_PROJECTS_LINK,
     }
   }
 
@@ -51,11 +54,18 @@
     class:mobile={device === Device.Mobile}
   >
     {#if device === Device.Desktop}
-      <h1>{getCopy(device).name}</h1>{/if}
+      <a href={SELECTED_WORKS_LINK}>
+        <h1>{getCopy(device).name}</h1>
+      </a>
+    {/if}
     <nav>
       <ul>
         {#if device !== Device.Desktop}
-          <li><h1>{getCopy(device).name}</h1></li>
+          <li>
+            <a href={SELECTED_WORKS_LINK}>
+              <h1>{getCopy(device).name}</h1>
+            </a>
+          </li>
         {/if}
         {#each Object.entries(getLinks(device)) as [text, href]}
           <li>
@@ -113,6 +123,18 @@
       @include mobile {
         display: flex;
       }
+    }
+
+    > * {
+      position: relative;
+    }
+
+    > a {
+      left: calc(-1 * var(--button-padding));
+    }
+
+    > button {
+      left: var(--button-padding);
     }
   }
 

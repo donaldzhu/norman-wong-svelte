@@ -53,7 +53,7 @@
       scheduleHoverClear()
   }
 
-  let thumbnailRef = $state<HTMLImageElement>()
+  let thumbnailRef = $state<HTMLDivElement>()
   onMount(() => {
     if (!thumbnailRef) return
     gsap.to(thumbnailRef, {
@@ -74,8 +74,8 @@
   style:opacity={!hoverProjectId
     ? 1
     : hoverProjectId === copySpecificProjectId
-      ? 1
-      : 0.6}
+      ? 0.6
+      : 1}
 >
   <Media
     {media}

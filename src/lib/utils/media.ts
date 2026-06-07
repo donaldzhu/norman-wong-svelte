@@ -2,7 +2,6 @@ import type { MediaData, SanityImageObjectWithAsset } from '$lib/types/sanity'
 import { srcSetFor, urlFor } from './sanity'
 
 import _ from 'lodash'
-import { vw } from './dom'
 
 export enum MediaType {
   Image = 'image',

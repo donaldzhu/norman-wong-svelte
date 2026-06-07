@@ -51,9 +51,7 @@
   let gap = $state(100)
 
   let thumbInFrame = $state(DESKTOP_THUMB_IN_FRAME)
-  const thumbnailRefs = $state<
-    (HTMLImageElement | HTMLVideoElement | null)[][]
-  >(
+  const thumbnailRefs = $state<(HTMLDivElement | HTMLVideoElement | null)[][]>(
     quickArray<null[]>(INFINITE_SCROLL_COPY_COUNT, () =>
       Array(DESKTOP_THUMB_IN_FRAME).fill(null),
     ),
@@ -62,6 +60,7 @@
   let initialLeftMostThumbnail = $derived(
     thumbnailRefs[INFINITE_SCROLL_CENTER_INDEX][0],
   )
+  let isHovering = $state(false)
 
   const getDimensions = (thumbnail: AllProjectsThumbnailData) => {
     if (!isMounted) return { width: 0, height: 0 }
@@ -213,7 +212,7 @@
   let hoverDir: HoverDir = 0
   let lastHoverTick: number | null = null
 
-  const stopHoverScrol = () => {
+  const stopHoverScroll = () => {
     if (hoverAnimation) cancelAnimationFrame(hoverAnimation)
     hoverAnimation = null
     hoverDir = 0
@@ -221,7 +220,7 @@
   }
 
   const hoverScroll = (time: number) => {
-    if (!scrollContainerRef || hoverDir === 0) return stopHoverScrol()
+    if (!scrollContainerRef || hoverDir === 0) return stopHoverScroll()
 
     if (lastHoverTick) {
       const timeDelta = Math.min((time - lastHoverTick) / 1000, 0.05)
@@ -241,7 +240,8 @@
     let nextDir: HoverDir =
       clientX < leftBound ? -1 : clientX > rightBound ? 1 : 0
 
-    if (nextDir === 0) return stopHoverScrol()
+    isHovering = true
+    if (nextDir === 0) return stopHoverScroll()
 
     const wasIdle = hoverDir === 0
     hoverDir = nextDir
@@ -250,7 +250,7 @@
 
   onDestroy(() => {
     resizeObserver?.disconnect()
-    stopHoverScrol()
+    stopHoverScroll()
   })
 </script>
 
@@ -261,7 +261,7 @@
   style:--fade-duration="{FADE_DURATION}s"
   style:opacity={!isMounted ? 0 : 1}
 >
-  <h2>
+  <h2 class:is-hovering={isHovering}>
     {title}{#if subtitle}, <i>{subtitle}</i>{/if}
   </h2>
   <div
@@ -271,7 +271,10 @@
     {onscroll}
     onmouseenter={onHoverMove}
     onmousemove={onHoverMove}
-    onmouseleave={stopHoverScrol}
+    onmouseleave={() => {
+      isHovering = false
+      stopHoverScroll()
+    }}
     style:opacity={windowResizeDebounceTimer ? 0 : 1}
     style:transition={!windowResizeDebounceTimer
       ? DEBOUNCE_TRANSITION
@@ -338,11 +341,16 @@
     font-size: var(--all-projects-font-size);
     line-height: 0.9;
     text-align: center;
+    transition: color $fade-duration ease-in-out;
 
     i {
       @include mobile {
         display: block;
       }
+    }
+
+    &.is-hovering {
+      color: $gray;
     }
   }
 

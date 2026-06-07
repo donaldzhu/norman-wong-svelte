@@ -25,6 +25,6 @@
     flex-direction: column;
     gap: var(--all-projects-gap);
     margin: var(--page-spacing-top) var(--all-projects-x-margin)
-      var(--y-margin-top);
+      var(--y-margin-bottom);
   }
 </style>

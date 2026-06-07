@@ -14,7 +14,8 @@ export const load = async () => {
           width,
           height,
           aspectRatio
-        }
+        },
+        lqip
       }
     }
   `

@@ -55,3 +55,22 @@ export const srcSetFor = (image: SanityImageObjectWithAsset, sizeSettings: SizeS
     sizes: sizes.join(', '),
   }
 }
+
+const PLACEHOLDER_WIDTH = 50
+
+export const getPlaceholderSrc = (image: SanityImageObjectWithAsset): string | undefined => {
+  const lqip = image.asset?.metadata?.lqip
+  if (lqip) return lqip
+
+  const aspectRatio = image.asset?.metadata?.dimensions?.aspectRatio
+  if (!aspectRatio) return undefined
+
+  const height = Math.ceil(PLACEHOLDER_WIDTH / aspectRatio)
+  return urlBuilder
+    .image(image)
+    .width(PLACEHOLDER_WIDTH)
+    .height(height)
+    .blur(50)
+    .quality(20)
+    .url()
+}

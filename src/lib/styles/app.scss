@@ -65,13 +65,13 @@ p {
   --button-padding: 1rem;
   --header-spacing: 1.5rem;
   --x-margin: 3rem;
-  --y-margin-top: 4rem;
+  --y-margin-top: 2.5rem;
   --y-margin-bottom: 3.5rem;
   --page-spacing-top: 13rem;
   --selected-works-row-gap: 3rem;
   --all-projects-x-margin: var(--x-margin);
-  --all-projects-inner-gap: 3.75rem;
-  --all-projects-gap: 3rem;
+  --all-projects-inner-gap: 5rem;
+  --all-projects-gap: 2.675rem;
   --project-slide-gap: 2rem;
   --project-slide-mobile-padding: 2rem;
 
@@ -83,7 +83,7 @@ p {
   --all-projects-font-size: 11rem;
 
   @include mobile {
-    --x-margin: 3.5rem;
+    --x-margin: 3.25rem;
     --page-spacing-top: 8.5rem;
     --selected-works-row-height: 10rem;
     --all-projects-x-margin: 1.5rem;
