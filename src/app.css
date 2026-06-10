@@ -6,13 +6,13 @@
 }
 @font-face {
   font-family: "Items";
-  src: url("/fonts/ItemsTrial-CondensedThin.otf") format("opentype");
+  src: url("/fonts/Items-CondensedThin.otf") format("opentype");
   font-weight: 100;
   font-style: normal;
 }
 @font-face {
   font-family: "Items";
-  src: url("/fonts/ItemsTrial-CondensedThinItalic.otf") format("opentype");
+  src: url("/fonts/Items-CondensedThinItalic.otf") format("opentype");
   font-weight: 100;
   font-style: italic;
 }
@@ -65,7 +65,7 @@ p {
   --selected-works-gap: 2.675rem;
   --project-slide-gap: 2rem;
   --project-slide-mobile-padding: 2rem;
-  --ui-font-size: 1.5rem;
+  --ui-font-size: 1.4rem;
   --ui-line-height: 1.2;
   --info-font-size: 4.5rem;
   --selected-works-font-size: 11rem;
