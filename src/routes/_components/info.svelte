@@ -8,7 +8,7 @@
   {#each data.contacts as contact}
     <div class="contact-container">
       <h3>{contact.displayName}</h3>
-      <p>{contact.email}</p>
+      <a href={`mailto:${contact.email}`}>{contact.email}</a>
       <p>{contact.phone}</p>
     </div>
   {/each}
@@ -25,7 +25,7 @@
     font-size: var(--info-font-size);
     @include flex-column;
     gap: 1em;
-    z-index: 9;
+    z-index: 9999;
   }
 
   .contact-container {
@@ -33,7 +33,9 @@
   }
 
   h3,
+  a,
   p {
+    padding: 0;
     line-height: 1em;
 
     @include mobile {

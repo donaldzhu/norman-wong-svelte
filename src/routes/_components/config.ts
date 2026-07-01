@@ -1,6 +1,6 @@
 export const MAX_FADE_IN_DELAY = 0.75
-export const FADE_DURATION = 0.5
-export const FADE_EASE = "power2.inOut"
+export const ANIMATION_DURATION = 0.5
+export const ANIMATION_EASE = "power2.inOut"
 
 export const DEBOUNCE_MS = 250
 export const DEBOUNCE_TRANSITION = `opacity ${DEBOUNCE_MS / 1000}s ease-in-out`

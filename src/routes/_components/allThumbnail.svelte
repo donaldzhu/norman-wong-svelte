@@ -1,7 +1,11 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte"
   import type { AllThumbnailData } from "./types"
-  import { FADE_DURATION, FADE_EASE, MAX_FADE_IN_DELAY } from "./config"
+  import {
+    ANIMATION_DURATION,
+    ANIMATION_EASE,
+    MAX_FADE_IN_DELAY,
+  } from "./config"
   import gsap from "gsap"
   import type { TimeOut } from "$lib/utils/animation"
   import Media from "$lib/components/media.svelte"
@@ -58,9 +62,9 @@
     if (!thumbnailRef) return
     gsap.to(thumbnailRef, {
       opacity: 1,
-      delay: FADE_DURATION + Math.random() * MAX_FADE_IN_DELAY,
-      duration: FADE_DURATION,
-      ease: FADE_EASE,
+      delay: ANIMATION_DURATION + Math.random() * MAX_FADE_IN_DELAY,
+      duration: ANIMATION_DURATION,
+      ease: ANIMATION_EASE,
     })
   })
 </script>
@@ -106,7 +110,7 @@
   }
 
   a {
+    @include fade-in-out;
     cursor: pointer;
-    transition: opacity $fade-duration ease-in-out;
   }
 </style>

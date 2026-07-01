@@ -1,5 +1,6 @@
+import { SLIDE_QUERY, getSanityData } from '$lib/utils/sanity'
+
 import type { SanityData } from '$lib/types/sanity'
-import { client } from '$lib/sanity'
 
 export const load = async () => {
   const hydrateImage = `
@@ -58,6 +59,8 @@ export const load = async () => {
         project-> {
           _id,
           slug,
+          title,
+          subtitle,
           ${hydrateSlideIds}
         },
         media[] {
@@ -93,16 +96,11 @@ export const load = async () => {
           mediaType
         },
         hidden,
+        ${SLIDE_QUERY}
       }
     }
   }
 `
-  const data = await client.fetch<SanityData>(query)
-  if (!data) {
-    return {
-      status: 500,
-      body: new Error('Internal Server Error')
-    }
-  }
-  return data
+
+  return getSanityData<SanityData>(query)
 }

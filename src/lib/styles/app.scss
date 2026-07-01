@@ -1,9 +1,10 @@
 @use "./_entry.scss" as *;
 
 @font-face {
-  font-family: "Phonic";
-  src: url("/fonts/PhonicTrial-MonospacedLight.otf") format("opentype");
-  font-weight: 300;
+  font-family: "Kunst Grotesk";
+  src: url("/fonts/FTKunstGroteskUnlicensedTrial-Regular.otf")
+    format("opentype");
+  font-weight: 400;
   font-style: normal;
 }
 
@@ -24,7 +25,11 @@
 :root,
 body {
   margin: 0;
-  overflow-x: hidden;
+  overflow: hidden;
+}
+
+body {
+  height: 100dvh;
 }
 
 a,
@@ -63,15 +68,14 @@ p {
 
   // spacing
   --button-padding: 1rem;
-  --header-spacing: 1.5rem;
+  --header-spacing: 0.25rem;
   --x-margin: 3rem;
   --y-margin-top: 2.5rem;
-  --y-margin-bottom: 3.5rem;
+  --y-margin-bottom: 3rem;
   --page-spacing-top: 13rem;
   --all-projects-row-gap: 3rem;
   --selected-works-x-margin: var(--x-margin);
   --selected-works-inner-gap: 5rem;
-  --selected-works-gap: 2.675rem;
   --project-slide-gap: 2rem;
   --project-slide-mobile-padding: 2rem;
 
@@ -82,8 +86,12 @@ p {
   --info-font-size: 4.5rem;
   --selected-works-font-size: 11rem;
 
+  --ui-text-height: calc(var(--ui-font-size) * var(--ui-line-height));
+
   @include mobile {
-    --x-margin: 3.25rem;
+    --x-margin: 2rem;
+    --y-margin-top: 1.5rem;
+    --y-margin-bottom: 1.75rem;
     --page-spacing-top: 8.5rem;
     --all-projects-row-height: 10rem;
     --selected-works-x-margin: 1.5rem;

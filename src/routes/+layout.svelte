@@ -9,7 +9,7 @@
 </script>
 
 {#if data?.header}
-  <Header data={data.header} bind:infoIsVisible />
+  <Header {data} bind:infoIsVisible />
 {/if}
 
 {#if data?.info && infoIsVisible}

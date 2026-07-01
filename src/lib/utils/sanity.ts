@@ -5,6 +5,7 @@ import { createImageUrlBuilder } from "@sanity/image-url"
 import { LARGE_DESKTOP_BREAKPOINT, MOBILE_BREAKPOINT } from '../../routes/_components/config'
 import { type SizeSettings } from './media'
 import { ceil50 } from './common'
+import type { QueryParams, QueryWithoutParams } from '@sanity/client'
 
 const urlBuilder = createImageUrlBuilder(client)
 
@@ -74,3 +75,43 @@ export const getPlaceholderSrc = (image: SanityImageObjectWithAsset): string | u
     .quality(20)
     .url()
 }
+
+export const getSanityData = async <T>(query: string, params?: QueryParams) => {
+  const data = await client.fetch(query, params)
+  if (!data) {
+    return {
+      status: 500,
+      body: new Error('Internal Server Error')
+    }
+  }
+  return data as T
+}
+
+export const SLIDE_QUERY = `
+  slides[] {
+    ...,
+    media[] {
+      ...,
+      image {
+        asset-> {
+          _id,
+          altText,
+          description,
+          title,
+          url,
+          metadata {
+            dimensions {
+              width,
+              height,
+              aspectRatio
+            },
+            lqip
+          }
+        }
+      },
+      video {
+        asset->
+      }
+    }
+  }
+`

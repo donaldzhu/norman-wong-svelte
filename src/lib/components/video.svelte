@@ -3,14 +3,19 @@
   import "@mux/mux-player"
   import { onMount } from "svelte"
   import PlayIcon from "$lib/assets/svg/play.svelte"
+  import { Orientation } from "$lib/utils/dom"
 
   let {
     video,
     style,
+    mediaStyle,
+    orientation,
     ref = $bindable<HTMLVideoElement | null>(),
   }: {
     video?: SanityVideoObject
     style?: string
+    mediaStyle?: string
+    orientation?: Orientation
     ref?: HTMLVideoElement | null
   } = $props()
 
@@ -33,6 +38,8 @@
   <button
     style:--aspect-ratio={aspectRatio?.replace(":", "/")}
     class:video-paused={paused}
+    class:portrait={orientation === Orientation.Portrait}
+    class:landscape={orientation === Orientation.Landscape}
     onclick={() => {
       if (paused) ref?.play()
     }}
@@ -50,7 +57,7 @@
       thumbnail-time="0"
       onpause={() => (paused = true)}
       onplay={() => (paused = false)}
-      {style}
+      style="{style} {mediaStyle}"
       bind:this={ref}
     ></mux-player>
   </button>
@@ -64,9 +71,8 @@
     aspect-ratio: var(--aspect-ratio);
     object-fit: cover;
     position: relative;
-    width: 100%;
-    height: 100%;
     display: flex;
+    @include auto-fit-media;
   }
 
   .video-paused {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from "$app/state"
   import Media from "$lib/components/media.svelte"
   import type { SlideMediaData } from "$lib/types/sanity"
   import { Orientation } from "$lib/utils/dom"
@@ -31,6 +32,7 @@
 </script>
 
 <div
+  class="project-slide-media"
   class:portrait={orientation === Orientation.Portrait}
   class:landscape={orientation === Orientation.Landscape}
   style:--desktop-grid-layout="{desktopStart} / {desktopEnd}"
@@ -38,6 +40,7 @@
 >
   <Media
     {media}
+    mediaStyle="object-fit: contain;"
     sizeSettings={{
       mobile: isLandscape
         ? { width: mobilePercentage * MOBILE_BREAKPOINT }
@@ -52,6 +55,8 @@
         width: desktopPercentage * EXTRA_LARGE_DESKTOP_BREAKPOINT,
       },
     }}
+    {orientation}
+    noPreview={page.state.noPreview}
   />
 </div>
 
@@ -66,10 +71,11 @@
         #{$text-height} * 3 + #{$footer-margin-top}
     );
 
+    @include flex;
     min-height: 0;
-    object-fit: cover;
     width: 100%;
     max-height: calc(100dvh - #{$header-height});
+    pointer-events: all;
 
     @include desktop {
       grid-column: var(--desktop-grid-layout);

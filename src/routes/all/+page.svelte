@@ -119,7 +119,12 @@
 
   .all-projects {
     @include flex-column;
+    @include fullscreen;
     gap: var(--all-projects-row-gap);
-    margin: var(--page-spacing-top) 0 var(--y-margin-bottom);
+    padding: var(--page-spacing-top) 0 var(--y-margin-bottom);
+    justify-content: flex-start;
+    box-sizing: border-box;
+    overflow-y: auto;
+    @include hide-scrollbars;
   }
 </style>

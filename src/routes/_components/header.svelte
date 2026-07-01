@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { HeaderData } from "$lib/types/sanity"
+  import type { HeaderData, SanityData } from "$lib/types/sanity"
 
   import { page } from "$app/state"
   import { Device } from "$lib/utils/dom"
@@ -7,28 +7,54 @@
   let {
     data,
     infoIsVisible = $bindable(),
-  }: { data: HeaderData; infoIsVisible: boolean } = $props()
+  }: { data: SanityData; infoIsVisible: boolean } = $props()
 
   const onLinkClick = () => (infoIsVisible = false)
+  const headerData = $derived(data.header)
+  const {
+    nameDisplayTextDesktop,
+    nameDisplayTextMobile,
+    selectedWorksDisplayTextDesktop,
+    selectedWorksDisplayTextMobile,
+    allProjectsDisplayTextDesktop,
+    allProjectsDisplayTextMobile,
+    informationDisplayTextDesktop,
+    informationDisplayTextMobile,
+  } = $derived(headerData)
 
+  const getCurrentProject = () => {
+    const projectSlug = page.url.pathname.split("/")[2]
+    if (!projectSlug) return null
+
+    const project = data.allProjects.projects.find(
+      project => project.project.slug.current === projectSlug,
+    )?.project
+    return project
+      ? `${project.title}${project.subtitle ? `, ${project.subtitle}` : ""}`
+      : null
+  }
+
+  const currentProject = $derived(getCurrentProject())
+
+  // TODO
   const getCopy = (device: Device) => {
     return {
       name:
         device === Device.Mobile
-          ? data.nameDisplayTextMobile
-          : data.nameDisplayTextDesktop,
+          ? nameDisplayTextMobile
+          : nameDisplayTextDesktop,
       selectedWorks:
         device === Device.Mobile
-          ? data.selectedWorksDisplayTextMobile
-          : data.selectedWorksDisplayTextDesktop,
+          ? selectedWorksDisplayTextMobile
+          : selectedWorksDisplayTextDesktop,
       allProjects:
         device === Device.Mobile
-          ? data.allProjectsDisplayTextMobile
-          : data.allProjectsDisplayTextDesktop,
+          ? allProjectsDisplayTextMobile
+          : allProjectsDisplayTextDesktop,
       information:
         device === Device.Mobile
-          ? data.informationDisplayTextMobile
-          : data.informationDisplayTextDesktop,
+          ? informationDisplayTextMobile
+          : informationDisplayTextDesktop,
     }
   }
 
@@ -53,43 +79,29 @@
     class:info-visible={infoIsVisible}
     class:mobile={device === Device.Mobile}
   >
-    {#if device === Device.Desktop}
-      <a href={SELECTED_WORKS_LINK}>
-        <h1>{getCopy(device).name}</h1>
-      </a>
-    {/if}
     <nav>
-      <ul>
-        {#if device !== Device.Desktop}
-          <li>
-            <a href={SELECTED_WORKS_LINK}>
-              <h1>{getCopy(device).name}</h1>
-            </a>
-          </li>
-        {/if}
-        {#each Object.entries(getLinks(device)) as [text, href]}
-          <li>
-            <a
-              class:active={page.url.pathname === href && !infoIsVisible}
-              {href}
-              onclick={onLinkClick}>{text}</a
-            >
-          </li>
+      <div class="header__primary-links">
+        {#each Object.entries(getLinks(device)) as [text, href], index}
+          <a
+            class:active={page.url.pathname === href && !infoIsVisible}
+            {href}
+            onclick={onLinkClick}>{text}</a
+          >
+          {#if index < Object.entries(getLinks(device)).length - 1}
+            <span>/</span>
+          {/if}
         {/each}
-        {#if device !== Device.Desktop}
-          <li>
-            <button onclick={onInfoClick} class:active={infoIsVisible}>
-              {getCopy(device).information}
-            </button>
-          </li>
-        {/if}
-      </ul>
+      </div>
+      {#if currentProject}
+        <div class="header__current-project">
+          <span>/</span>
+          <a href={page.url.pathname} class="active">{currentProject}</a>
+        </div>
+      {/if}
     </nav>
-    {#if device === Device.Desktop}
-      <button onclick={onInfoClick} class:active={infoIsVisible}>
-        {getCopy(device).information}
-      </button>
-    {/if}
+    <button onclick={onInfoClick} class:active={infoIsVisible}>
+      {getCopy(device).information}
+    </button>
   </header>
 {/each}
 
@@ -98,17 +110,14 @@
 
   header {
     @include fullscreen;
+    @include ui;
     height: initial;
+    display: flex;
+    align-items: flex-start;
     justify-content: space-between;
     padding: var(--y-margin-top) var(--x-margin) 0;
     box-sizing: border-box;
-    z-index: 999;
-
-    &,
-    ul {
-      display: flex;
-      align-items: center;
-    }
+    z-index: 99999;
 
     &.info-visible {
       color: white;
@@ -124,18 +133,6 @@
         display: flex;
       }
     }
-
-    > * {
-      position: relative;
-    }
-
-    > a {
-      left: calc(-1 * var(--button-padding));
-    }
-
-    > button {
-      left: var(--button-padding);
-    }
   }
 
   h1,
@@ -144,42 +141,41 @@
     @include ui;
   }
 
-  h1,
-  li {
+  h1 {
     width: fit-content;
   }
 
-  ul {
-    list-style: none;
+  nav,
+  .header__primary-links {
+    @include flex;
+    align-items: flex-start;
     gap: var(--header-spacing);
-    padding: 0;
-    margin: 0;
-
-    @include mobile {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-    }
   }
 
   nav {
     @include mobile {
-      width: 100%;
+      flex-direction: column;
+      gap: 0;
     }
   }
 
-  li {
+  .header__current-project {
     @include mobile {
-      display: flex;
+      display: block;
+      span {
+        display: none;
+      }
+
+      a {
+        pointer-events: none;
+      }
     }
   }
 
   a,
   button {
-    @include mobile {
-      padding: 0;
-    }
-
+    padding: calc(0.5 * var(--button-padding));
+    margin: calc(-0.5 * var(--button-padding));
     &.active {
       color: $gray;
     }

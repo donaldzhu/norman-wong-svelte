@@ -36,7 +36,6 @@ export type MediaData = {
 }
 
 
-
 export interface SanityData {
   header: HeaderData
   info: InfoData
@@ -82,6 +81,7 @@ export interface ProjectData {
   thumbnails: SelectedWorksThumbnailData[]
   slideMediaIds: SlideMediaIds
   hidden: boolean
+  slides: SlideData[]
 }
 
 export type SanityImageObjectWithAsset = SanityImageObject & {
@@ -145,6 +145,8 @@ export interface AllProjectsProjectData {
   project: {
     _id: string
     slug: Slug
+    title: string
+    subtitle?: string
     slideMediaIds: SlideMediaIds
   }
 }

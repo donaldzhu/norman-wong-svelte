@@ -1,5 +1,6 @@
+import { SLIDE_QUERY, getSanityData } from '$lib/utils/sanity'
+
 import type { SanityData } from '$lib/types/sanity'
-import { client } from '$lib/sanity'
 
 export const load = async ({ params }: { params: { project: string } }) => {
   const query = `
@@ -8,43 +9,10 @@ export const load = async ({ params }: { params: { project: string } }) => {
       hidden,
       title,
       subtitle,
-      slides[] {
-        ...,
-        media[] {
-          ...,
-          image {
-            asset-> {
-              _id,
-              altText,
-              description,
-              title,
-              url,
-              metadata {
-                dimensions {
-                  width,
-                  height,
-                  aspectRatio
-                },
-                lqip
-              }
-            }
-          },
-          video {
-            asset->
-          }
-        }
-      }
+      ${SLIDE_QUERY}
     }
   }
   `
 
-  // TODO
-  const data = await client.fetch<SanityData>(query, { slug: params.project })
-  if (!data) {
-    return {
-      status: 500,
-      body: new Error('Internal Server Error')
-    }
-  }
-  return data
+  return getSanityData<SanityData>(query, { slug: params.project })
 }
