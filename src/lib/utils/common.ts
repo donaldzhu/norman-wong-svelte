@@ -1,9 +1,5 @@
 import type { Falsey } from 'lodash'
 
-export const isLandscape = (aspectRatio: number) => aspectRatio > 1
-
-export const getRem = (value = 1) => value * parseFloat(getComputedStyle(document.documentElement).fontSize)
-
 export const wrap = (value: number, min: number, max: number) => {
   const range = max - min + 1
   return ((((value - min) % range) + range) % range) + min

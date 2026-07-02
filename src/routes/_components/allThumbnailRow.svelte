@@ -65,7 +65,7 @@
       contentWidth: allImageWidth,
       containerWidth,
       itemCount: rowData.length,
-    }).scalingFactor
+    })
   }
 
   let adjustSizeDebounceTimer: TimeOut | undefined = $state(undefined)

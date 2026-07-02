@@ -78,9 +78,7 @@ export interface ProjectData {
   title: string
   subtitle?: string
   slug: Slug
-  thumbnails: SelectedWorksThumbnailData[]
   slideMediaIds: SlideMediaIds
-  hidden: boolean
   slides: SlideData[]
 }
 
@@ -103,13 +101,7 @@ export type SanityImageObjectWithAsset = SanityImageObject & {
   }
 }
 
-export type SelectedWorksThumbnailData = MediaData & {
-  desktopSize: ThumbnailSize
-  mobileSize: Exclude<ThumbnailSize, 'm'>
-}
-
 export interface ProjectSlideData {
-  hidden: boolean
   title: string
   subtitle?: string
   slides: SlideData[]

@@ -5,6 +5,8 @@
   import {
     PAGE_INFINITE_SCROLL_COPY_COUNT,
     PAGE_INFINITE_SCROLL_SETTLE_MS,
+    PAGE_SNAP_STRICTNESS,
+    PAGE_SNAP_STOP,
   } from "./_components/configs"
   import SelectedProjectSection from "./_components/selectedProjectSection.svelte"
   import { goto } from "$app/navigation"
@@ -172,9 +174,13 @@
 <div
   class="selected-works__scroll"
   bind:this={scrollContainerRef}
+  role="region"
+  aria-label="Selected works"
   {onscroll}
   style:opacity={isMounted ? 1 : 0}
   style:pointer-events={isNavigating ? "none" : "auto"}
+  style:scroll-snap-type="y {PAGE_SNAP_STRICTNESS}"
+  style:--snap-stop={PAGE_SNAP_STOP}
 >
   <div class="selected-works__scroll__track" bind:this={scrollTrackRef}>
     {#each copyIndices as copyIndex, i (copyIndex)}

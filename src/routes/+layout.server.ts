@@ -1,26 +1,8 @@
-import { SLIDE_QUERY, getSanityData } from '$lib/utils/sanity'
+import { HYDRATE_IMAGE_QUERY, SLIDE_QUERY, getSanityData } from '$lib/utils/sanity'
 
 import type { SanityData } from '$lib/types/sanity'
 
 export const load = async () => {
-  const hydrateImage = `
-    asset-> {
-      _id,
-      altText,
-      description,
-      title,
-      url,
-      metadata {
-        dimensions {
-          width,
-          height,
-          aspectRatio
-        },
-        lqip
-      }
-    }
-  `
-
   const hydrateSlideIds = `
     "slideMediaIds": slides[] {
       "ids": media[] {
@@ -67,7 +49,7 @@ export const load = async () => {
           mediaType,
           image {
             ...,
-            ${hydrateImage}
+            ${HYDRATE_IMAGE_QUERY}
           },
           video {
             asset->
@@ -83,18 +65,6 @@ export const load = async () => {
         subtitle,
         slug,
         ${hydrateSlideIds},
-        'thumbnails': selectedWorksThumbnails[]{
-          image {
-            ...,
-            ${hydrateImage}
-          },
-          video {
-            asset->
-          },
-          desktopSize,
-          mobileSize,
-          mediaType
-        },
         hidden,
         ${SLIDE_QUERY}
       }

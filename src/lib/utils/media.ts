@@ -1,8 +1,6 @@
 import type { MediaData, SanityImageObjectWithAsset } from '$lib/types/sanity'
 import { srcSetFor, urlFor } from './sanity'
 
-import _ from 'lodash'
-
 export enum MediaType {
   Image = 'image',
   Video = 'video',
@@ -36,7 +34,7 @@ export const preloadImage = (image: SanityImageObjectWithAsset, sizeSettings?: S
 }
 
 
-export type MediaDimensions = {
+type MediaDimensions = {
   width: number
   height?: number
 } | {

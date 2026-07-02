@@ -42,6 +42,8 @@
   section {
     @include flex-column;
     @include selected-project-title-passthrough;
+    scroll-snap-align: center;
+    scroll-snap-stop: var(--snap-stop, normal);
     gap: var(--selected-works-inner-gap);
 
     &.is-navigating {

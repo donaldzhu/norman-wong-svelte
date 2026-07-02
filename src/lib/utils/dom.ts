@@ -17,14 +17,6 @@ export const fitToHeight = (
   return width
 }
 
-export const fitToWidth = (
-  aspectRatio: number,
-  width: number,
-) => {
-  const height = width / aspectRatio
-  return height
-}
-
 interface StretchToContainerConfig {
   minGap: number,
   maxGap: number,
@@ -42,15 +34,9 @@ export const stretchToContainer = ({
 }: StretchToContainerConfig) => {
   const gapCount = itemCount - 1
   let remainingGap = (containerWidth - contentWidth) / gapCount
-  let scalingFactor = 1
   const gap = _.clamp(remainingGap, minGap, maxGap)
 
-  scalingFactor = (containerWidth - gap * gapCount) / contentWidth
-
-  return {
-    scalingFactor,
-    gap,
-  }
+  return (containerWidth - gap * gapCount) / contentWidth
 }
 
 export enum Device {
