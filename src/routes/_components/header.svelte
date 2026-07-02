@@ -58,8 +58,8 @@
     }
   }
 
-  const SELECTED_WORKS_LINK = "/selected"
-  const ALL_PROJECTS_LINK = "/all"
+  const SELECTED_WORKS_LINK = "/"
+  const ALL_PROJECTS_LINK = "/index"
 
   const getLinks = (device: Device) => {
     return {

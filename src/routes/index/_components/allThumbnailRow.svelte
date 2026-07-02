@@ -9,7 +9,7 @@
   } from "$lib/utils/dom"
   import { getMediaAspectRatio } from "$lib/utils/media"
   import { onMount } from "svelte"
-  import { ALL_PROJECTS_ROW_MOBILE_GAPS } from "../all/_components/configs"
+  import { ALL_PROJECTS_ROW_MOBILE_GAPS } from "./configs"
   import {
     ALL_PROJECTS_MAX_GAP,
     ALL_PROJECTS_MAX_GAP_RAMP,
@@ -18,9 +18,9 @@
     ALL_PROJECTS_ROW_HEIGHT_RAMP,
     ALL_PROJECTS_X_MARGIN,
     DEBOUNCE_TRANSITION,
-  } from "./config"
+  } from "../../_components/config"
   import AllThumbnail from "./allThumbnail.svelte"
-  import type { AllThumbnailData } from "./types"
+  import type { AllThumbnailData } from "../../_components/types"
 
   let {
     rowData,
@@ -39,8 +39,9 @@
   let height = $state(ALL_PROJECTS_ROW_HEIGHT)
   let maxGap = $state(ALL_PROJECTS_MAX_GAP)
   let prevIsMobile = $state(false)
-  const mobileGap =
-    ALL_PROJECTS_ROW_MOBILE_GAPS[rowData.length] ?? ALL_PROJECTS_MIN_GAP
+  const mobileGap = $derived(
+    ALL_PROJECTS_ROW_MOBILE_GAPS[rowData.length] ?? ALL_PROJECTS_MIN_GAP,
+  )
 
   const adjustSize = () => {
     prevIsMobile = isMobile()

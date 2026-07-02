@@ -68,7 +68,7 @@ p {
   --selected-works-inner-gap: 5rem;
   --project-slide-gap: 2rem;
   --project-slide-mobile-padding: 2rem;
-  --ui-font-size: 1.4rem;
+  --ui-font-size: 1.5rem;
   --ui-line-height: 1.2;
   --info-font-size: 4.5rem;
   --selected-works-font-size: 11rem;
@@ -82,8 +82,13 @@ p {
     --page-spacing-top: 8.5rem;
     --all-projects-row-height: 10rem;
     --selected-works-x-margin: 1.5rem;
-    --ui-font-size: 1.2rem;
+    --ui-font-size: 1.25rem;
     --info-font-size: 3.8rem;
     --selected-works-font-size: 6.8rem;
+  }
+}
+@media (min-width: 1920px) {
+  :root {
+    --ui-font-size: 1.6rem;
   }
 }

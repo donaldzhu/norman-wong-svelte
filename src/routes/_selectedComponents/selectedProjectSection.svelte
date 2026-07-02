@@ -1,14 +1,16 @@
 <script lang="ts">
   import type { ProjectData } from "$lib/types/sanity"
-  import ProjectSlide from "../../projects/[project]/[slide]/_components/projectSlide.svelte"
+  import ProjectSlide from "../projects/[project]/[slide]/_components/projectSlide.svelte"
 
-  const {
+  let {
     project,
+    isSettled,
     isSelected,
     isNavigating,
     onNavigate,
   }: {
     project: ProjectData
+    isSettled: boolean
     isSelected?: boolean
     isNavigating: boolean
     onNavigate: (e: MouseEvent, project: ProjectData) => void
@@ -20,14 +22,20 @@
   class="selected-works__section"
   class:is-selected={isSelected}
   class:is-navigating={isNavigating}
+  class:is-settled={isSettled}
 >
   <a
     href={`/projects/${project.slug.current}/1`}
     onclick={e => onNavigate(e, project)}
   >
-    <h2 style:opacity={isNavigating && !isSelected ? 0 : 1}>
+    {#snippet text()}
       {title}{#if subtitle}, <i>{subtitle}</i>{/if}
-    </h2>
+    {/snippet}
+    <h2>{@render text()}</h2>
+    {#if isSelected && isSettled}
+      <h2 class="overlay">{@render text()}</h2>
+    {/if}
+
     {#if isSelected}
       <div class="selected-works__popup">
         <ProjectSlide slide={project.slides[0]} />
@@ -41,7 +49,6 @@
 
   section {
     @include flex-column;
-    @include selected-project-title-passthrough;
     scroll-snap-align: center;
     scroll-snap-stop: var(--snap-stop, normal);
     gap: var(--selected-works-inner-gap);
@@ -53,14 +60,21 @@
     &.is-selected {
       background-color: white;
       $bottom-margin: 1.5em;
-      padding-bottom: $bottom-margin;
+      padding: 0 0.25rem $bottom-margin;
       margin-bottom: -$bottom-margin;
 
       h2 {
-        color: white;
-        mix-blend-mode: difference;
         z-index: 999;
         transition: none;
+      }
+
+      &.is-settled h2 {
+        color: white;
+        mix-blend-mode: difference;
+      }
+
+      a {
+        position: relative;
       }
     }
   }
@@ -71,10 +85,20 @@
     font-size: var(--selected-works-font-size);
     line-height: 0.95;
     text-align: center;
-    mix-blend-mode: lighten;
 
     @include mobile {
       line-height: 1.05;
+    }
+
+    &.overlay {
+      position: absolute;
+      width: 100%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: normal;
+      opacity: 0.2;
+      color: #eee;
     }
   }
 

@@ -80,7 +80,7 @@ p {
   --project-slide-mobile-padding: 2rem;
 
   // typography
-  --ui-font-size: 1.4rem;
+  --ui-font-size: 1.5rem;
   --ui-line-height: 1.2;
 
   --info-font-size: 4.5rem;
@@ -96,8 +96,12 @@ p {
     --all-projects-row-height: 10rem;
     --selected-works-x-margin: 1.5rem;
 
-    --ui-font-size: 1.2rem;
+    --ui-font-size: 1.25rem;
     --info-font-size: 3.8rem;
     --selected-works-font-size: 6.8rem;
+  }
+
+  @include wide-desktop {
+    --ui-font-size: 1.6rem;
   }
 }

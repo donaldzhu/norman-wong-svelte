@@ -93,6 +93,6 @@
     position: absolute;
     inset: 0;
     z-index: 2;
-    filter: blur(5px);
+    /* filter: blur(5px); */
   }
 </style>

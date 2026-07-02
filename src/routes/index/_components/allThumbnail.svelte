@@ -1,11 +1,11 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte"
-  import type { AllThumbnailData } from "./types"
+  import type { AllThumbnailData } from "../../_components/types"
   import {
     ANIMATION_DURATION,
     ANIMATION_EASE,
     MAX_FADE_IN_DELAY,
-  } from "./config"
+  } from "../../_components/config"
   import gsap from "gsap"
   import type { TimeOut } from "$lib/utils/animation"
   import Media from "$lib/components/media.svelte"

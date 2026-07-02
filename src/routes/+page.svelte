@@ -1,18 +1,22 @@
 <script lang="ts">
   import { quickArray } from "$lib/utils/common"
-  import { getTitle } from "$lib/utils/meta.js"
+  import { getTitle } from "$lib/utils/meta"
   import { onDestroy, onMount, tick } from "svelte"
   import {
     PAGE_INFINITE_SCROLL_COPY_COUNT,
-    PAGE_INFINITE_SCROLL_SETTLE_MS,
     PAGE_SNAP_STRICTNESS,
     PAGE_SNAP_STOP,
-  } from "./_components/configs"
-  import SelectedProjectSection from "./_components/selectedProjectSection.svelte"
+    RECENTER_MIN_MULTIPLES,
+    REQUIRES_SOFT_ADJUSTMENT_THRESHOLD,
+    EDGE_CUSHION_MULTIPLES,
+    SCROLL_THRESHOLD,
+  } from "./_selectedComponents/configs.js"
+  import SelectedProjectSection from "./_selectedComponents/selectedProjectSection.svelte"
   import { goto } from "$app/navigation"
-  import type { ProjectData } from "$lib/types/sanity.js"
+  import type { ProjectData } from "$lib/types/sanity"
   import gsap from "gsap"
-  import { ANIMATION_DURATION, ANIMATION_EASE } from "../_components/config.js"
+  import { ANIMATION_DURATION, ANIMATION_EASE } from "./_components/config"
+  import { scrollend } from "$lib/actions/scrollendAction"
 
   let { data } = $props()
 
@@ -24,55 +28,66 @@
   let scrollContainerRef = $state<HTMLDivElement>()
   let scrollTrackRef = $state<HTMLDivElement>()
   let scrollSegmentHeight = $state(0)
+  let lastScrollTop = $state(0)
+  let centerProjectIndex = $state<number>()
 
   let resizeObserver: ResizeObserver
-  let settleTimer: ReturnType<typeof setTimeout> | undefined
   let scrollTween: gsap.core.Timeline | undefined
 
-  let centerProjectIndex = $state<number>()
-  let hasAdjustedScroll = $state(false)
+  let hasInitialized = $state(false)
   let isRecentering = $state(false)
-  let isMounted = $state(false)
+  let isSettled = $state(false)
   let isNavigating = $state(false)
+  let isMounted = $state(false)
+  let requiresSoftAdjustment = $state(false)
 
-  const getSegmentHeight = () =>
-    !scrollTrackRef
-      ? 0
-      : scrollTrackRef.scrollHeight / PAGE_INFINITE_SCROLL_COPY_COUNT
+  let userHasScrolled = $state(false)
+
+  const getAllRows = () => {
+    if (!scrollTrackRef) return []
+    return Array.from(scrollTrackRef.children).flatMap(row =>
+      Array.from(row.children),
+    )
+  }
 
   const recenter = () => {
-    if (!scrollContainerRef || scrollSegmentHeight <= 0) return
+    if (!scrollContainerRef || scrollSegmentHeight <= 0 || userHasScrolled)
+      return
     isRecentering = true
-    clearSettleTimer()
 
     const offset = scrollContainerRef.scrollTop % scrollSegmentHeight
-    const target = CENTER_INDEX * scrollSegmentHeight + offset
-    const MIN_DELTA = 100
-    if (Math.abs(scrollContainerRef.scrollTop - target) >= MIN_DELTA)
-      scrollContainerRef.scrollTop = target
-  }
+    let target = CENTER_INDEX * scrollSegmentHeight + offset
 
-  const clearSettleTimer = () => {
-    if (settleTimer) clearTimeout(settleTimer)
-    settleTimer = undefined
-  }
+    if (centerProjectIndex !== undefined) {
+      const scrollElement = getAllRows()[centerProjectIndex]
+      const { top, height } = scrollElement.getBoundingClientRect()
+      const compositionOffset = Math.ceil(
+        top + height / 2 - window.innerHeight / 2,
+      )
+      if (Math.abs(compositionOffset) > REQUIRES_SOFT_ADJUSTMENT_THRESHOLD)
+        requiresSoftAdjustment = true
+    }
 
-  const scheduleSettleRecenter = () => {
-    clearSettleTimer()
-    settleTimer = setTimeout(recenter, PAGE_INFINITE_SCROLL_SETTLE_MS)
+    const minDelta = RECENTER_MIN_MULTIPLES * scrollSegmentHeight
+    if (Math.abs(scrollContainerRef.scrollTop - target) < minDelta) return
+
+    tick().then(() => {
+      if (scrollContainerRef) scrollContainerRef.scrollTop = target
+    })
   }
 
   const isNearTrueEdge = () => {
-    if (!scrollContainerRef || scrollSegmentHeight <= 0) return false
+    if (!scrollContainerRef) return false
     const { scrollTop, clientHeight, scrollHeight } = scrollContainerRef
     const maxScrollTop = scrollHeight - clientHeight
-    const edgeCushion = scrollSegmentHeight * 3
+    const edgeCushion = scrollSegmentHeight * EDGE_CUSHION_MULTIPLES
     return scrollTop < edgeCushion || scrollTop > maxScrollTop - edgeCushion
   }
 
   const onObserverResize = (isInitialResize = false) => {
     if (!scrollContainerRef || !scrollTrackRef) return
-    const newSegmentHeight = getSegmentHeight()
+    const newSegmentHeight =
+      scrollTrackRef.scrollHeight / PAGE_INFINITE_SCROLL_COPY_COUNT
     if (newSegmentHeight <= 0) return
 
     const needsInitialScroll = scrollSegmentHeight <= 0
@@ -87,13 +102,6 @@
     scrollSegmentHeight = newSegmentHeight
   }
 
-  const getAllRows = () => {
-    if (!scrollTrackRef) return []
-    return Array.from(scrollTrackRef.children).flatMap(row =>
-      Array.from(row.children),
-    )
-  }
-
   const updateCenterProjectIndex = () => {
     if (!scrollTrackRef || scrollSegmentHeight <= 0 || isNavigating) return
     const allRows = getAllRows()
@@ -103,15 +111,39 @@
       ) - 1
   }
 
+  const updateLastScrollTop = () => {
+    let difference = NaN
+    if (scrollContainerRef) {
+      difference = scrollContainerRef.scrollTop - lastScrollTop
+      lastScrollTop = scrollContainerRef.scrollTop
+    }
+    return difference
+  }
+
+  const onuserscroll = () => {
+    isRecentering = false
+    hasInitialized = true
+    userHasScrolled = true
+  }
+
   const onscroll = () => {
     if (scrollSegmentHeight <= 0 || isNavigating) return
-
-    if (hasAdjustedScroll) updateCenterProjectIndex()
-    else if (isRecentering) hasAdjustedScroll = true
-    if (isRecentering) return (isRecentering = false)
-
+    if (hasInitialized) updateCenterProjectIndex()
+    // console.log("scroll", isRecentering)
+    isRecentering = false
+    isSettled = false
+    userHasScrolled = false
     if (isNearTrueEdge()) return recenter()
-    scheduleSettleRecenter()
+  }
+
+  const onscrollend = () => {
+    const difference = updateLastScrollTop()
+    isSettled = true
+
+    if (difference <= SCROLL_THRESHOLD || isNavigating || isRecentering) return
+    isRecentering = false
+    // console.log("scrollend", isRecentering)
+    recenter()
   }
 
   const onNavigate = (e: MouseEvent, project: ProjectData) => {
@@ -160,26 +192,32 @@
       resizeObserver = new ResizeObserver(() => onObserverResize())
       resizeObserver.observe(scrollTrackRef)
       onObserverResize(true)
+      recenter()
       isMounted = true
     })
   })
 
   onDestroy(() => {
     scrollTween?.kill()
-    clearSettleTimer()
     resizeObserver?.disconnect()
   })
 </script>
 
 <div
   class="selected-works__scroll"
-  bind:this={scrollContainerRef}
   role="region"
-  aria-label="Selected works"
   {onscroll}
+  {onscrollend}
+  onwheel={onuserscroll}
+  ontouchmove={onuserscroll}
+  bind:this={scrollContainerRef}
+  use:scrollend
   style:opacity={isMounted ? 1 : 0}
   style:pointer-events={isNavigating ? "none" : "auto"}
-  style:scroll-snap-type="y {PAGE_SNAP_STRICTNESS}"
+  style:scroll-snap-type={(isRecentering && requiresSoftAdjustment) ||
+  isNavigating
+    ? "none"
+    : `y ${PAGE_SNAP_STRICTNESS}`}
   style:--snap-stop={PAGE_SNAP_STOP}
 >
   <div class="selected-works__scroll__track" bind:this={scrollTrackRef}>
@@ -192,6 +230,7 @@
           {@const flatIndex = i * projects.length + ii}
           <SelectedProjectSection
             {project}
+            {isSettled}
             isSelected={flatIndex === centerProjectIndex}
             {isNavigating}
             {onNavigate}
@@ -219,9 +258,5 @@
   .selected-works__scroll__track,
   .selected-works__scroll__segment {
     @include flex-column;
-  }
-
-  .selected-works__scroll__segment {
-    @include selected-project-title-passthrough;
   }
 </style>

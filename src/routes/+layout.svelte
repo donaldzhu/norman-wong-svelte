@@ -4,7 +4,6 @@
   import Info from "./_components/info.svelte"
 
   let { children, data } = $props()
-
   let infoIsVisible = $state(false)
 </script>
 

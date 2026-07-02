@@ -24,13 +24,6 @@
   flex-direction: column;
 }
 
-@mixin selected-project-title-passthrough {
-  mix-blend-mode: lighten;
-  &.is-selected {
-    mix-blend-mode: normal;
-  }
-}
-
 @mixin fade-in-out {
   transition: opacity $fade-duration ease-in-out;
 }
