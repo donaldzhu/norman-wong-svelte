@@ -12,20 +12,20 @@
     SELECTED_WORKS_SCROLL_THRESHOLD,
     SHOULD_BLEND_THRESHOLD,
     CENTER_ADJUST_DELAY_MS,
+    ANIMATION_DURATION,
+    ANIMATION_EASE,
   } from "./_components/config"
   import SelectedProjectSection from "./_components/selected/selectedProjectSection.svelte"
-  import ProjectSlide from "./_components/projectSlides/projectSlide.svelte"
   import { goto } from "$app/navigation"
   import type { ProjectData } from "$lib/types/sanity"
   import gsap from "gsap"
-  import { ANIMATION_DURATION, ANIMATION_EASE } from "./_components/config"
   import { scrollend } from "$lib/actions/scrollendAction"
 
   let { data } = $props()
 
   const projects = $derived(data?.selectedWorks?.projects ?? [])
 
-  const CENTER_INDEX = (SELECTED_WORKS_INFINITE_SCROLL_COPY_COUNT - 1) / 2
+  const CENTER_INDEX = (SELECTED_WORKS_INFINITE_SCROLL_COPY_COUNT - 1) / 2 + 1
   const copyIndices = quickArray(SELECTED_WORKS_INFINITE_SCROLL_COPY_COUNT)
 
   let scrollContainerRef = $state<HTMLDivElement>()
@@ -33,12 +33,6 @@
   let scrollSegmentHeight = $state(0)
   let lastScrollTop = $state(0)
   let centerProjectIndex = $state<number>()
-
-  const slide = $derived(
-    centerProjectIndex === undefined || !projects.length
-      ? undefined
-      : projects[centerProjectIndex % projects.length]?.slides[0],
-  )
 
   let resizeObserver: ResizeObserver
   let scrollTween: gsap.core.Timeline | undefined
@@ -133,13 +127,12 @@
   }
 
   const shouldHighlightCenter = (index: number) => {
-    if (!isRecentering || centerProjectIndex === undefined) return false
-    const isCenter = Math.floor(index / projects.length) === CENTER_INDEX
+    if (!isRecentering || centerProjectIndex === undefined || isNavigating)
+      return false
+    const isCenter = Math.floor(index / projects.length) - 1 === CENTER_INDEX
     const isSelected =
       index % projects.length === centerProjectIndex % projects.length
-    if (isCenter && isSelected)
-      console.log("isCenter", index, centerProjectIndex)
-    return isSelected
+    return isCenter && isSelected
   }
 
   const onObserverResize = (isInitialResize = false) => {
@@ -164,7 +157,7 @@
     if (!scrollTrackRef || scrollSegmentHeight <= 0 || isNavigating) return
     const allRows = getAllRows()
     centerProjectIndex =
-      Array.from(allRows).findIndex(
+      allRows.findIndex(
         child => child.getBoundingClientRect().top > window.innerHeight / 2,
       ) - 1
   }
@@ -203,7 +196,6 @@
       isRecentering
     )
       return
-
     recenter()
   }
 
@@ -219,10 +211,7 @@
     const isCenterProject = index === centerProjectIndex
     centerProjectIndex = index
     isNavigating = true
-
-    const targetRect = target.getBoundingClientRect()
-    const scrollDelta =
-      targetRect.top - window.innerHeight / 2 + targetRect.height / 2
+    isRecentering = true
 
     if (!scrollContainerRef) return
 
@@ -237,18 +226,17 @@
 
     if (!isCenterProject)
       scrollTween.to(scrollContainerRef, {
-        scrollTop: scrollContainerRef.scrollTop + scrollDelta,
+        scrollTop: scrollContainerRef.scrollTop + getOffset(),
         duration: ANIMATION_DURATION,
         ease: ANIMATION_EASE,
       })
+
     scrollTween.to(target.querySelectorAll("h2"), {
       opacity: 0,
       duration: 1,
       ease: ANIMATION_EASE,
       delay: isCenterProject ? 0.125 : 0,
     })
-
-    scrollTween.play()
   }
 
   onMount(() => {
@@ -288,10 +276,7 @@
 >
   <div class="selected-works__scroll__track" bind:this={scrollTrackRef}>
     {#each copyIndices as copyIndex, i (copyIndex)}
-      <div
-        class="selected-works__scroll__segment"
-        class:is-selected={i === CENTER_INDEX + 1}
-      >
+      <div class="selected-works__scroll__segment">
         {#each projects as project, ii (project._id)}
           {@const flatIndex = i * projects.length + ii}
           {@const isSelected = flatIndex === centerProjectIndex}
@@ -323,11 +308,6 @@
     @include hide-scrollbars;
     height: 100dvh;
     overflow: hidden auto;
-  }
-
-  .selected-works__slide {
-    @include fullscreen;
-    pointer-events: none;
   }
 
   .selected-works__scroll__track,

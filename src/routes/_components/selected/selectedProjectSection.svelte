@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ProjectData, SlideData } from "$lib/types/sanity"
+  import type { ProjectData } from "$lib/types/sanity"
   import ProjectSlide from "../projectSlides/projectSlide.svelte"
 
   let {
@@ -21,7 +21,6 @@
 </script>
 
 <section
-  class="selected-works__section"
   class:is-selected={isSelected}
   class:is-navigating={isNavigating}
   class:should-blend={shouldBlend}
@@ -46,17 +45,17 @@
 
   section {
     @include flex-column;
-    @include fade-in-out;
     scroll-snap-align: center;
     scroll-snap-stop: var(--snap-stop, normal);
     gap: var(--selected-works-inner-gap);
     max-width: 100vw;
     box-sizing: border-box;
 
-    /* &.is-navigating {
-      pointer-events: none;
+    &.is-navigating {
       &:not(.is-selected) {
-        z-index: -1;
+        h2 {
+          opacity: 0;
+        }
       }
 
       &.is-selected {
@@ -64,22 +63,26 @@
           transition: none;
         }
       }
-    } */
+    }
 
     &.is-selected {
       $bottom-margin: 1.5rem;
-      padding: $bottom-margin 0.25rem;
-      margin: -$bottom-margin 0;
+      padding: 0 0.25rem $bottom-margin;
+      margin-bottom: -$bottom-margin;
+    }
 
+    &.should-blend {
+      background-color: white;
       h2 {
-        transition: none;
+        color: white;
+        mix-blend-mode: difference;
       }
     }
+
+    &.is-selected,
     &.should-blend {
-      /* background-color: white; */
       h2 {
-        color: red;
-        // mix-blend-mode: difference;
+        z-index: 999;
       }
     }
   }
@@ -92,7 +95,7 @@
     font-size: var(--selected-works-font-size);
     line-height: var(--selected-works-line-height);
     text-align: center;
-    z-index: 999;
+    z-index: -1;
   }
 
   a {

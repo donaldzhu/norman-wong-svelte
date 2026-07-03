@@ -46,13 +46,10 @@
     grid-template-columns: repeat(var(--desktop-grid-count), 1fr);
     align-items: center;
     gap: var(--project-slide-gap);
-    width: 100vw;
+    $buffer: 8px;
+    width: calc(100vw + $buffer);
+    height: calc(100dvh + $buffer);
 
-    $margin: calc(
-      var(--ui-text-height) * 2 + var(--header-spacing) + var(--y-margin-bottom)
-    );
-    height: calc(100dvh - #{$margin} * 2);
-    margin: $margin 0;
     box-sizing: border-box;
     overflow: hidden;
 
