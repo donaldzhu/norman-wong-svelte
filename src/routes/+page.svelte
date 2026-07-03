@@ -13,7 +13,6 @@
   } from "./_components/config"
   import SelectedProjectSection from "./_components/selected/selectedProjectSection.svelte"
   import ProjectSlide from "./_components/projectSlides/projectSlide.svelte"
-  import { getSlideContext } from "../lib/context/slideContext.js"
   import { goto } from "$app/navigation"
   import type { ProjectData } from "$lib/types/sanity"
   import gsap from "gsap"
@@ -33,15 +32,11 @@
   let lastScrollTop = $state(0)
   let centerProjectIndex = $state<number>()
 
-  const slideContext = getSlideContext()
-
-  $effect(() => {
-    slideContext.slide =
-      centerProjectIndex === undefined || !projects.length
-        ? undefined
-        : projects[centerProjectIndex % projects.length]?.slides[0]
-    slideContext.autoPlay = isSettled
-  })
+  const previewSlide = $derived(
+    centerProjectIndex === undefined || !projects.length
+      ? undefined
+      : projects[centerProjectIndex % projects.length]?.slides[0],
+  )
 
   let resizeObserver: ResizeObserver
   let scrollTween: gsap.core.Timeline | undefined
@@ -66,6 +61,7 @@
     if (!scrollContainerRef || scrollSegmentHeight <= 0 || userHasScrolled)
       return
     isRecentering = true
+    console.log("recentering")
 
     const offset = scrollContainerRef.scrollTop % scrollSegmentHeight
     let target = CENTER_INDEX * scrollSegmentHeight + offset
@@ -141,6 +137,7 @@
     isRecentering = false
     hasInitialized = true
     userHasScrolled = true
+    console.log("onuserscroll")
   }
 
   const onscroll = () => {
@@ -156,10 +153,10 @@
     isSettled = true
 
     console.log(
-      difference,
-      SELECTED_WORKS_SCROLL_THRESHOLD,
+      "onscrollend",
       isNavigating,
       isRecentering,
+      requiresSoftAdjustment,
     )
     if (
       Math.abs(difference) <= SELECTED_WORKS_SCROLL_THRESHOLD ||
@@ -250,12 +247,8 @@
   style:--snap-stop={SELECTED_WORKS_SNAP_STOP}
 >
   <div class="selected-works__slide">
-    {#if slideContext.slide}
-      <ProjectSlide
-        slide={slideContext.slide}
-        preview={!slideContext.autoPlay}
-        inline
-      />
+    {#if previewSlide}
+      <ProjectSlide slide={previewSlide} preview={!isSettled} inline />
     {/if}
   </div>
   <div class="selected-works__scroll__track" bind:this={scrollTrackRef}>

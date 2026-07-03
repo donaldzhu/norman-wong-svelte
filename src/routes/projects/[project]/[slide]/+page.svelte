@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation"
   import type { ProjectSlideData } from "$lib/types/sanity"
   import { wrap } from "$lib/utils/common"
+  import ProjectSlide from "../../../_components/projectSlides/projectSlide.svelte"
 
   let {
     data,
@@ -13,6 +14,7 @@
 
   const { project: projectSlug, slide: slideNumber } = $derived(params)
   const { slides } = $derived(data.project)
+  const slide = $derived(slides[parseInt(slideNumber) - 1])
 
   const onclick = (increment: 1 | -1) => {
     const newSlideNumber = parseInt(slideNumber) + increment
@@ -25,6 +27,7 @@
   }
 </script>
 
+<ProjectSlide {slide} />
 <button
   class="project-slide__button project-slide__button--previous"
   onclick={() => onclick(-1)}
