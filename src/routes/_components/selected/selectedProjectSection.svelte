@@ -1,21 +1,23 @@
 <script lang="ts">
-  import type { ProjectData } from "$lib/types/sanity"
+  import type { ProjectData, SlideData } from "$lib/types/sanity"
+  import ProjectSlide from "../projectSlides/projectSlide.svelte"
 
   let {
     project,
-    isSettled,
     isSelected,
     isNavigating,
+    isSettled,
+    shouldBlend,
     onNavigate,
   }: {
     project: ProjectData
-    isSettled: boolean
     isSelected?: boolean
     isNavigating: boolean
+    isSettled: boolean
+    shouldBlend: boolean
     onNavigate: (e: MouseEvent, project: ProjectData) => void
   } = $props()
   const { title, subtitle } = $derived(project)
-  const shouldBlend = $derived(isSelected && isSettled)
 </script>
 
 <section
@@ -32,6 +34,11 @@
       {title}{#if subtitle}, <i>{subtitle}</i>{/if}
     </h2>
   </a>
+  {#if isSelected}
+    <div class="selected-works__slide">
+      <ProjectSlide slide={project.slides[0]} preview={!isSettled} />
+    </div>
+  {/if}
 </section>
 
 <style lang="scss">
@@ -61,15 +68,18 @@
 
     &.is-selected {
       $bottom-margin: 1.5rem;
-      padding: 0 0.25rem $bottom-margin;
-      margin-bottom: -$bottom-margin;
-      background-color: white;
+      padding: $bottom-margin 0.25rem;
+      margin: -$bottom-margin 0;
 
       h2 {
-        color: white;
-        mix-blend-mode: difference;
-        z-index: 999;
         transition: none;
+      }
+    }
+    &.should-blend {
+      /* background-color: white; */
+      h2 {
+        color: red;
+        // mix-blend-mode: difference;
       }
     }
   }
@@ -82,6 +92,7 @@
     font-size: var(--selected-works-font-size);
     line-height: var(--selected-works-line-height);
     text-align: center;
+    z-index: 999;
   }
 
   a {
@@ -93,5 +104,10 @@
       padding: 0;
       color: black;
     }
+  }
+
+  .selected-works__slide {
+    @include fullscreen;
+    pointer-events: none;
   }
 </style>

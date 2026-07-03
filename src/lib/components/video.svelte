@@ -39,9 +39,9 @@
   })
 
   $effect(() => {
-    if (!isPreviewSlide || !ref) return
+    /*  if (!isPreviewSlide || !ref) return
     if (preview) ref.pause()
-    else ref.play()
+    else ref.play() */
   })
 </script>
 

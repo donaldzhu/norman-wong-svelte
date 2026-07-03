@@ -10,6 +10,8 @@
     SELECTED_WORKS_REQUIRES_SOFT_ADJUSTMENT_THRESHOLD,
     SELECTED_WORKS_EDGE_CUSHION_MULTIPLES,
     SELECTED_WORKS_SCROLL_THRESHOLD,
+    SHOULD_BLEND_THRESHOLD,
+    CENTER_ADJUST_DELAY_MS,
   } from "./_components/config"
   import SelectedProjectSection from "./_components/selected/selectedProjectSection.svelte"
   import ProjectSlide from "./_components/projectSlides/projectSlide.svelte"
@@ -32,7 +34,7 @@
   let lastScrollTop = $state(0)
   let centerProjectIndex = $state<number>()
 
-  const previewSlide = $derived(
+  const slide = $derived(
     centerProjectIndex === undefined || !projects.length
       ? undefined
       : projects[centerProjectIndex % projects.length]?.slides[0],
@@ -40,12 +42,15 @@
 
   let resizeObserver: ResizeObserver
   let scrollTween: gsap.core.Timeline | undefined
+  let centerAdjustTimeout: ReturnType<typeof setTimeout> | undefined
+  let centerAdjustTween: gsap.core.Tween | undefined
 
   let hasInitialized = $state(false)
   let isRecentering = $state(false)
   let isSettled = $state(false)
   let isNavigating = $state(false)
   let isMounted = $state(false)
+  let lastOffset = $state(0)
   let requiresSoftAdjustment = $state(false)
 
   let userHasScrolled = $state(false)
@@ -57,35 +62,65 @@
     )
   }
 
+  const getOffset = () => {
+    if (centerProjectIndex === undefined) return 0
+    const scrollElement = getAllRows()[centerProjectIndex]
+    const { top, height } = scrollElement.getBoundingClientRect()
+    return Math.ceil(top + height / 2 - window.innerHeight / 2)
+  }
+
+  const cancelCenterAdjust = () => {
+    if (centerAdjustTimeout) {
+      clearTimeout(centerAdjustTimeout)
+      centerAdjustTimeout = undefined
+    }
+    centerAdjustTween?.kill()
+    centerAdjustTween = undefined
+  }
+
+  const scheduleCenterAdjust = () => {
+    cancelCenterAdjust()
+    centerAdjustTimeout = setTimeout(() => {
+      centerAdjustTimeout = undefined
+      if (!scrollContainerRef || userHasScrolled) return
+
+      const centerOffset = getOffset()
+      if (Math.abs(centerOffset) <= SHOULD_BLEND_THRESHOLD / 2) return
+
+      centerAdjustTween = gsap.to(scrollContainerRef, {
+        scrollTop: scrollContainerRef.scrollTop + centerOffset,
+        duration: ANIMATION_DURATION,
+        ease: ANIMATION_EASE,
+        onComplete: () => {
+          centerAdjustTween = undefined
+        },
+      })
+    }, CENTER_ADJUST_DELAY_MS)
+  }
+
   const recenter = () => {
-    if (!scrollContainerRef || scrollSegmentHeight <= 0 || userHasScrolled)
-      return
-    isRecentering = true
-    console.log("recentering")
+    if (!scrollContainerRef || scrollSegmentHeight <= 0) return
 
     const offset = scrollContainerRef.scrollTop % scrollSegmentHeight
-    let target = CENTER_INDEX * scrollSegmentHeight + offset
+    const target = CENTER_INDEX * scrollSegmentHeight + offset
 
-    if (centerProjectIndex !== undefined && !requiresSoftAdjustment) {
-      const scrollElement = getAllRows()[centerProjectIndex]
-      const { top, height } = scrollElement.getBoundingClientRect()
-      const compositionOffset = Math.ceil(
-        top + height / 2 - window.innerHeight / 2,
-      )
-      if (
-        Math.abs(compositionOffset) >
-        SELECTED_WORKS_REQUIRES_SOFT_ADJUSTMENT_THRESHOLD
-      )
-        requiresSoftAdjustment = true
-    }
+    if (
+      Math.abs(lastOffset) > SELECTED_WORKS_REQUIRES_SOFT_ADJUSTMENT_THRESHOLD
+    )
+      requiresSoftAdjustment = true
 
     const minDelta = SELECTED_WORKS_RECENTER_MIN_MULTIPLES * scrollSegmentHeight
     if (Math.abs(scrollContainerRef.scrollTop - target) < minDelta) return
 
+    isRecentering = true
+    userHasScrolled = false
+
     tick().then(() => {
-      console.log(isRecentering, requiresSoftAdjustment)
-      if (scrollContainerRef) scrollContainerRef.scrollTop = Math.round(target)
+      if (!scrollContainerRef || userHasScrolled) return
+      scrollContainerRef.scrollTop = Math.round(target)
     })
+
+    scheduleCenterAdjust()
   }
 
   const isNearTrueEdge = () => {
@@ -95,6 +130,16 @@
     const edgeCushion =
       scrollSegmentHeight * SELECTED_WORKS_EDGE_CUSHION_MULTIPLES
     return scrollTop < edgeCushion || scrollTop > maxScrollTop - edgeCushion
+  }
+
+  const shouldHighlightCenter = (index: number) => {
+    if (!isRecentering || centerProjectIndex === undefined) return false
+    const isCenter = Math.floor(index / projects.length) === CENTER_INDEX
+    const isSelected =
+      index % projects.length === centerProjectIndex % projects.length
+    if (isCenter && isSelected)
+      console.log("isCenter", index, centerProjectIndex)
+    return isSelected
   }
 
   const onObserverResize = (isInitialResize = false) => {
@@ -137,7 +182,7 @@
     isRecentering = false
     hasInitialized = true
     userHasScrolled = true
-    console.log("onuserscroll")
+    cancelCenterAdjust()
   }
 
   const onscroll = () => {
@@ -145,19 +190,13 @@
     if (hasInitialized) updateCenterProjectIndex()
     isSettled = false
     userHasScrolled = false
+    if (!isRecentering) lastOffset = getOffset()
     if (isNearTrueEdge()) return recenter()
   }
 
   const onscrollend = () => {
     const difference = updateLastScrollTop()
     isSettled = true
-
-    console.log(
-      "onscrollend",
-      isNavigating,
-      isRecentering,
-      requiresSoftAdjustment,
-    )
     if (
       Math.abs(difference) <= SELECTED_WORKS_SCROLL_THRESHOLD ||
       isNavigating ||
@@ -225,6 +264,7 @@
 
   onDestroy(() => {
     scrollTween?.kill()
+    cancelCenterAdjust()
     resizeObserver?.disconnect()
   })
 </script>
@@ -246,11 +286,6 @@
     : `y ${SELECTED_WORKS_SNAP_STRICTNESS}`}
   style:--snap-stop={SELECTED_WORKS_SNAP_STOP}
 >
-  <div class="selected-works__slide">
-    {#if previewSlide}
-      <ProjectSlide slide={previewSlide} preview={!isSettled} inline />
-    {/if}
-  </div>
   <div class="selected-works__scroll__track" bind:this={scrollTrackRef}>
     {#each copyIndices as copyIndex, i (copyIndex)}
       <div
@@ -259,11 +294,15 @@
       >
         {#each projects as project, ii (project._id)}
           {@const flatIndex = i * projects.length + ii}
+          {@const isSelected = flatIndex === centerProjectIndex}
           <SelectedProjectSection
             {project}
-            {isSettled}
-            isSelected={flatIndex === centerProjectIndex}
+            {isSelected}
             {isNavigating}
+            {isSettled}
+            shouldBlend={(Math.abs(lastOffset) <= SHOULD_BLEND_THRESHOLD &&
+              isSelected) ||
+              shouldHighlightCenter(flatIndex)}
             {onNavigate}
           />
         {/each}
@@ -287,10 +326,8 @@
   }
 
   .selected-works__slide {
-    position: sticky;
-    top: 0;
-    height: 0;
-    overflow: visible;
+    @include fullscreen;
+    pointer-events: none;
   }
 
   .selected-works__scroll__track,

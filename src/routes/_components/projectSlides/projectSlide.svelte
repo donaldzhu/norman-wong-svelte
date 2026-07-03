@@ -10,17 +10,15 @@
   let {
     slide,
     preview,
-    inline = false,
   }: {
     slide: SlideData
     preview?: boolean
-    inline?: boolean
   } = $props()
 
   const { mobileOrientation } = $derived(slide)
 </script>
 
-<div class="project-slide" class:project-slide--inline={inline}>
+<div class="project-slide">
   <div
     class="project-slide__media-container"
     class:landscape={mobileOrientation === Orientation.Landscape}
@@ -41,12 +39,6 @@
     @include fullscreen;
     @include flex-column;
     pointer-events: none;
-
-    &.project-slide--inline {
-      position: relative;
-      width: 100dvw;
-      height: 100dvh;
-    }
   }
 
   .project-slide__media-container {
