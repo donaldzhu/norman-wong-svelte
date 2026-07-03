@@ -112,6 +112,12 @@ export const SLIDE_QUERY = `
       },
       video {
         asset->
+      },
+      mobileImage {
+        ${HYDRATE_IMAGE_QUERY}
+      },
+      mobileVideo {
+        asset->
       }
     }
   }

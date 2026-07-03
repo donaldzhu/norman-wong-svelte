@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { SanityImageObjectWithAsset } from "$lib/types/sanity"
-  import { Orientation } from "$lib/utils/dom"
+  import { isMobile, Orientation } from "$lib/utils/dom"
   import { getImageSrc, type SizeSettings } from "$lib/utils/media"
   import { getPlaceholderSrc } from "$lib/utils/sanity"
+  import { onMount } from "svelte"
 
   let {
     image,
@@ -12,6 +13,7 @@
     orientation,
     ref = $bindable<HTMLDivElement | null>(),
     noPreview,
+    isMobileMedia,
   }: {
     image: SanityImageObjectWithAsset
     style?: string
@@ -20,6 +22,7 @@
     orientation?: Orientation
     ref?: HTMLDivElement | null
     noPreview?: boolean
+    isMobileMedia?: boolean
   } = $props()
 
   const alt = $derived(image?.asset?.altText)
@@ -27,6 +30,7 @@
   const height = $derived(image?.asset?.metadata?.dimensions?.height)
   const imgSrc = $derived(getImageSrc(image, sizeSettings))
   const placeholderSrc = $derived(getPlaceholderSrc(image))
+  let windowIsMobile = $state<boolean>()
 
   const imageId = $derived(image?.asset?._id)
   let loadedImageId = $state<string>()
@@ -40,7 +44,12 @@
 
   $effect(() => {
     if (!imgElement || !imageId) return
+    if (windowIsMobile !== undefined && windowIsMobile !== isMobileMedia) return
     if (imgElement.complete && imgElement.naturalWidth > 0) onload()
+  })
+
+  onMount(() => {
+    windowIsMobile = isMobile()
   })
 </script>
 
@@ -50,6 +59,7 @@
   {style}
   class:portrait={orientation === Orientation.Portrait}
   class:landscape={orientation === Orientation.Landscape}
+  class:is-mobile-media={isMobileMedia}
   style:aspect-ratio="{width}/{height}"
 >
   {#if placeholderSrc && !noPreview}
@@ -72,12 +82,15 @@
   />
 </div>
 
+<svelte:window on:resize={() => (windowIsMobile = isMobile())} />
+
 <style lang="scss">
   @use "$lib/styles/_entry.scss" as *;
 
   div {
-    position: relative;
     @include auto-fit-media;
+    @include demarcate-media;
+    position: relative;
   }
 
   img {

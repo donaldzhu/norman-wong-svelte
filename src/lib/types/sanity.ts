@@ -30,9 +30,11 @@ export interface SanityVideoObject {
 export type MediaData = {
   mediaType: MediaType.Image
   image: SanityImageObjectWithAsset
+  mobileImage?: SanityImageObjectWithAsset
 } | {
   mediaType: MediaType.Video
   video: SanityVideoObject
+  mobileVideo?: SanityVideoObject
 }
 
 

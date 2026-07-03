@@ -3,7 +3,7 @@
   import "@mux/mux-player"
   import { onMount } from "svelte"
   import PlayIcon from "$lib/assets/svg/play.svelte"
-  import { Orientation } from "$lib/utils/dom"
+  import { isMobile, Orientation } from "$lib/utils/dom"
 
   let {
     video,
@@ -11,6 +11,7 @@
     mediaStyle,
     orientation,
     preview,
+    isMobileMedia,
     ref = $bindable<HTMLVideoElement | null>(),
   }: {
     video?: SanityVideoObject
@@ -19,17 +20,20 @@
     orientation?: Orientation
     preview?: boolean
     ref?: HTMLVideoElement | null
+    isMobileMedia?: boolean
   } = $props()
 
   const asset = $derived(video?.asset)
   const playbackId = $derived(asset?.playbackId)
   const isReady = $derived(asset?.status === "ready")
   const aspectRatio = $derived(asset?.data.aspect_ratio)
+  let windowIsMobile = $state<boolean>()
 
   let paused = $state(false)
   const isPreviewSlide = preview
 
   onMount(() => {
+    windowIsMobile = isMobile()
     if (!ref) return
     if (!preview) {
       ref.play().catch((error: Error) => {
@@ -39,9 +43,13 @@
   })
 
   $effect(() => {
-    /*  if (!isPreviewSlide || !ref) return
-    if (preview) ref.pause()
-    else ref.play() */
+    if (!isPreviewSlide || !ref) return
+    if (
+      preview ||
+      (windowIsMobile !== undefined && windowIsMobile !== isMobileMedia)
+    )
+      ref.pause()
+    else ref.play()
   })
 </script>
 
@@ -51,6 +59,7 @@
     class:video-paused={paused}
     class:portrait={orientation === Orientation.Portrait}
     class:landscape={orientation === Orientation.Landscape}
+    class:is-mobile-media={isMobileMedia}
     onclick={() => {
       if (paused) ref?.play()
     }}
@@ -74,16 +83,19 @@
   </button>
 {/if}
 
+<svelte:window on:resize={() => (windowIsMobile = isMobile())} />
+
 <style lang="scss">
   @use "$lib/styles/_entry.scss" as *;
 
   button {
+    @include auto-fit-media;
+    @include demarcate-media;
     all: unset;
     aspect-ratio: var(--aspect-ratio);
     object-fit: cover;
     position: relative;
     display: flex;
-    @include auto-fit-media;
   }
 
   .video-paused {

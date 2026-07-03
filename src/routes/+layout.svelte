@@ -5,6 +5,8 @@
 
   let { children, data } = $props()
   let infoIsVisible = $state(false)
+
+  console.log(data?.selectedWorks?.projects)
 </script>
 
 {#if data?.header}
