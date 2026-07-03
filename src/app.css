@@ -73,6 +73,7 @@ p {
   --info-font-size: 4.5rem;
   --selected-works-font-size: 11rem;
   --ui-text-height: calc(var(--ui-font-size) * var(--ui-line-height));
+  --selected-works-line-height: 0.95;
 }
 @media (max-width: 768px) {
   :root {
@@ -85,6 +86,7 @@ p {
     --ui-font-size: 1.25rem;
     --info-font-size: 3.8rem;
     --selected-works-font-size: 6.8rem;
+    --selected-works-line-height: 1.05;
   }
 }
 @media (min-width: 1920px) {

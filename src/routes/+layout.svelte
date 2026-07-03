@@ -31,12 +31,6 @@
   const pageSlide = $derived(
     pageProject?.slides[parseInt(page.params.slide ?? "1") - 1],
   )
-
-  const previewSlide = $derived(
-    page.route.id === "/" ? slideContext.slide : undefined,
-  )
-
-  const slide = $derived(pageSlide ?? previewSlide)
 </script>
 
 {#if data?.header}
@@ -47,8 +41,8 @@
   <Info data={data.info} />
 {/if}
 
-{#if slide}
-  <ProjectSlide {slide} preview={!slideContext.autoPlay} />
+{#if pageSlide}
+  <ProjectSlide slide={pageSlide} preview={!slideContext.autoPlay} />
 {/if}
 
 {@render children()}

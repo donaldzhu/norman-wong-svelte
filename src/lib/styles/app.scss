@@ -87,6 +87,7 @@ p {
   --selected-works-font-size: 11rem;
 
   --ui-text-height: calc(var(--ui-font-size) * var(--ui-line-height));
+  --selected-works-line-height: 0.95;
 
   @include mobile {
     --x-margin: 2rem;
@@ -99,6 +100,7 @@ p {
     --ui-font-size: 1.25rem;
     --info-font-size: 3.8rem;
     --selected-works-font-size: 6.8rem;
+    --selected-works-line-height: 1.05;
   }
 
   @include wide-desktop {

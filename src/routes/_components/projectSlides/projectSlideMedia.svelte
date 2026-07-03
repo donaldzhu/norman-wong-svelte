@@ -76,7 +76,7 @@
     width: 100%;
     min-height: 0;
     max-height: calc(100dvh - #{$header-height});
-    pointer-events: all;
+    pointer-events: none;
 
     @include desktop {
       grid-column: var(--desktop-grid-layout);

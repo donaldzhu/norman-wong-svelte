@@ -12,6 +12,7 @@
     SELECTED_WORKS_SCROLL_THRESHOLD,
   } from "./_components/config"
   import SelectedProjectSection from "./_components/selected/selectedProjectSection.svelte"
+  import ProjectSlide from "./_components/projectSlides/projectSlide.svelte"
   import { getSlideContext } from "../lib/context/slideContext.js"
   import { goto } from "$app/navigation"
   import type { ProjectData } from "$lib/types/sanity"
@@ -69,7 +70,7 @@
     const offset = scrollContainerRef.scrollTop % scrollSegmentHeight
     let target = CENTER_INDEX * scrollSegmentHeight + offset
 
-    if (centerProjectIndex !== undefined) {
+    if (centerProjectIndex !== undefined && !requiresSoftAdjustment) {
       const scrollElement = getAllRows()[centerProjectIndex]
       const { top, height } = scrollElement.getBoundingClientRect()
       const compositionOffset = Math.ceil(
@@ -86,7 +87,8 @@
     if (Math.abs(scrollContainerRef.scrollTop - target) < minDelta) return
 
     tick().then(() => {
-      if (scrollContainerRef) scrollContainerRef.scrollTop = target
+      console.log(isRecentering, requiresSoftAdjustment)
+      if (scrollContainerRef) scrollContainerRef.scrollTop = Math.round(target)
     })
   }
 
@@ -144,7 +146,6 @@
   const onscroll = () => {
     if (scrollSegmentHeight <= 0 || isNavigating) return
     if (hasInitialized) updateCenterProjectIndex()
-    isRecentering = false
     isSettled = false
     userHasScrolled = false
     if (isNearTrueEdge()) return recenter()
@@ -154,13 +155,19 @@
     const difference = updateLastScrollTop()
     isSettled = true
 
+    console.log(
+      difference,
+      SELECTED_WORKS_SCROLL_THRESHOLD,
+      isNavigating,
+      isRecentering,
+    )
     if (
-      difference <= SELECTED_WORKS_SCROLL_THRESHOLD ||
+      Math.abs(difference) <= SELECTED_WORKS_SCROLL_THRESHOLD ||
       isNavigating ||
       isRecentering
     )
       return
-    isRecentering = false
+
     recenter()
   }
 
@@ -200,7 +207,7 @@
       })
     scrollTween.to(target.querySelectorAll("h2"), {
       opacity: 0,
-      duration: 100,
+      duration: 1,
       ease: ANIMATION_EASE,
       delay: isCenterProject ? 0.125 : 0,
     })
@@ -242,6 +249,15 @@
     : `y ${SELECTED_WORKS_SNAP_STRICTNESS}`}
   style:--snap-stop={SELECTED_WORKS_SNAP_STOP}
 >
+  <div class="selected-works__slide">
+    {#if slideContext.slide}
+      <ProjectSlide
+        slide={slideContext.slide}
+        preview={!slideContext.autoPlay}
+        inline
+      />
+    {/if}
+  </div>
   <div class="selected-works__scroll__track" bind:this={scrollTrackRef}>
     {#each copyIndices as copyIndex, i (copyIndex)}
       <div
@@ -275,6 +291,13 @@
     @include hide-scrollbars;
     height: 100dvh;
     overflow: hidden auto;
+  }
+
+  .selected-works__slide {
+    position: sticky;
+    top: 0;
+    height: 0;
+    overflow: visible;
   }
 
   .selected-works__scroll__track,
