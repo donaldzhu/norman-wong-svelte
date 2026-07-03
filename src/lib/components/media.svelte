@@ -17,6 +17,7 @@
     sizeSettings,
     orientation,
     preview,
+    hasMobileMedia,
   }: {
     media: MediaData
     style?: string
@@ -26,6 +27,7 @@
     noPreview?: boolean
     orientation?: Orientation
     preview?: boolean
+    hasMobileMedia?: boolean
   } = $props()
 </script>
 
@@ -34,23 +36,26 @@
   isMobileMedia?: boolean,
 )}
   <Image
+    bind:ref={ref as HTMLDivElement | null}
     image={imageAsset}
     {style}
     {mediaStyle}
     {sizeSettings}
     {orientation}
+    {hasMobileMedia}
     {isMobileMedia}
   />
 {/snippet}
 
 {#snippet video(videoAsset: SanityVideoObject, isMobileMedia?: boolean)}
   <Video
+    bind:ref={ref as HTMLVideoElement | null}
     video={videoAsset}
     {style}
     {mediaStyle}
     {orientation}
-    bind:ref={ref as HTMLVideoElement | null}
     {preview}
+    {hasMobileMedia}
     {isMobileMedia}
   />
 {/snippet}

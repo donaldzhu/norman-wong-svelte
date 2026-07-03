@@ -13,6 +13,7 @@
     orientation,
     ref = $bindable<HTMLDivElement | null>(),
     noPreview,
+    hasMobileMedia,
     isMobileMedia,
   }: {
     image: SanityImageObjectWithAsset
@@ -22,6 +23,7 @@
     orientation?: Orientation
     ref?: HTMLDivElement | null
     noPreview?: boolean
+    hasMobileMedia?: boolean
     isMobileMedia?: boolean
   } = $props()
 
@@ -44,7 +46,12 @@
 
   $effect(() => {
     if (!imgElement || !imageId) return
-    if (windowIsMobile !== undefined && windowIsMobile !== isMobileMedia) return
+    if (
+      hasMobileMedia &&
+      windowIsMobile !== undefined &&
+      windowIsMobile !== isMobileMedia
+    )
+      return
     if (imgElement.complete && imgElement.naturalWidth > 0) onload()
   })
 
@@ -59,6 +66,7 @@
   {style}
   class:portrait={orientation === Orientation.Portrait}
   class:landscape={orientation === Orientation.Landscape}
+  class:has-mobile-media={hasMobileMedia}
   class:is-mobile-media={isMobileMedia}
   style:aspect-ratio="{width}/{height}"
 >
@@ -106,6 +114,5 @@
     position: absolute;
     inset: 0;
     z-index: 2;
-    /* filter: blur(5px); */
   }
 </style>

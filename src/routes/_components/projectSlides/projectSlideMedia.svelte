@@ -58,6 +58,8 @@
     }}
     {orientation}
     {preview}
+    hasMobileMedia={("mobileImage" in media && !!media.mobileImage) ||
+      ("mobileVideo" in media && !!media.mobileVideo)}
   />
 </div>
 

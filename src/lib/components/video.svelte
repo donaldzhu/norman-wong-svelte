@@ -11,6 +11,7 @@
     mediaStyle,
     orientation,
     preview,
+    hasMobileMedia,
     isMobileMedia,
     ref = $bindable<HTMLVideoElement | null>(),
   }: {
@@ -20,6 +21,7 @@
     orientation?: Orientation
     preview?: boolean
     ref?: HTMLVideoElement | null
+    hasMobileMedia?: boolean
     isMobileMedia?: boolean
   } = $props()
 
@@ -46,7 +48,9 @@
     if (!isPreviewSlide || !ref) return
     if (
       preview ||
-      (windowIsMobile !== undefined && windowIsMobile !== isMobileMedia)
+      (hasMobileMedia &&
+        windowIsMobile !== undefined &&
+        windowIsMobile !== isMobileMedia)
     )
       ref.pause()
     else ref.play()
@@ -59,6 +63,7 @@
     class:video-paused={paused}
     class:portrait={orientation === Orientation.Portrait}
     class:landscape={orientation === Orientation.Landscape}
+    class:has-mobile-media={hasMobileMedia}
     class:is-mobile-media={isMobileMedia}
     onclick={() => {
       if (paused) ref?.play()

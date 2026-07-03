@@ -59,15 +59,17 @@
 }
 
 @mixin demarcate-media {
-  &:not(.is-mobile-media) {
-    @include mobile {
-      display: none;
+  &.has-mobile-media {
+    &:not(.is-mobile-media) {
+      @include mobile {
+        display: none;
+      }
     }
-  }
 
-  &.is-mobile-media {
-    @include desktop {
-      display: none;
+    &.is-mobile-media {
+      @include desktop {
+        display: none;
+      }
     }
   }
 }
