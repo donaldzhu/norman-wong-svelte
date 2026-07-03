@@ -13,6 +13,7 @@
     sizeSettings,
     orientation,
     noPreview,
+    preview,
   }: {
     media: MediaData
     style?: string
@@ -21,6 +22,7 @@
     sizeSettings?: SizeSettings
     noPreview?: boolean
     orientation?: Orientation
+    preview?: boolean
   } = $props()
 </script>
 
@@ -41,5 +43,6 @@
     {mediaStyle}
     {orientation}
     bind:ref={ref as HTMLVideoElement | null}
+    {preview}
   />
 {/if}

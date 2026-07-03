@@ -85,8 +85,14 @@
           <a
             class:active={page.url.pathname === href && !infoIsVisible}
             {href}
-            onclick={onLinkClick}>{text}</a
+            onclick={onLinkClick}
           >
+            {#if index === 0}
+              <h1>{text}</h1>
+            {:else}
+              {text}
+            {/if}
+          </a>
           {#if index < Object.entries(getLinks(device)).length - 1}
             <span>/</span>
           {/if}

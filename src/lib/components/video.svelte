@@ -10,12 +10,14 @@
     style,
     mediaStyle,
     orientation,
+    preview,
     ref = $bindable<HTMLVideoElement | null>(),
   }: {
     video?: SanityVideoObject
     style?: string
     mediaStyle?: string
     orientation?: Orientation
+    preview?: boolean
     ref?: HTMLVideoElement | null
   } = $props()
 
@@ -25,12 +27,21 @@
   const aspectRatio = $derived(asset?.data.aspect_ratio)
 
   let paused = $state(false)
+  const isPreviewSlide = preview
 
   onMount(() => {
     if (!ref) return
-    ref.play().catch((error: Error) => {
-      if (error.name === "NotAllowedError") paused = true
-    })
+    if (!preview) {
+      ref.play().catch((error: Error) => {
+        if (error.name === "NotAllowedError") paused = true
+      })
+    }
+  })
+
+  $effect(() => {
+    if (!isPreviewSlide || !ref) return
+    if (preview) ref.pause()
+    else ref.play()
   })
 </script>
 
@@ -44,7 +55,7 @@
       if (paused) ref?.play()
     }}
   >
-    {#if paused}
+    {#if paused && !preview}
       <PlayIcon />
     {/if}
     <mux-player
@@ -53,7 +64,7 @@
       muted
       loop
       playsinline
-      autoplay
+      autoplay={!preview}
       thumbnail-time="0"
       onpause={() => (paused = true)}
       onplay={() => (paused = false)}

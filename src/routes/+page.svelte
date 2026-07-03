@@ -3,15 +3,16 @@
   import { getTitle } from "$lib/utils/meta"
   import { onDestroy, onMount, tick } from "svelte"
   import {
-    PAGE_INFINITE_SCROLL_COPY_COUNT,
-    PAGE_SNAP_STRICTNESS,
-    PAGE_SNAP_STOP,
-    RECENTER_MIN_MULTIPLES,
-    REQUIRES_SOFT_ADJUSTMENT_THRESHOLD,
-    EDGE_CUSHION_MULTIPLES,
-    SCROLL_THRESHOLD,
-  } from "./_selectedComponents/configs.js"
-  import SelectedProjectSection from "./_selectedComponents/selectedProjectSection.svelte"
+    SELECTED_WORKS_INFINITE_SCROLL_COPY_COUNT,
+    SELECTED_WORKS_SNAP_STRICTNESS,
+    SELECTED_WORKS_SNAP_STOP,
+    SELECTED_WORKS_RECENTER_MIN_MULTIPLES,
+    SELECTED_WORKS_REQUIRES_SOFT_ADJUSTMENT_THRESHOLD,
+    SELECTED_WORKS_EDGE_CUSHION_MULTIPLES,
+    SELECTED_WORKS_SCROLL_THRESHOLD,
+  } from "./_components/config"
+  import SelectedProjectSection from "./_components/selected/selectedProjectSection.svelte"
+  import { getSlideContext } from "../lib/context/slideContext.js"
   import { goto } from "$app/navigation"
   import type { ProjectData } from "$lib/types/sanity"
   import gsap from "gsap"
@@ -22,14 +23,24 @@
 
   const projects = $derived(data?.selectedWorks?.projects ?? [])
 
-  const CENTER_INDEX = (PAGE_INFINITE_SCROLL_COPY_COUNT - 1) / 2
-  const copyIndices = quickArray(PAGE_INFINITE_SCROLL_COPY_COUNT)
+  const CENTER_INDEX = (SELECTED_WORKS_INFINITE_SCROLL_COPY_COUNT - 1) / 2
+  const copyIndices = quickArray(SELECTED_WORKS_INFINITE_SCROLL_COPY_COUNT)
 
   let scrollContainerRef = $state<HTMLDivElement>()
   let scrollTrackRef = $state<HTMLDivElement>()
   let scrollSegmentHeight = $state(0)
   let lastScrollTop = $state(0)
   let centerProjectIndex = $state<number>()
+
+  const slideContext = getSlideContext()
+
+  $effect(() => {
+    slideContext.slide =
+      centerProjectIndex === undefined || !projects.length
+        ? undefined
+        : projects[centerProjectIndex % projects.length]?.slides[0]
+    slideContext.autoPlay = isSettled
+  })
 
   let resizeObserver: ResizeObserver
   let scrollTween: gsap.core.Timeline | undefined
@@ -64,11 +75,14 @@
       const compositionOffset = Math.ceil(
         top + height / 2 - window.innerHeight / 2,
       )
-      if (Math.abs(compositionOffset) > REQUIRES_SOFT_ADJUSTMENT_THRESHOLD)
+      if (
+        Math.abs(compositionOffset) >
+        SELECTED_WORKS_REQUIRES_SOFT_ADJUSTMENT_THRESHOLD
+      )
         requiresSoftAdjustment = true
     }
 
-    const minDelta = RECENTER_MIN_MULTIPLES * scrollSegmentHeight
+    const minDelta = SELECTED_WORKS_RECENTER_MIN_MULTIPLES * scrollSegmentHeight
     if (Math.abs(scrollContainerRef.scrollTop - target) < minDelta) return
 
     tick().then(() => {
@@ -80,14 +94,15 @@
     if (!scrollContainerRef) return false
     const { scrollTop, clientHeight, scrollHeight } = scrollContainerRef
     const maxScrollTop = scrollHeight - clientHeight
-    const edgeCushion = scrollSegmentHeight * EDGE_CUSHION_MULTIPLES
+    const edgeCushion =
+      scrollSegmentHeight * SELECTED_WORKS_EDGE_CUSHION_MULTIPLES
     return scrollTop < edgeCushion || scrollTop > maxScrollTop - edgeCushion
   }
 
   const onObserverResize = (isInitialResize = false) => {
     if (!scrollContainerRef || !scrollTrackRef) return
     const newSegmentHeight =
-      scrollTrackRef.scrollHeight / PAGE_INFINITE_SCROLL_COPY_COUNT
+      scrollTrackRef.scrollHeight / SELECTED_WORKS_INFINITE_SCROLL_COPY_COUNT
     if (newSegmentHeight <= 0) return
 
     const needsInitialScroll = scrollSegmentHeight <= 0
@@ -129,7 +144,6 @@
   const onscroll = () => {
     if (scrollSegmentHeight <= 0 || isNavigating) return
     if (hasInitialized) updateCenterProjectIndex()
-    // console.log("scroll", isRecentering)
     isRecentering = false
     isSettled = false
     userHasScrolled = false
@@ -140,9 +154,13 @@
     const difference = updateLastScrollTop()
     isSettled = true
 
-    if (difference <= SCROLL_THRESHOLD || isNavigating || isRecentering) return
+    if (
+      difference <= SELECTED_WORKS_SCROLL_THRESHOLD ||
+      isNavigating ||
+      isRecentering
+    )
+      return
     isRecentering = false
-    // console.log("scrollend", isRecentering)
     recenter()
   }
 
@@ -154,6 +172,8 @@
     const index = getAllRows().findIndex(child =>
       Array.from(child.children).find(anchor => anchor === target),
     )
+
+    const isCenterProject = index === centerProjectIndex
     centerProjectIndex = index
     isNavigating = true
 
@@ -171,16 +191,18 @@
         })
       },
     })
-    scrollTween.to(scrollContainerRef, {
-      scrollTop: scrollContainerRef.scrollTop + scrollDelta,
-      duration: ANIMATION_DURATION,
-      ease: ANIMATION_EASE,
-    })
-    scrollTween.to(target.querySelector("h2"), {
+
+    if (!isCenterProject)
+      scrollTween.to(scrollContainerRef, {
+        scrollTop: scrollContainerRef.scrollTop + scrollDelta,
+        duration: ANIMATION_DURATION,
+        ease: ANIMATION_EASE,
+      })
+    scrollTween.to(target.querySelectorAll("h2"), {
       opacity: 0,
-      duration: ANIMATION_DURATION,
+      duration: 100,
       ease: ANIMATION_EASE,
-      delay: 0.125,
+      delay: isCenterProject ? 0.125 : 0,
     })
 
     scrollTween.play()
@@ -217,8 +239,8 @@
   style:scroll-snap-type={(isRecentering && requiresSoftAdjustment) ||
   isNavigating
     ? "none"
-    : `y ${PAGE_SNAP_STRICTNESS}`}
-  style:--snap-stop={PAGE_SNAP_STOP}
+    : `y ${SELECTED_WORKS_SNAP_STRICTNESS}`}
+  style:--snap-stop={SELECTED_WORKS_SNAP_STOP}
 >
   <div class="selected-works__scroll__track" bind:this={scrollTrackRef}>
     {#each copyIndices as copyIndex, i (copyIndex)}

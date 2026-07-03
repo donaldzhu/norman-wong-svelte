@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { ProjectData } from "$lib/types/sanity"
-  import ProjectSlide from "../projects/[project]/[slide]/_components/projectSlide.svelte"
 
   let {
     project,
@@ -16,6 +15,7 @@
     onNavigate: (e: MouseEvent, project: ProjectData) => void
   } = $props()
   const { title, subtitle } = $derived(project)
+  const shouldBlend = $derived(isSelected && isSettled)
 </script>
 
 <section
@@ -23,6 +23,7 @@
   class:is-selected={isSelected}
   class:is-navigating={isNavigating}
   class:is-settled={isSettled}
+  class:should-blend={shouldBlend}
 >
   <a
     href={`/projects/${project.slug.current}/1`}
@@ -32,15 +33,7 @@
       {title}{#if subtitle}, <i>{subtitle}</i>{/if}
     {/snippet}
     <h2>{@render text()}</h2>
-    {#if isSelected && isSettled}
-      <h2 class="overlay">{@render text()}</h2>
-    {/if}
-
-    {#if isSelected}
-      <div class="selected-works__popup">
-        <ProjectSlide slide={project.slides[0]} />
-      </div>
-    {/if}
+    <h2 class="overlay">{@render text()}</h2>
   </a>
 </section>
 
@@ -49,12 +42,23 @@
 
   section {
     @include flex-column;
+    @include fade-in-out;
     scroll-snap-align: center;
     scroll-snap-stop: var(--snap-stop, normal);
     gap: var(--selected-works-inner-gap);
 
     &.is-navigating {
       pointer-events: none;
+      &:not(.is-selected) {
+        z-index: -1;
+        /*  opacity: 0; */
+      }
+
+      &.is-selected {
+        h2 {
+          transition: none;
+        }
+      }
     }
 
     &.is-selected {
@@ -65,23 +69,27 @@
 
       h2 {
         z-index: 999;
-        transition: none;
-      }
-
-      &.is-settled h2 {
-        color: white;
-        mix-blend-mode: difference;
+        @include fade-in-out;
       }
 
       a {
         position: relative;
       }
     }
+
+    &.should-blend {
+      h2 {
+        opacity: 0.2;
+      }
+
+      .overlay {
+        opacity: 0.8;
+      }
+    }
   }
 
   h2 {
     @include serif;
-    @include fade-in-out;
     font-size: var(--selected-works-font-size);
     line-height: 0.95;
     text-align: center;
@@ -96,24 +104,19 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      mix-blend-mode: normal;
-      opacity: 0.2;
-      color: #eee;
+      color: white;
+      mix-blend-mode: difference;
+      pointer-events: none;
+      opacity: 0;
     }
   }
 
   a {
     @include flex;
-    padding: 0;
-
+    &,
     &:hover {
+      padding: 0;
       color: black;
     }
-  }
-
-  .selected-works__popup {
-    @include fullscreen;
-    @include flex-column;
-    pointer-events: none;
   }
 </style>

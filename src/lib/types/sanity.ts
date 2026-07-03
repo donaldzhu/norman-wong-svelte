@@ -108,8 +108,6 @@ export interface ProjectSlideData {
 }
 
 export interface SlideData {
-  description: PortableTextBlock[]
-  year: number
   media: SlideMediaData[]
   mobileOrientation: Orientation
 }

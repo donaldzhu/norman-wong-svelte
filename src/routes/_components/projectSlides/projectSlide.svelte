@@ -1,37 +1,18 @@
 <script lang="ts">
   import type { SlideData } from "$lib/types/sanity"
   import { Orientation } from "$lib/utils/dom"
-  import { onMount, type Snippet } from "svelte"
   import {
     DESKTOP_GRID_COUNT,
     MOBILE_GRID_COUNT,
-  } from "../../_components/configs"
+  } from "../../projects/[project]/_components/configs"
   import ProjectSlideMedia from "./projectSlideMedia.svelte"
-  import { page } from "$app/state"
 
-  let {
-    children,
-    slide,
-    title,
-    subtitle,
-    label,
-  }: {
-    children?: Snippet
-    slide: SlideData
-    title?: string
-    subtitle?: string
-    label?: string
-  } = $props()
+  let { slide, preview }: { slide: SlideData; preview?: boolean } = $props()
 
-  const { description, year, mobileOrientation } = $derived(slide)
-  let opacity = $state(page.state.noPreview ? 0 : 1)
-  onMount(() => (opacity = 1))
+  const { mobileOrientation } = $derived(slide)
 </script>
 
 <div class="project-slide">
-  {#if children}
-    {@render children()}
-  {/if}
   <div
     class="project-slide__media-container"
     class:landscape={mobileOrientation === Orientation.Landscape}
@@ -40,34 +21,8 @@
     style:--mobile-grid-count={MOBILE_GRID_COUNT}
   >
     {#each slide.media as media (media._key)}
-      <ProjectSlideMedia {media} orientation={mobileOrientation} />
+      <ProjectSlideMedia {media} orientation={mobileOrientation} {preview} />
     {/each}
-  </div>
-  <div class="project-slide__info" style:opacity>
-    {#if title}
-      <h2>
-        {title}{#if subtitle}, {subtitle}{/if}
-        {#if description || year}
-          <span> — </span>
-        {/if}
-        {#if description}
-          <span>
-            {description}{#if year}<span>, </span>
-            {/if}
-          </span>
-        {/if}
-        {#if year}
-          <span>
-            {year}
-          </span>
-        {/if}
-      </h2>
-      {#if label}
-        <div>
-          {label}
-        </div>
-      {/if}
-    {/if}
   </div>
 </div>
 
@@ -77,6 +32,7 @@
   .project-slide {
     @include fullscreen;
     @include flex-column;
+    pointer-events: none;
   }
 
   .project-slide__media-container {
@@ -106,19 +62,5 @@
         justify-items: center;
       }
     }
-  }
-
-  .project-slide__info {
-    @include flex-column;
-    @include fade-in-out;
-    @include ui;
-    position: fixed;
-    bottom: 0;
-    width: 100vw;
-    flex: none;
-    box-sizing: border-box;
-    margin: 0 var(--x-margin);
-    padding-top: var(--header-spacing);
-    padding-bottom: var(--y-margin-bottom);
   }
 </style>

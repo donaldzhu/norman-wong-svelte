@@ -2,7 +2,6 @@
   import { goto } from "$app/navigation"
   import type { ProjectSlideData } from "$lib/types/sanity"
   import { wrap } from "$lib/utils/common"
-  import ProjectSlide from "./_components/projectSlide.svelte"
 
   let {
     data,
@@ -13,9 +12,7 @@
   } = $props()
 
   const { project: projectSlug, slide: slideNumber } = $derived(params)
-  const { title, subtitle } = $derived(data.project)
   const { slides } = $derived(data.project)
-  const slide = $derived(slides[parseInt(slideNumber) - 1])
 
   const onclick = (increment: 1 | -1) => {
     const newSlideNumber = parseInt(slideNumber) + increment
@@ -28,23 +25,16 @@
   }
 </script>
 
-<ProjectSlide
-  {slide}
-  {title}
-  {subtitle}
-  label={`${slideNumber} of ${slides.length}`}
->
-  <button
-    class="project-slide__button project-slide__button--previous"
-    onclick={() => onclick(-1)}
-    aria-label="Previous slide"
-  ></button>
-  <button
-    class="project-slide__button project-slide__button--next"
-    onclick={() => onclick(1)}
-    aria-label="Next slide"
-  ></button>
-</ProjectSlide>
+<button
+  class="project-slide__button project-slide__button--previous"
+  onclick={() => onclick(-1)}
+  aria-label="Previous slide"
+></button>
+<button
+  class="project-slide__button project-slide__button--next"
+  onclick={() => onclick(1)}
+  aria-label="Next slide"
+></button>
 
 <svelte:window on:keydown={onkeydown} />
 

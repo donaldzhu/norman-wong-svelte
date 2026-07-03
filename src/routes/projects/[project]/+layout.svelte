@@ -2,7 +2,7 @@
   import type { ProjectSlideData } from "$lib/types/sanity"
   import { filterFalsey } from "$lib/utils/common"
   import { MediaType, preloadImage } from "$lib/utils/media"
-  import { getTitle } from "$lib/utils/meta.js"
+  import { getTitle } from "$lib/utils/meta"
   import { onMount, type Snippet } from "svelte"
 
   let {

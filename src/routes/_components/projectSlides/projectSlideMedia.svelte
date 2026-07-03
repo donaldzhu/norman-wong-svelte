@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from "$app/state"
   import Media from "$lib/components/media.svelte"
   import type { SlideMediaData } from "$lib/types/sanity"
   import { Orientation } from "$lib/utils/dom"
@@ -7,18 +6,20 @@
     EXTRA_LARGE_DESKTOP_BREAKPOINT,
     LARGE_DESKTOP_BREAKPOINT,
     MOBILE_BREAKPOINT,
-  } from "../../../../_components/config"
+  } from "../config"
   import {
     DESKTOP_GRID_COUNT,
     MOBILE_GRID_COUNT,
-  } from "../../_components/configs"
+  } from "../../projects/[project]/_components/configs"
 
   let {
     media,
     orientation,
+    preview,
   }: {
     media: SlideMediaData
     orientation: Orientation
+    preview?: boolean
   } = $props()
   const { desktopStart, desktopEnd, mobileStart, mobileEnd } = $derived(media)
 
@@ -56,7 +57,7 @@
       },
     }}
     {orientation}
-    noPreview={page.state.noPreview}
+    {preview}
   />
 </div>
 
@@ -72,8 +73,8 @@
     );
 
     @include flex;
-    min-height: 0;
     width: 100%;
+    min-height: 0;
     max-height: calc(100dvh - #{$header-height});
     pointer-events: all;
 

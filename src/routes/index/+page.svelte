@@ -7,9 +7,9 @@
   import _ from "lodash"
   import { onMount } from "svelte"
   import AllThumbnailRow from "./_components/allThumbnailRow.svelte"
-  import { DEBOUNCE_TRANSITION } from "../_components/config.js"
-  import type { AllThumbnailData } from "../_components/types.js"
-  import { getTitle } from "$lib/utils/meta.js"
+  import { DEBOUNCE_TRANSITION } from "../_components/config"
+  import type { AllThumbnailData } from "../_components/types"
+  import { getTitle } from "$lib/utils/meta"
 
   let { data } = $props()
   const layout = $derived(data.allProjects?.desktopLayout)
