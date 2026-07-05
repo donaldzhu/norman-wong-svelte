@@ -74,6 +74,7 @@
 
   const scheduleCenterAdjust = () => {
     cancelCenterAdjust()
+    if (!requiresSoftAdjustment) return
     centerAdjustTimeout = setTimeout(() => {
       centerAdjustTimeout = undefined
       if (!scrollContainerRef || userHasScrolled) return
