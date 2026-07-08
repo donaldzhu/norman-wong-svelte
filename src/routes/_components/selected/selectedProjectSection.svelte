@@ -71,11 +71,12 @@
       margin-bottom: -$bottom-margin;
     }
 
-    &.should-blend {
-      background-color: white;
+    &.should-blend,
+    &:hover {
+      // background-color: white;
       h2 {
-        color: white;
-        mix-blend-mode: difference;
+        color: $gray;
+        // mix-blend-mode: difference;
       }
     }
 

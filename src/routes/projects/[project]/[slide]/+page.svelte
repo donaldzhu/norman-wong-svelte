@@ -17,6 +17,7 @@
   const slide = $derived(slides[parseInt(slideNumber) - 1])
 
   const onclick = (increment: 1 | -1) => {
+    if (slides.length === 1) return
     const newSlideNumber = parseInt(slideNumber) + increment
     goto(`/projects/${projectSlug}/${wrap(newSlideNumber, 1, slides.length)}`)
   }
@@ -28,16 +29,18 @@
 </script>
 
 <ProjectSlide {slide} />
-<button
-  class="project-slide__button project-slide__button--previous"
-  onclick={() => onclick(-1)}
-  aria-label="Previous slide"
-></button>
-<button
-  class="project-slide__button project-slide__button--next"
-  onclick={() => onclick(1)}
-  aria-label="Next slide"
-></button>
+{#if slides.length > 1}
+  <button
+    class="project-slide__button project-slide__button--previous"
+    onclick={() => onclick(-1)}
+    aria-label="Previous slide"
+  ></button>
+  <button
+    class="project-slide__button project-slide__button--next"
+    onclick={() => onclick(1)}
+    aria-label="Next slide"
+  ></button>
+{/if}
 
 <svelte:window on:keydown={onkeydown} />
 
