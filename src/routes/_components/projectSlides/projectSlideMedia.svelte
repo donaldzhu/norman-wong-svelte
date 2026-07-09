@@ -25,10 +25,10 @@
 
   const isLandscape = $derived(orientation === Orientation.Landscape)
   const desktopPercentage = $derived(
-    ((desktopEnd - desktopStart) / DESKTOP_GRID_COUNT) * 1.2,
+    ((desktopEnd - desktopStart) / DESKTOP_GRID_COUNT) * 1.2 * 2,
   )
   const mobilePercentage = $derived(
-    (mobileEnd - mobileStart) / MOBILE_GRID_COUNT,
+    ((mobileEnd - mobileStart) / MOBILE_GRID_COUNT) * 2,
   )
 </script>
 

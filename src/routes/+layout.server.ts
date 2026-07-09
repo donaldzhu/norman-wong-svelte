@@ -68,6 +68,11 @@ export const load = async () => {
         hidden,
         ${SLIDE_QUERY}
       }
+    },
+    "projects": *[_type == "project"] {
+      title,
+      subtitle,
+      slug
     }
   }
 `

@@ -26,9 +26,9 @@
     const projectSlug = page.url.pathname.split("/")[2]
     if (!projectSlug) return null
 
-    const project = data.allProjects.projects.find(
-      project => project.project.slug.current === projectSlug,
-    )?.project
+    const project = data.projects.find(
+      project => project.slug.current === projectSlug,
+    )
     return project
       ? `${project.title}${project.subtitle ? `, ${project.subtitle}` : ""}`
       : null

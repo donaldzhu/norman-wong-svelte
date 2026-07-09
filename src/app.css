@@ -31,13 +31,20 @@ button,
 button:hover,
 button:focus,
 button:active,
-button:visited {
+button:visited,
+[role=button],
+[role=button]:hover,
+[role=button]:focus,
+[role=button]:active,
+[role=button]:visited {
   all: unset;
   cursor: pointer;
   padding: var(--button-padding);
+  -webkit-tap-highlight-color: transparent;
 }
 a:hover,
-button:hover {
+button:hover,
+[role=button]:hover {
   color: #a0a0a0;
 }
 
@@ -68,7 +75,7 @@ p {
   --selected-works-inner-gap: 5rem;
   --project-slide-gap: 2rem;
   --project-slide-mobile-padding: 2rem;
-  --ui-font-size: 1.5rem;
+  --ui-font-size: 1.4rem;
   --ui-line-height: 1.2;
   --info-font-size: 4.5rem;
   --selected-works-font-size: 11rem;
@@ -91,6 +98,6 @@ p {
 }
 @media (min-width: 1920px) {
   :root {
-    --ui-font-size: 1.6rem;
+    --ui-font-size: 1.5rem;
   }
 }

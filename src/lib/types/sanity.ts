@@ -43,6 +43,7 @@ export interface SanityData {
   info: InfoData
   selectedWorks: SelectedWorksData
   allProjects: AllProjectsData
+  projects: Pick<ProjectData, 'title' | 'subtitle' | 'slug'>[]
 }
 
 export interface HeaderData {
@@ -75,6 +76,7 @@ type SlideMediaIds = string[][]
 export interface Slug {
   current: string
 }
+
 export interface ProjectData {
   _id: string
   title: string

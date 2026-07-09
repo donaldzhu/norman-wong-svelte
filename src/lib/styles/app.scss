@@ -33,7 +33,8 @@ body {
 }
 
 a,
-button {
+button,
+[role="button"] {
   &,
   &:hover,
   &:focus,
@@ -42,6 +43,7 @@ button {
     all: unset;
     cursor: pointer;
     padding: var(--button-padding);
+    -webkit-tap-highlight-color: transparent;
   }
 
   &:hover {
@@ -80,7 +82,7 @@ p {
   --project-slide-mobile-padding: 2rem;
 
   // typography
-  --ui-font-size: 1.5rem;
+  --ui-font-size: 1.4rem;
   --ui-line-height: 1.2;
 
   --info-font-size: 4.5rem;
@@ -104,6 +106,6 @@ p {
   }
 
   @include wide-desktop {
-    --ui-font-size: 1.6rem;
+    --ui-font-size: 1.5rem;
   }
 }
