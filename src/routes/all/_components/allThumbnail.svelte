@@ -86,9 +86,9 @@
     bind:ref={thumbnailRef}
     style="opacity: 0; width: auto;"
     sizeSettings={{
-      mobile: { height: 200 },
-      desktop: { height: 300 },
-      largeDesktop: { height: 400 },
+      mobile: { height: 200 * 2 },
+      desktop: { height: 300 * 2 },
+      largeDesktop: { height: 400 * 2 },
     }}
   />
 </a>

@@ -30,16 +30,16 @@
 
 <ProjectSlide {slide} />
 {#if slides.length > 1}
-  <button
+  <div
     class="project-slide__button project-slide__button--previous"
     onclick={() => onclick(-1)}
     aria-label="Previous slide"
-  ></button>
-  <button
+  ></div>
+  <div
     class="project-slide__button project-slide__button--next"
     onclick={() => onclick(1)}
     aria-label="Next slide"
-  ></button>
+  ></div>
 {/if}
 
 <svelte:window on:keydown={onkeydown} />
