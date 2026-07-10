@@ -41,6 +41,7 @@ button:visited,
   cursor: pointer;
   padding: var(--button-padding);
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 a:hover,
 button:hover,
