@@ -92,7 +92,9 @@
       <div class="header__primary-links">
         {#each Object.entries(getLinks(device)) as [text, href], index (href)}
           <a
-            class:active={page.url.pathname === href && !infoIsVisible}
+            class:active={page.url.pathname === href &&
+              !infoIsVisible &&
+              !navigation.pendingProjectTitle}
             {href}
             onclick={onLinkClick}
           >
