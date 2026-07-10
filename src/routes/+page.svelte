@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { quickArray } from "$lib/utils/common"
+  import { getProjectDisplayTitle, quickArray } from "$lib/utils/common"
   import { getTitle } from "$lib/utils/meta"
   import { onDestroy, onMount, tick } from "svelte"
   import {
@@ -18,6 +18,7 @@
   import SelectedProjectSection from "./_components/selected/selectedProjectSection.svelte"
   import { goto } from "$app/navigation"
   import type { ProjectData } from "$lib/types/sanity"
+  import { navigation } from "$lib/state/navigation.svelte"
   import gsap from "gsap"
   import { scrollend } from "$lib/actions/scrollendAction"
 
@@ -213,6 +214,7 @@
     centerProjectIndex = index
     isNavigating = true
     isRecentering = true
+    navigation.pendingProjectTitle = getProjectDisplayTitle(project)
 
     if (!scrollContainerRef) return
 

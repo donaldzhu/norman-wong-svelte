@@ -1,8 +1,13 @@
 <script lang="ts">
   import type { HeaderData, SanityData } from "$lib/types/sanity"
 
+  import { afterNavigate } from "$app/navigation"
   import { page } from "$app/state"
+  import { navigation } from "$lib/state/navigation.svelte"
   import { Device } from "$lib/utils/dom"
+  import { getProjectDisplayTitle } from "$lib/utils/common"
+  import { fade } from "svelte/transition"
+  import { HEADER_FADE_DURATION_MS } from "../config"
 
   let {
     data,
@@ -29,12 +34,16 @@
     const project = data.projects.find(
       project => project.slug.current === projectSlug,
     )
-    return project
-      ? `${project.title}${project.subtitle ? `, ${project.subtitle}` : ""}`
-      : null
+    return project ? getProjectDisplayTitle(project) : null
   }
 
-  const currentProject = $derived(getCurrentProject())
+  const currentProject = $derived(
+    navigation.pendingProjectTitle ?? getCurrentProject(),
+  )
+
+  afterNavigate(() => {
+    navigation.pendingProjectTitle = null
+  })
 
   // TODO
   const getCopy = (device: Device) => {
@@ -74,14 +83,14 @@
   }
 </script>
 
-{#each [Device.Mobile, Device.Desktop] as device}
+{#each [Device.Mobile, Device.Desktop] as device (device)}
   <header
     class:info-visible={infoIsVisible}
     class:mobile={device === Device.Mobile}
   >
     <nav>
       <div class="header__primary-links">
-        {#each Object.entries(getLinks(device)) as [text, href], index}
+        {#each Object.entries(getLinks(device)) as [text, href], index (href)}
           <a
             class:active={page.url.pathname === href && !infoIsVisible}
             {href}
@@ -99,7 +108,10 @@
         {/each}
       </div>
       {#if currentProject}
-        <div class="header__current-project">
+        <div
+          class="header__current-project"
+          in:fade={{ duration: HEADER_FADE_DURATION_MS }}
+        >
           <span>/</span>
           <a href={page.url.pathname} class="active">{currentProject}</a>
         </div>
