@@ -33,17 +33,4 @@ export const preloadImage = (image: SanityImageObjectWithAsset, sizeSettings?: S
   img.src = imgSrc.src
 }
 
-
-type MediaDimensions = {
-  width: number
-  height?: number
-} | {
-  width?: number
-  height: number
-}
-
-export interface SizeSettings {
-  mobile: MediaDimensions
-  desktop: MediaDimensions
-  largeDesktop: MediaDimensions
-}
+export type SizeSettings = number[]

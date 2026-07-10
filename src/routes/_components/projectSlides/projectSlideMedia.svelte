@@ -3,11 +3,6 @@
   import type { SlideMediaData } from "$lib/types/sanity"
   import { Orientation } from "$lib/utils/dom"
   import {
-    EXTRA_LARGE_DESKTOP_BREAKPOINT,
-    LARGE_DESKTOP_BREAKPOINT,
-    MOBILE_BREAKPOINT,
-  } from "../config"
-  import {
     DESKTOP_GRID_COUNT,
     MOBILE_GRID_COUNT,
   } from "../../projects/[project]/_components/configs"
@@ -42,20 +37,7 @@
   <Media
     {media}
     mediaStyle="object-fit: contain;"
-    sizeSettings={{
-      mobile: isLandscape
-        ? { width: mobilePercentage * MOBILE_BREAKPOINT }
-        : {
-            height:
-              mobilePercentage <= 0.5
-                ? 0.5 * MOBILE_BREAKPOINT
-                : MOBILE_BREAKPOINT,
-          },
-      desktop: { width: desktopPercentage * LARGE_DESKTOP_BREAKPOINT },
-      largeDesktop: {
-        width: desktopPercentage * EXTRA_LARGE_DESKTOP_BREAKPOINT,
-      },
-    }}
+    sizeSettings={[isLandscape ? mobilePercentage : 1, desktopPercentage]}
     {orientation}
     {preview}
     hasMobileMedia={("mobileImage" in media && !!media.mobileImage) ||
@@ -77,7 +59,6 @@
     @include flex;
     width: 100%;
     min-height: 0;
-    max-height: calc(100dvh - #{$header-height});
     pointer-events: none;
 
     @include desktop {
