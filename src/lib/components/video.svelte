@@ -162,10 +162,10 @@
     }
 
     @include mobile {
-      --offset: 1.25em;
+      --offset: 1.125em;
       --border-radius: 0.875rem;
       --width: 5.25em;
-      --height: 2em;
+      --height: 2.25em;
     }
   }
 </style>

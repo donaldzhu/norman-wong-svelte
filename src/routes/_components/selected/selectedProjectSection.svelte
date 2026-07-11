@@ -71,10 +71,17 @@
       margin-bottom: -$bottom-margin;
     }
 
-    &.is-highlighted,
-    &:hover {
+    &.is-highlighted {
       h2 {
         color: $gray;
+      }
+    }
+
+    &:hover {
+      @include desktop {
+        h2 {
+          color: $gray;
+        }
       }
     }
 
