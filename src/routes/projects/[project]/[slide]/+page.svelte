@@ -28,7 +28,7 @@
   }
 </script>
 
-<ProjectSlide {slide} />
+<ProjectSlide {slide} isProjectPage />
 {#if slides.length > 1}
   <div
     class="project-slide__button project-slide__button--previous"
@@ -53,7 +53,7 @@
     width: 35vw;
     height: 100dvh;
     cursor: pointer;
-    z-index: 999;
+    z-index: 99;
 
     &--previous {
       left: 0;

@@ -14,7 +14,7 @@ $wide-desktop-width: 1920px;
 }
 
 @mixin wide-desktop {
-  @media (min-width: 1920px) {
+  @media (min-width: $wide-desktop-width) {
     @content;
   }
 }

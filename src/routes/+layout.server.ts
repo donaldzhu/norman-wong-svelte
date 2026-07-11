@@ -14,8 +14,6 @@ export const load = async () => {
   const query = `
   {
     "header": *[_type == "header"][0] {
-      nameDisplayTextDesktop,
-      nameDisplayTextMobile,
       selectedWorksDisplayTextDesktop,
       selectedWorksDisplayTextMobile,
       allProjectsDisplayTextDesktop,
@@ -41,8 +39,6 @@ export const load = async () => {
         project-> {
           _id,
           slug,
-          title,
-          subtitle,
           ${hydrateSlideIds}
         },
         media[] {
@@ -65,7 +61,6 @@ export const load = async () => {
         subtitle,
         slug,
         ${hydrateSlideIds},
-        hidden,
         ${SLIDE_QUERY}
       }
     },

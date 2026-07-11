@@ -85,7 +85,7 @@
     {media}
     bind:ref={thumbnailRef}
     style="opacity: 0; width: auto;"
-    sizeSettings={[0.4, 0.1]}
+    srcSettings={[0.4, 0.1]}
   />
 </a>
 

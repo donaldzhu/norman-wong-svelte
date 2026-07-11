@@ -7,14 +7,14 @@
     isSelected,
     isNavigating,
     isSettled,
-    shouldBlend,
+    isHighlighted,
     onNavigate,
   }: {
     project: ProjectData
     isSelected?: boolean
     isNavigating: boolean
     isSettled: boolean
-    shouldBlend: boolean
+    isHighlighted: boolean
     onNavigate: (e: MouseEvent, project: ProjectData) => void
   } = $props()
   const { title, subtitle } = $derived(project)
@@ -23,10 +23,10 @@
 <section
   class:is-selected={isSelected}
   class:is-navigating={isNavigating}
-  class:should-blend={shouldBlend}
+  class:is-highlighted={isHighlighted}
 >
   <a
-    href={`/projects/${project.slug.current}/1`}
+    href="/projects/${project.slug.current}/1"
     onclick={e => onNavigate(e, project)}
   >
     <h2>
@@ -71,17 +71,15 @@
       margin-bottom: -$bottom-margin;
     }
 
-    &.should-blend,
+    &.is-highlighted,
     &:hover {
-      // background-color: white;
       h2 {
         color: $gray;
-        // mix-blend-mode: difference;
       }
     }
 
     &.is-selected,
-    &.should-blend {
+    &.is-highlighted {
       h2 {
         z-index: 999;
       }

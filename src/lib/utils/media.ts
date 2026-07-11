@@ -9,21 +9,21 @@ export enum MediaType {
 export const getMediaId = (media: MediaData) =>
   media.mediaType === MediaType.Image ? media.image?.asset?._id : media.video?.asset?._id
 
-
 const parseVideoRatio = (ratio: string) => {
   const [width, height] = ratio.split(':').map(Number)
   return width / height
 }
+
 export const getMediaAspectRatio = (media: MediaData) =>
   media.mediaType === MediaType.Image ? media.image.asset.metadata.dimensions.aspectRatio : parseVideoRatio(media.video.asset.data.aspect_ratio)
 
-export const getImageSrc = (image: SanityImageObjectWithAsset, sizeSettings?: SizeSettings) =>
-  sizeSettings ? srcSetFor(image, sizeSettings) : {
+export const getImageSrc = (image: SanityImageObjectWithAsset, srcSettings?: SrcSettings) =>
+  srcSettings ? srcSetFor(image, srcSettings) : {
     src: urlFor(image),
   }
 
-export const preloadImage = (image: SanityImageObjectWithAsset, sizeSettings?: SizeSettings) => {
-  const imgSrc = getImageSrc(image, sizeSettings)
+export const preloadImage = (image: SanityImageObjectWithAsset, srcSettings?: SrcSettings) => {
+  const imgSrc = getImageSrc(image, srcSettings)
   const img = new Image()
   if ('srcset' in imgSrc) {
     img.srcset = imgSrc.srcset
@@ -33,4 +33,4 @@ export const preloadImage = (image: SanityImageObjectWithAsset, sizeSettings?: S
   img.src = imgSrc.src
 }
 
-export type SizeSettings = number[]
+export type SrcSettings = number[]

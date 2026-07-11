@@ -16,7 +16,3 @@
 {/if}
 
 {@render children()}
-
-<style lang="scss">
-  @use "$lib/styles/_entry.scss" as *;
-</style>

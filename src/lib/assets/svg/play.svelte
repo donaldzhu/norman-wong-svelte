@@ -9,8 +9,6 @@
 </svg>
 
 <style lang="scss">
-  @use "$lib/styles/_entry.scss" as *;
-
   .play-icon {
     $size: 60px;
     $max-size: 75%;

@@ -8,8 +8,12 @@
   {#each data.contacts as contact}
     <div class="contact-container">
       <h3>{contact.displayName}</h3>
-      <a href={`mailto:${contact.email}`}>{contact.email}</a>
-      <p>{contact.phone}</p>
+      {#if contact.email}
+        <a href={`mailto:${contact.email}`}>{contact.email}</a>
+      {/if}
+      {#if contact.phone}
+        <p>{contact.phone}</p>
+      {/if}
     </div>
   {/each}
 </div>
@@ -19,11 +23,12 @@
 
   .info-container {
     @include fullscreen;
+    @include serif;
+    @include flex-column;
+
     background-color: black;
     color: white;
-    @include serif;
     font-size: var(--info-font-size);
-    @include flex-column;
     gap: 1em;
     z-index: 9999;
   }

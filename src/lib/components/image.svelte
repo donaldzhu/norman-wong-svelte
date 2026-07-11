@@ -1,28 +1,26 @@
 <script lang="ts">
   import type { SanityImageObjectWithAsset } from "$lib/types/sanity"
   import { isMobile, Orientation } from "$lib/utils/dom"
-  import { getImageSrc, type SizeSettings } from "$lib/utils/media"
+  import { getImageSrc, type SrcSettings } from "$lib/utils/media"
   import { getPlaceholderSrc } from "$lib/utils/sanity"
   import { onMount } from "svelte"
 
   let {
+    ref = $bindable<HTMLDivElement | null>(),
     image,
     style,
     mediaStyle,
-    sizeSettings,
+    srcSettings,
     orientation,
-    ref = $bindable<HTMLDivElement | null>(),
-    noPreview,
     hasMobileMedia,
     isMobileMedia,
   }: {
+    ref?: HTMLDivElement | null
     image: SanityImageObjectWithAsset
     style?: string
     mediaStyle?: string
-    sizeSettings?: SizeSettings
+    srcSettings?: SrcSettings
     orientation?: Orientation
-    ref?: HTMLDivElement | null
-    noPreview?: boolean
     hasMobileMedia?: boolean
     isMobileMedia?: boolean
   } = $props()
@@ -30,7 +28,7 @@
   const alt = $derived(image?.asset?.altText)
   const width = $derived(image?.asset?.metadata?.dimensions?.width)
   const height = $derived(image?.asset?.metadata?.dimensions?.height)
-  const imgSrc = $derived(getImageSrc(image, sizeSettings))
+  const imgSrc = $derived(getImageSrc(image, srcSettings))
   const placeholderSrc = $derived(getPlaceholderSrc(image))
   let windowIsMobile = $state<boolean>()
 
@@ -61,7 +59,6 @@
 </script>
 
 <div
-  class="image"
   bind:this={ref}
   {style}
   class:portrait={orientation === Orientation.Portrait}
@@ -70,7 +67,7 @@
   class:is-mobile-media={isMobileMedia}
   style:aspect-ratio="{width}/{height}"
 >
-  {#if placeholderSrc && !noPreview}
+  {#if placeholderSrc}
     <img
       class="placeholder"
       style:opacity={loaded ? 0 : 1}

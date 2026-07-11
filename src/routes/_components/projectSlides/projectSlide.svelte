@@ -10,9 +10,11 @@
   let {
     slide,
     preview,
+    isProjectPage,
   }: {
     slide: SlideData
     preview?: boolean
+    isProjectPage?: boolean
   } = $props()
 
   const { mobileOrientation } = $derived(slide)
@@ -27,7 +29,12 @@
     style:--mobile-grid-count={MOBILE_GRID_COUNT}
   >
     {#each slide.media as media (media._key)}
-      <ProjectSlideMedia {media} orientation={mobileOrientation} {preview} />
+      <ProjectSlideMedia
+        {media}
+        orientation={mobileOrientation}
+        {preview}
+        {isProjectPage}
+      />
     {/each}
   </div>
 </div>
@@ -39,17 +46,18 @@
     @include fullscreen;
     @include flex-column;
     pointer-events: none;
+    z-index: 999;
   }
 
   .project-slide__media-container {
+    $buffer: 8px;
+
     display: grid;
     grid-template-columns: repeat(var(--desktop-grid-count), 1fr);
     align-items: center;
     gap: var(--project-slide-gap);
-    $buffer: 8px;
     width: calc(100vw + $buffer);
     height: calc(100dvh + $buffer);
-
     box-sizing: border-box;
     overflow: hidden;
 

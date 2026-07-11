@@ -21,6 +21,7 @@
   import { navigation } from "$lib/state/navigation.svelte"
   import gsap from "gsap"
   import { scrollend } from "$lib/actions/scrollendAction"
+  import type { TimeOut } from "$lib/utils/animation.js"
 
   let { data } = $props()
 
@@ -37,7 +38,7 @@
 
   let resizeObserver: ResizeObserver
   let scrollTween: gsap.core.Timeline | undefined
-  let centerAdjustTimeout: ReturnType<typeof setTimeout> | undefined
+  let centerAdjustTimeout: TimeOut | undefined
   let centerAdjustTween: gsap.core.Tween | undefined
 
   let hasInitialized = $state(false)
@@ -221,9 +222,7 @@
     scrollTween?.kill()
     scrollTween = gsap.timeline({
       onComplete: () => {
-        goto(`/projects/${project.slug.current}/1`, {
-          state: { noPreview: true },
-        })
+        goto(`/projects/${project.slug.current}/1`)
       },
     })
 
@@ -288,7 +287,7 @@
             {isSelected}
             {isNavigating}
             {isSettled}
-            shouldBlend={(Math.abs(lastOffset) <= SHOULD_BLEND_THRESHOLD &&
+            isHighlighted={(Math.abs(lastOffset) <= SHOULD_BLEND_THRESHOLD &&
               isSelected) ||
               shouldHighlightCenter(flatIndex)}
             {onNavigate}

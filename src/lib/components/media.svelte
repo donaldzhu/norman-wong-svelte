@@ -5,7 +5,7 @@
     SanityVideoObject,
   } from "$lib/types/sanity"
   import type { Orientation } from "$lib/utils/dom"
-  import type { SizeSettings } from "$lib/utils/media"
+  import type { SrcSettings } from "$lib/utils/media"
   import Image from "./image.svelte"
   import Video from "./video.svelte"
 
@@ -14,20 +14,21 @@
     style,
     mediaStyle,
     ref = $bindable<HTMLDivElement | HTMLVideoElement | null>(),
-    sizeSettings,
+    srcSettings,
     orientation,
     preview,
     hasMobileMedia,
+    isProjectPage,
   }: {
     media: MediaData
     style?: string
     mediaStyle?: string
     ref?: HTMLDivElement | HTMLVideoElement | null
-    sizeSettings?: SizeSettings
-    noPreview?: boolean
+    srcSettings?: SrcSettings
     orientation?: Orientation
     preview?: boolean
     hasMobileMedia?: boolean
+    isProjectPage?: boolean
   } = $props()
 </script>
 
@@ -40,7 +41,7 @@
     image={imageAsset}
     {style}
     {mediaStyle}
-    {sizeSettings}
+    {srcSettings}
     {orientation}
     {hasMobileMedia}
     {isMobileMedia}
@@ -57,6 +58,7 @@
     {preview}
     {hasMobileMedia}
     {isMobileMedia}
+    {isProjectPage}
   />
 {/snippet}
 

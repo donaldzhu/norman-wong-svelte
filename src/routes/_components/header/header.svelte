@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { HeaderData, SanityData } from "$lib/types/sanity"
+  import type { SanityData } from "$lib/types/sanity"
 
   import { afterNavigate } from "$app/navigation"
   import { page } from "$app/state"
@@ -7,18 +7,16 @@
   import { Device } from "$lib/utils/dom"
   import { getProjectDisplayTitle } from "$lib/utils/common"
   import { fade } from "svelte/transition"
-  import { HEADER_FADE_DURATION_MS } from "../config"
+  import { FADE_DURATION_MS } from "../config"
 
   let {
     data,
     infoIsVisible = $bindable(),
   }: { data: SanityData; infoIsVisible: boolean } = $props()
 
-  const onLinkClick = () => (infoIsVisible = false)
+  const onclick = () => (infoIsVisible = false)
   const headerData = $derived(data.header)
   const {
-    nameDisplayTextDesktop,
-    nameDisplayTextMobile,
     selectedWorksDisplayTextDesktop,
     selectedWorksDisplayTextMobile,
     allProjectsDisplayTextDesktop,
@@ -41,31 +39,22 @@
     navigation.pendingProjectTitle ?? getCurrentProject(),
   )
 
-  afterNavigate(() => {
-    navigation.pendingProjectTitle = null
-  })
+  afterNavigate(() => (navigation.pendingProjectTitle = null))
 
-  // TODO
-  const getCopy = (device: Device) => {
-    return {
-      name:
-        device === Device.Mobile
-          ? nameDisplayTextMobile
-          : nameDisplayTextDesktop,
-      selectedWorks:
-        device === Device.Mobile
-          ? selectedWorksDisplayTextMobile
-          : selectedWorksDisplayTextDesktop,
-      allProjects:
-        device === Device.Mobile
-          ? allProjectsDisplayTextMobile
-          : allProjectsDisplayTextDesktop,
-      information:
-        device === Device.Mobile
-          ? informationDisplayTextMobile
-          : informationDisplayTextDesktop,
-    }
-  }
+  const getCopy = (device: Device) => ({
+    selectedWorks:
+      device === Device.Mobile
+        ? selectedWorksDisplayTextMobile
+        : selectedWorksDisplayTextDesktop,
+    allProjects:
+      device === Device.Mobile
+        ? allProjectsDisplayTextMobile
+        : allProjectsDisplayTextDesktop,
+    information:
+      device === Device.Mobile
+        ? informationDisplayTextMobile
+        : informationDisplayTextDesktop,
+  })
 
   const SELECTED_WORKS_LINK = "/"
   const ALL_PROJECTS_LINK = "/index"
@@ -94,9 +83,9 @@
           <a
             class:active={page.url.pathname === href &&
               !infoIsVisible &&
-              !navigation.pendingProjectTitle}
+              !currentProject}
             {href}
-            onclick={onLinkClick}
+            {onclick}
           >
             {#if index === 0}
               <h1>{text}</h1>
@@ -112,7 +101,7 @@
       {#if currentProject}
         <div
           class="header__current-project"
-          in:fade={{ duration: HEADER_FADE_DURATION_MS }}
+          in:fade={{ duration: FADE_DURATION_MS }}
         >
           <span>/</span>
           <a href={page.url.pathname} class="active">{currentProject}</a>
@@ -194,8 +183,10 @@
 
   a,
   button {
-    padding: calc(0.5 * var(--button-padding));
-    margin: calc(-0.5 * var(--button-padding));
+    $factor: 0.5;
+    padding: calc(#{$factor} * var(--button-padding));
+    margin: calc(-#{$factor} * var(--button-padding));
+
     &.active {
       color: $gray;
     }

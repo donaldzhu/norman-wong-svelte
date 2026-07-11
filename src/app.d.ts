@@ -5,9 +5,7 @@ declare global {
 		// interface Error {}
 		// interface Locals {}
 		// interface PageData {}
-		interface PageState {
-			noPreview?: boolean
-		}
+		// interface PageState {}
 		// interface Platform {}
 	}
 }

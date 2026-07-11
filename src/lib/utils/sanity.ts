@@ -1,49 +1,37 @@
-import { error } from '@sveltejs/kit'
-import { client } from "$lib/sanity"
+import { client } from "$lib/services/sanity"
 import type { SanityImageObjectWithAsset } from '$lib/types/sanity'
+import type { QueryParams } from '@sanity/client'
 import type { SanityImageObject } from "@sanity/image-url"
 import { createImageUrlBuilder } from "@sanity/image-url"
-import { LARGE_DESKTOP_BREAKPOINT, MOBILE_BREAKPOINT } from '../../routes/_components/config'
-import { type SizeSettings } from './media'
-import { ceil50, quickArray } from './common'
-import type { QueryParams } from '@sanity/client'
+import { error } from '@sveltejs/kit'
+import { MOBILE_BREAKPOINT } from '../../routes/_components/config'
+import { quickArray } from './common'
+import { type SrcSettings } from './media'
 
 const urlBuilder = createImageUrlBuilder(client)
 
-export const urlFor = (image: SanityImageObject, {
-  width,
-  height,
-}: {
-  width?: number
-  height?: number
-  dpr?: number
-} = {}) => {
+export const urlFor = (image: SanityImageObject, width?: number) => {
   let imageBuilder = urlBuilder.image(image)
   if (width) imageBuilder = imageBuilder.width(width)
-  if (height) imageBuilder = imageBuilder.height(height)
   return imageBuilder.url()
 }
 
-export const srcSetFor = (image: SanityImageObjectWithAsset, vwSettings: SizeSettings) => {
-  const SIZE_INTERVAL = 250
-  const MIN_SIZE = 250
-  const MAX_SIZE = 3000
+const SIZE_INTERVAL = 250
+const MIN_SIZE = 250
+const MAX_SIZE = 3000
+
+export const srcSetFor = (image: SanityImageObjectWithAsset, vwSettings: SrcSettings) => {
   const srcset = quickArray((MAX_SIZE - MIN_SIZE) / SIZE_INTERVAL + 1, i => {
     const width = MIN_SIZE + i * SIZE_INTERVAL
-    const url = urlFor(image, { width })
+    const url = urlFor(image, width)
     return `${url} ${width}w`
   })
 
-  const vwSizes = vwSettings.map(vw => `${vw * 100}vw`)
+  const vwSizes = vwSettings.map(vw => `${Math.ceil(vw * 100)}vw`)
   const sizes = [
     `(max-width: ${MOBILE_BREAKPOINT}px) ${vwSizes[0]}`,
     vwSizes[1],
   ]
-  /*
-    if (SMALL_MOBILE_CAP < widths[0]) {
-      srcset.unshift(`${urlFor(image, { width: SMALL_MOBILE_CAP })} ${SMALL_MOBILE_CAP}w`)
-      sizes.unshift(`(max-width: ${SMALL_MOBILE_CAP}px) ${SMALL_MOBILE_CAP}px`)
-    } */
 
   return {
     srcset: srcset.join(', '),
@@ -95,6 +83,8 @@ export const HYDRATE_IMAGE_QUERY = `
     }
   }
 `
+
+
 export const SLIDE_QUERY = `
   slides[] {
     ...,

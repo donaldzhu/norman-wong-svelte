@@ -11,10 +11,5 @@ export const quickArray = <T = number>(length: number, mapFunction: (index: numb
 
 export const filterFalsey = <T>(array: (T | Falsey)[]): T[] => array.filter(Boolean) as T[]
 
-export const ceil50 = (value: number) => Math.ceil(value / 50) * 50
-
-export const getProjectDisplayTitle = ({
-  title,
-  subtitle,
-}: Pick<ProjectData, 'title' | 'subtitle'>) =>
+export const getProjectDisplayTitle = ({ title, subtitle, }: Pick<ProjectData, 'title' | 'subtitle'>) =>
   `${title}${subtitle ? `, ${subtitle}` : ''}`

@@ -69,16 +69,16 @@
     })
   }
 
+  onMount(adjustSize)
+
   let adjustSizeDebounceTimer: TimeOut | undefined = $state(undefined)
   const adjustSizeDebounce = () =>
     withDebounce(
-      prevIsMobile,
       () => adjustSizeDebounceTimer,
       debounce => (adjustSizeDebounceTimer = debounce),
       adjustSize,
+      null,
     )
-
-  onMount(() => adjustSize())
 </script>
 
 <div

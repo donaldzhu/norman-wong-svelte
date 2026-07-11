@@ -47,11 +47,10 @@
   }
 
   let prevIsMobile = $state(false)
-  const getRows = (): AllThumbnailData[][] | undefined => {
-    if (!layout || !projectList) return []
+  const getRows = () => {
+    if (!layout || !projectList) rows = []
     const windowIsMobile = isMobile()
     prevIsMobile = windowIsMobile
-    if (rows) return rows
 
     const filteredProjectList = projectList.filter(
       project => !windowIsMobile || !project.hideOnMobile,
@@ -60,7 +59,7 @@
     const rowSettings = windowIsMobile ? mobileRowSettings : desktopRowSettings
 
     const isUnfilled = filteredProjectList.length % _.sum(rowSettings) > 0
-    return rowSettings?.map((rowCellCount, rowIndex) => {
+    rows = rowSettings?.map((rowCellCount, rowIndex) => {
       const row = quickArray(rowCellCount, () => {
         const media = filteredProjectList[mediaIndex]
         const isLastRow = rowIndex === rowSettings.length - 1
@@ -79,15 +78,15 @@
 
   let rows = $state<AllThumbnailData[][] | undefined>(undefined)
 
-  onMount(() => (rows = getRows()))
+  onMount(getRows)
 
   let getRowDebounceTimer: TimeOut | undefined = $state(undefined)
   const getRowWithDebounce = () =>
     withDebounce(
-      prevIsMobile,
       () => getRowDebounceTimer,
       debounce => (getRowDebounceTimer = debounce),
-      () => (rows = getRows()),
+      getRows,
+      prevIsMobile,
     )
 </script>
 

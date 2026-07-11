@@ -2,19 +2,6 @@ import { MediaType } from './../utils/media'
 import type { Orientation } from '$lib/utils/dom'
 import type { SanityImageObject } from '@sanity/image-url'
 
-// Common
-export interface PortableTextSpan {
-  _type: 'span'
-  text: string
-}
-
-export interface PortableTextBlock {
-  _type: 'block'
-  children?: PortableTextSpan[]
-}
-
-export type ThumbnailSize = 's' | 'm' | 'l'
-
 export interface SanityVideoObject {
   asset: {
     _id: string
@@ -22,10 +9,12 @@ export interface SanityVideoObject {
     status: 'ready' | 'preparing' | 'error'
     data: {
       aspect_ratio: string
+      tracks: {
+        type: 'audio' | 'video'
+      }[]
     }
   }
 }
-
 
 export type MediaData = {
   mediaType: MediaType.Image
@@ -37,7 +26,6 @@ export type MediaData = {
   mobileVideo?: SanityVideoObject
 }
 
-
 export interface SanityData {
   header: HeaderData
   info: InfoData
@@ -47,8 +35,6 @@ export interface SanityData {
 }
 
 export interface HeaderData {
-  nameDisplayTextDesktop: string
-  nameDisplayTextMobile: string
   selectedWorksDisplayTextDesktop: string
   selectedWorksDisplayTextMobile: string
   allProjectsDisplayTextDesktop: string
@@ -139,8 +125,6 @@ export interface AllProjectsProjectData {
   project: {
     _id: string
     slug: Slug
-    title: string
-    subtitle?: string
     slideMediaIds: SlideMediaIds
   }
 }

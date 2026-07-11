@@ -2,8 +2,10 @@ export const MAX_FADE_IN_DELAY = 0.75
 export const ANIMATION_DURATION = 0.5
 export const ANIMATION_EASE = "power2.inOut"
 
-export const DEBOUNCE_MS = 250
-export const DEBOUNCE_TRANSITION = `opacity ${DEBOUNCE_MS / 1000}s ease-in-out`
+export const SHORT_DEBOUNCE_MS = 100
+export const LONG_DEBOUNCE_MS = 250
+
+export const DEBOUNCE_TRANSITION = `opacity ${LONG_DEBOUNCE_MS / 1000}s ease-in-out`
 export const MOBILE_BREAKPOINT = 768
 export const LARGE_DESKTOP_BREAKPOINT = 1920
 export const EXTRA_LARGE_DESKTOP_BREAKPOINT = 2560
@@ -28,4 +30,4 @@ export const SELECTED_WORKS_REQUIRES_SOFT_ADJUSTMENT_THRESHOLD = 4
 export const SHOULD_BLEND_THRESHOLD = 20
 export const CENTER_ADJUST_DELAY_MS = 200
 
-export const HEADER_FADE_DURATION_MS = 250
+export const FADE_DURATION_MS = 250
