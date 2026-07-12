@@ -74,7 +74,7 @@ p {
   --all-projects-row-gap: 3rem;
   --selected-works-inner-gap: 5rem;
   --project-slide-gap: 2rem;
-  --ui-font-size: 1.4rem;
+  --ui-font-size: 1.3rem;
   --info-font-size: 4.5rem;
   --selected-works-font-size: 11rem;
   --selected-works-line-height: 0.95;
@@ -94,6 +94,6 @@ p {
 }
 @media (min-width: 1920px) {
   :root {
-    --ui-font-size: 1.5rem;
+    --ui-font-size: 1.4rem;
   }
 }

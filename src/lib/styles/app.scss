@@ -81,7 +81,7 @@ p {
   --project-slide-gap: 2rem;
 
   // typography
-  --ui-font-size: 1.4rem;
+  --ui-font-size: 1.3rem;
 
   --info-font-size: 4.5rem;
   --selected-works-font-size: 11rem;
@@ -102,6 +102,6 @@ p {
   }
 
   @include wide-desktop {
-    --ui-font-size: 1.5rem;
+    --ui-font-size: 1.4rem;
   }
 }

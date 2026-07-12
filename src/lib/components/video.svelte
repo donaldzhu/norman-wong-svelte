@@ -138,10 +138,11 @@
     @include ui;
     @include flex;
 
-    --offset: 2em;
+    --offset: 1.5em;
     --border-radius: 1rem;
     --width: 5.75em;
     --height: 2.125em;
+    $rgb-value: 225;
 
     padding: 0.1em;
     width: var(--width);
@@ -149,16 +150,17 @@
 
     position: absolute;
     flex: none;
-    bottom: var(--offset);
-    left: var(--offset);
-    background-color: rgba(255, 255, 255, 0.7);
+    top: calc(100% + var(--offset));
+    /* left: var(--offset); */
+    left: 0;
+    background-color: rgba($rgb-value, $rgb-value, $rgb-value, 0.7);
     border-radius: var(--border-radius);
     z-index: 9999;
     pointer-events: all;
 
     &:hover {
       color: black;
-      background-color: rgba(255, 255, 255, 0.5);
+      background-color: rgba($rgb-value, $rgb-value, $rgb-value, 0.5);
     }
 
     @include mobile {
