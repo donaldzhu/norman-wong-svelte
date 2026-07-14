@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { page } from "$app/state"
   import type { ProjectData } from "$lib/types/sanity"
+  import { pageIsProjectPage } from "$lib/utils/url"
   import ProjectSlide from "../projectSlides/projectSlide.svelte"
 
   let {
@@ -17,6 +19,11 @@
     isHighlighted: boolean
     onNavigate: (e: MouseEvent, project: ProjectData) => void
   } = $props()
+  const isProjectPage = $derived(pageIsProjectPage())
+  const isNotFirstSlide = $derived(
+    isProjectPage && page.url.pathname.split("/")[3] !== "1", // TODO: use enum
+  )
+
   const { title, subtitle } = $derived(project)
 </script>
 
@@ -24,18 +31,25 @@
   class:is-selected={isSelected}
   class:is-navigating={isNavigating}
   class:is-highlighted={isHighlighted}
+  class:is-hidden={isNotFirstSlide}
 >
-  <a
-    href="/projects/${project.slug.current}/1"
-    onclick={e => onNavigate(e, project)}
-  >
-    <h2>
-      {title}{#if subtitle}, <i>{subtitle}</i>{/if}
-    </h2>
-  </a>
+  {#if !isProjectPage}
+    <a
+      href="/projects/${project.slug.current}/1"
+      onclick={e => onNavigate(e, project)}
+    >
+      <h2>
+        {title}{#if subtitle}, <i>{subtitle}</i>{/if}
+      </h2>
+    </a>
+  {/if}
   {#if isSelected}
     <div class="selected-works__slide">
-      <ProjectSlide slide={project.slides[0]} preview={!isSettled} />
+      <ProjectSlide
+        slide={project.slides[0]}
+        preview={!isSettled && !isProjectPage}
+        showMuteButton={isNavigating}
+      />
     </div>
   {/if}
 </section>
@@ -118,5 +132,9 @@
   .selected-works__slide {
     @include fullscreen;
     pointer-events: none;
+  }
+
+  .is-hidden {
+    display: none;
   }
 </style>

@@ -10,11 +10,11 @@
   let {
     slide,
     preview,
-    isProjectPage,
+    showMuteButton,
   }: {
     slide: SlideData
     preview?: boolean
-    isProjectPage?: boolean
+    showMuteButton?: boolean
   } = $props()
 
   const { mobileOrientation } = $derived(slide)
@@ -33,7 +33,7 @@
         {media}
         orientation={mobileOrientation}
         {preview}
-        {isProjectPage}
+        {showMuteButton}
       />
     {/each}
   </div>

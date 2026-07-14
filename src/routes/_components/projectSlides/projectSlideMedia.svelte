@@ -11,12 +11,12 @@
     media,
     orientation,
     preview,
-    isProjectPage,
+    showMuteButton,
   }: {
     media: SlideMediaData
     orientation: Orientation
     preview?: boolean
-    isProjectPage?: boolean
+    showMuteButton?: boolean
   } = $props()
   const { desktopStart, desktopEnd, mobileStart, mobileEnd } = $derived(media)
 
@@ -46,7 +46,7 @@
     {orientation}
     {preview}
     {hasMobileMedia}
-    {isProjectPage}
+    {showMuteButton}
   />
 </div>
 

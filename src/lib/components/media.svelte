@@ -18,7 +18,7 @@
     orientation,
     preview,
     hasMobileMedia,
-    isProjectPage,
+    showMuteButton,
   }: {
     media: MediaData
     style?: string
@@ -28,7 +28,7 @@
     orientation?: Orientation
     preview?: boolean
     hasMobileMedia?: boolean
-    isProjectPage?: boolean
+    showMuteButton?: boolean
   } = $props()
 </script>
 
@@ -58,7 +58,7 @@
     {preview}
     {hasMobileMedia}
     {isMobileMedia}
-    {isProjectPage}
+    {showMuteButton}
   />
 {/snippet}
 

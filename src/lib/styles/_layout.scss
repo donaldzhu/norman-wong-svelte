@@ -1,5 +1,6 @@
 @use "./_timing.scss" as *;
 @use "./_responsive.scss" as *;
+@use "./_colors.scss" as *;
 
 @mixin fix {
   position: fixed;
@@ -36,6 +37,28 @@
 
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@mixin button-all-modes {
+  &,
+  &:hover,
+  &:focus,
+  &:active,
+  &:visited {
+    @content;
+  }
+}
+
+@mixin text-button {
+  @include button-all-modes {
+    $factor: 0.5;
+    padding: calc(#{$factor} * var(--button-padding));
+    margin: calc(-#{$factor} * var(--button-padding));
+  }
+
+  &.active {
+    color: $gray;
   }
 }
 

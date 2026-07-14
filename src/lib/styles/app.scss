@@ -35,11 +35,7 @@ body {
 a,
 button,
 [role="button"] {
-  &,
-  &:hover,
-  &:focus,
-  &:active,
-  &:visited {
+  @include button-all-modes {
     all: unset;
     cursor: pointer;
     padding: var(--button-padding);
@@ -71,7 +67,7 @@ p {
 
   // spacing
   --button-padding: 1rem;
-  --header-spacing: 0.25rem;
+  --text-button-gap: 0.375rem;
   --x-margin: 3rem;
   --y-margin-top: 2.5rem;
   --y-margin-bottom: 3rem;

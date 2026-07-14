@@ -1,11 +1,11 @@
 <script lang="ts">
+  import PlayIcon from "$lib/assets/svg/play.svelte"
   import type { SanityVideoObject } from "$lib/types/sanity"
+  import { isMobile, Orientation } from "$lib/utils/dom"
   import "@mux/mux-player"
   import { onMount } from "svelte"
-  import PlayIcon from "$lib/assets/svg/play.svelte"
-  import { isMobile, Orientation } from "$lib/utils/dom"
-  import { fade } from "svelte/transition"
-  import { FADE_DURATION_MS } from "../../routes/_components/config"
+  import MuteButton from "./mute.svelte"
+  import { pageIsProjectPage } from "$lib/utils/url"
 
   let {
     video,
@@ -15,7 +15,7 @@
     preview,
     hasMobileMedia,
     isMobileMedia,
-    isProjectPage,
+    showMuteButton,
     ref = $bindable<HTMLVideoElement | null>(),
   }: {
     video?: SanityVideoObject
@@ -25,7 +25,7 @@
     preview?: boolean
     hasMobileMedia?: boolean
     isMobileMedia?: boolean
-    isProjectPage?: boolean
+    showMuteButton?: boolean
     ref?: HTMLVideoElement | null
   } = $props()
 
@@ -34,11 +34,14 @@
   const isReady = $derived(asset?.status === "ready")
   const aspectRatio = $derived(asset?.data.aspect_ratio)
   let windowIsMobile = $state<boolean>()
-
   let paused = $state(false)
   let muted = $state(true)
   let hasPlayed = $state(false)
   let hasAudio = $derived(asset?.data?.tracks?.some(t => t.type === "audio"))
+  let isProjectPage = $derived(pageIsProjectPage())
+  let shouldShowMuteButton = $derived(
+    (showMuteButton || isProjectPage) && hasAudio,
+  )
 
   onMount(() => {
     windowIsMobile = isMobile()
@@ -97,14 +100,8 @@
       bind:this={ref}
     ></mux-player>
   </button>
-  {#if hasPlayed && hasAudio && isProjectPage}
-    <button
-      onclick={() => (muted = !muted)}
-      class="mute-button"
-      in:fade={{ duration: FADE_DURATION_MS }}
-    >
-      {muted ? "Unmute" : "Mute"}
-    </button>
+  {#if hasPlayed && hasAudio && shouldShowMuteButton}
+    <MuteButton bind:muted />
   {/if}
 {/if}
 
@@ -132,42 +129,5 @@
 
   mux-player {
     background-color: $light-gray;
-  }
-
-  .mute-button {
-    @include ui;
-    @include flex;
-
-    --offset: 1.5em;
-    --border-radius: 1rem;
-    --width: 5.75em;
-    --height: 2.125em;
-    $rgb-value: 225;
-
-    padding: 0.1em;
-    width: var(--width);
-    height: var(--height);
-
-    position: absolute;
-    flex: none;
-    top: calc(100% + var(--offset));
-    /* left: var(--offset); */
-    left: 0;
-    background-color: rgba($rgb-value, $rgb-value, $rgb-value, 0.7);
-    border-radius: var(--border-radius);
-    z-index: 9999;
-    pointer-events: all;
-
-    &:hover {
-      color: black;
-      background-color: rgba($rgb-value, $rgb-value, $rgb-value, 0.5);
-    }
-
-    @include mobile {
-      --offset: 1.125em;
-      --border-radius: 0.875rem;
-      --width: 5.25em;
-      --height: 2.25em;
-    }
   }
 </style>

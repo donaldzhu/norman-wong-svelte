@@ -126,7 +126,7 @@
     justify-content: space-between;
     padding: var(--y-margin-top) var(--x-margin) 0;
     box-sizing: border-box;
-    z-index: 99999;
+    z-index: 99999999;
 
     &.info-visible {
       color: white;
@@ -158,7 +158,7 @@
   .header__primary-links {
     @include flex;
     align-items: flex-start;
-    gap: var(--header-spacing);
+    gap: var(--text-button-gap);
   }
 
   nav {
@@ -183,12 +183,6 @@
 
   a,
   button {
-    $factor: 0.5;
-    padding: calc(#{$factor} * var(--button-padding));
-    margin: calc(-#{$factor} * var(--button-padding));
-
-    &.active {
-      color: $gray;
-    }
+    @include text-button;
   }
 </style>

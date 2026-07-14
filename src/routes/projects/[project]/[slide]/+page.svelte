@@ -28,7 +28,9 @@
   }
 </script>
 
-<ProjectSlide {slide} isProjectPage />
+{#if slideNumber !== "1"}
+  <ProjectSlide {slide} isProjectPage />
+{/if}
 {#if slides.length > 1}
   <div
     class="project-slide__button project-slide__button--previous"
@@ -54,6 +56,8 @@
     height: 100dvh;
     cursor: pointer;
     z-index: 99;
+    pointer-events: all;
+    top: 0;
 
     &--previous {
       left: 0;

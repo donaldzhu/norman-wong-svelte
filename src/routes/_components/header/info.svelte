@@ -30,7 +30,7 @@
     color: white;
     font-size: var(--info-font-size);
     gap: 1em;
-    z-index: 9999;
+    z-index: 9999999;
   }
 
   .contact-container {
