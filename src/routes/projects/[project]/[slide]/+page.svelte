@@ -29,7 +29,7 @@
 </script>
 
 {#if slideNumber !== "1"}
-  <ProjectSlide {slide} isProjectPage />
+  <ProjectSlide {slide} />
 {/if}
 {#if slides.length > 1}
   <div
