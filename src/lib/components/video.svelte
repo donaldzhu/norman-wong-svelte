@@ -114,6 +114,7 @@
     @include auto-fit-media;
     @include demarcate-media;
     all: unset;
+    width: 100%;
     display: flex;
     aspect-ratio: var(--aspect-ratio);
     object-fit: cover;
