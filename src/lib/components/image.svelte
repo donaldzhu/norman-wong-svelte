@@ -104,6 +104,7 @@
     object-fit: cover;
     display: flex;
     background-color: $light-gray;
+    transform: translateZ(0);
   }
 
   .placeholder {
