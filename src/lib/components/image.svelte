@@ -3,6 +3,7 @@
   import { isMobile, Orientation } from "$lib/utils/dom"
   import { getImageSrc, type SrcSettings } from "$lib/utils/media"
   import { getPlaceholderSrc } from "$lib/utils/sanity"
+  import { croppedRatio, hotspotPosition } from "$lib/utils/imageFraming"
   import { onMount } from "svelte"
 
   let {
@@ -28,6 +29,9 @@
   const alt = $derived(image?.asset?.altText)
   const width = $derived(image?.asset?.metadata?.dimensions?.width)
   const height = $derived(image?.asset?.metadata?.dimensions?.height)
+  const ratio = $derived(croppedRatio(width && height ? width / height : 1, image))
+  let frame = $state({ width: 0, height: 0 })
+  const objectPosition = $derived(hotspotPosition(image, ratio, frame.width, frame.height))
   const imgSrc = $derived(getImageSrc(image, srcSettings))
   const placeholderSrc = $derived(getPlaceholderSrc(image))
   let windowIsMobile = $state<boolean>()
@@ -55,6 +59,11 @@
 
   onMount(() => {
     windowIsMobile = isMobile()
+    const measure = () => { if (ref) frame = { width: ref.clientWidth, height: ref.clientHeight } }
+    const observer = new ResizeObserver(measure)
+    if (ref) observer.observe(ref)
+    measure()
+    return () => observer.disconnect()
   })
 </script>
 
@@ -65,13 +74,14 @@
   class:landscape={orientation === Orientation.Landscape}
   class:has-mobile-media={hasMobileMedia}
   class:is-mobile-media={isMobileMedia}
-  style:aspect-ratio="{width}/{height}"
+  style:aspect-ratio={ratio}
 >
   {#if placeholderSrc}
     <img
       class="placeholder"
       style:opacity={loaded ? 0 : 1}
       style={mediaStyle}
+      style:object-position={objectPosition}
       src={placeholderSrc}
       alt=""
       aria-hidden="true"
@@ -83,6 +93,7 @@
     {alt}
     style:opacity={loaded ? 1 : 0}
     style={mediaStyle}
+    style:object-position={objectPosition}
     {onload}
   />
 </div>

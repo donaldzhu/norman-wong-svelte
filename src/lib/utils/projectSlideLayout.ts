@@ -1,6 +1,9 @@
+import { croppedRatio } from './imageFraming'
 import type { SlideMediaData, SlideLayoutV2, SlideData } from "$lib/types/sanity"
 
-const SIZES = [6, 8, 10, 12, 14, 16] as const
+const LEGACY_SIZES = [6, 8, 10, 12, 14, 16] as const
+const SIZES = [...LEGACY_SIZES, 18] as const
+export const autoMobileSpan = (desktopSpan: number): number => desktopSpan === 18 ? 8 : desktopSpan / 2
 const DESKTOP_COLUMNS = 24
 // Preserve the previous grid container's `100vw + 8px` sizing reference.
 const LEGACY_GRID_BUFFER = 8
@@ -14,14 +17,16 @@ export function centeredSize(span: number): number {
   if (span === 4) return 6
   if (span === 9) return 8
   if (span === 18 || span === 24) return 16
-  return SIZES.reduce<number>((best, size) => Math.abs(size - span) < Math.abs(best - span) ? size : best, 6)
+  return LEGACY_SIZES.reduce<number>((best, size) => Math.abs(size - span) < Math.abs(best - span) ? size : best, 6)
 }
 
 function aspectRatio(media: SlideMediaData, mobile = false): number | undefined {
   let ratio: number | undefined
   if (media.mediaType === "image") {
-    const dimensions = (mobile ? media.mobileImage ?? media.image : media.image)?.asset?.metadata?.dimensions
+    const image = mobile ? media.mobileImage ?? media.image : media.image
+    const dimensions = image?.asset?.metadata?.dimensions
     ratio = dimensions?.aspectRatio || (dimensions ? dimensions.width / dimensions.height : undefined)
+    if (ratio) ratio = croppedRatio(ratio, image)
   } else {
     const parts = (mobile ? media.mobileVideo ?? media.video : media.video)?.asset?.data?.aspect_ratio?.split(":").map(Number)
     ratio = parts?.length === 2 ? parts[0] / parts[1] : undefined
@@ -117,7 +122,7 @@ export function validSlideV2(media: SlideMediaData[], v?: SlideLayoutV2): v is S
   if (!['center','justify'].includes(v.desktop?.mode) || !['center','justify'].includes(v.mobile?.mode) || typeof v.mobile?.auto !== 'boolean' || !['portrait','landscape'].includes(v.mobile?.orientation)) return false
   if (!media.every(m => SIZES.includes(m.desktopSpan as typeof SIZES[number]) && Number.isInteger(m.mobileSpan) && m.mobileSpan! >= 1 && m.mobileSpan! <= 11)) return false
   return (v.desktop.mode === 'justify' ? media.length === 1 : media.reduce((n,m) => n + m.desktopSpan!,0) <= 24) &&
-    (v.mobile.mode === 'justify' ? media.length === 1 : media.reduce((n,m) => n + m.mobileSpan!,0) <= 12)
+    (v.mobile.auto || (v.mobile.mode === 'justify' ? media.length === 1 : media.reduce((n,m) => n + m.mobileSpan!,0) <= 12))
 }
 export function mobileOrientationFor(slide: SlideData) {
   return validSlideV2(slide.media, slide.layoutV2) ? slide.layoutV2.mobile.orientation : slide.mobileOrientation
@@ -133,7 +138,7 @@ export function resolveDesktopLayout(media: SlideMediaData[], width: number, hei
 export function resolveMobileLayout(media: SlideMediaData[], width: number, height: number, gap: number, stacked: boolean, layoutV2?: SlideLayoutV2) {
   if (validSlideV2(media, layoutV2)) {
     const auto = layoutV2.mobile.auto
-    const spans = media.map(m => auto ? m.desktopSpan! / 2 : m.mobileSpan!)
+    const spans = media.map(m => auto ? autoMobileSpan(m.desktopSpan!) : m.mobileSpan!)
     const justified = (auto ? layoutV2.desktop.mode : layoutV2.mobile.mode) === 'justify'
     return {...resolveGeometry({media, width, height, gap, tracks: 12, stacked, mobile: true, spans, justified, issues: []}), mode: auto ? 'auto' : 'custom'}
   }

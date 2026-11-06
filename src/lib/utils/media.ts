@@ -1,3 +1,4 @@
+import { croppedRatio } from './imageFraming'
 import type { MediaData, SanityImageObjectWithAsset } from '$lib/types/sanity'
 import { srcSetFor, urlFor } from './sanity'
 
@@ -15,7 +16,7 @@ const parseVideoRatio = (ratio: string) => {
 }
 
 export const getMediaAspectRatio = (media: MediaData) =>
-  media.mediaType === MediaType.Image ? media.image.asset.metadata.dimensions.aspectRatio : parseVideoRatio(media.video.asset.data.aspect_ratio)
+  media.mediaType === MediaType.Image ? croppedRatio(media.image.asset.metadata.dimensions.aspectRatio, media.image) : parseVideoRatio(media.video.asset.data.aspect_ratio)
 
 export const getImageSrc = (image: SanityImageObjectWithAsset, srcSettings?: SrcSettings) =>
   srcSettings ? srcSetFor(image, srcSettings) : {

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import ts from 'typescript'
 
-const source = readFileSync(new URL('../src/lib/utils/projectSlideLayout.ts', import.meta.url), 'utf8')
+const source = readFileSync(new URL('../src/lib/utils/imageFraming.ts', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/lib/utils/projectSlideLayout.ts', import.meta.url), 'utf8').replace(/import .* from '\.\/imageFraming'\n/, '')
 const { outputText } = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } })
 const { desktopSpan, centeredSize, resolveDesktopLayout, resolveMobileLayout } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`)
 const image = (span, ratio = 1) => ({ _key: String(span), desktopStart: 1, desktopEnd: span + 1, mediaType: 'image', image: { asset: { metadata: { dimensions: { aspectRatio: ratio } } } } })
@@ -181,4 +181,64 @@ test('incomplete or unsupported V2 falls back as a whole and reports the issue',
   assert.equal(result.valid,false)
   assert.ok(result.issues.some(issue=>issue.includes('Invalid V2')))
   assert.equal(resolveMobileLayout(media,390,844,20,false,{...v,version:3}).valid,false)
+})
+
+test('Auto uses desktop halves despite retained manual overage or Justify', () => {
+  const media = ['a','b'].map(_key => ({...image(16,2),_key,desktopSpan:6,mobileSpan:8}))
+  for (const mode of ['center','justify']) {
+    const v = {version:2,desktop:{mode:'center'},mobile:{auto:true,mode,orientation:'portrait'}}
+    const before = JSON.stringify([media,v])
+    const desktop = resolveDesktopLayout(media,1280,720,20,v)
+    assert.equal(desktop.valid,true)
+    assert.deepEqual(desktop.spans,[6,6])
+    assert.deepEqual(desktop.items.map(m=>m.width),[307,307])
+    for (const stacked of [true,false]) {
+      const mobile = resolveMobileLayout(media,390,844,20,stacked,v)
+      assert.equal(mobile.valid,true)
+      assert.equal(mobile.mode,'auto')
+      assert.equal(mobile.justified,false)
+      assert.deepEqual(mobile.spans,[3,3])
+    }
+    assert.equal(JSON.stringify([media,v]),before)
+    const manual = {...v,mobile:{...v.mobile,auto:false}}
+    assert.equal(resolveDesktopLayout(media,1280,720,20,manual).valid,false)
+    assert.equal(resolveMobileLayout(media,390,844,20,true,manual).valid,false)
+  }
+})
+
+ test('cropped images use their cropped aspect ratio for desktop and mobile layout', () => {
+ const item = {...image(6,2),crop:undefined}; item.image.crop={left:0.25,right:0.25,top:0,bottom:0};
+ const desktop=resolveDesktopLayout([item],1280,720,20);
+ assert.equal(desktop.items[0].width, desktop.items[0].height);
+ item.mobileImage={...image(6,2).image,crop:{left:0,right:0,top:0.25,bottom:0.25}};
+ const mobile=resolveMobileLayout([item],390,844,20,true);
+ assert.equal(mobile.items[0].width/mobile.items[0].height,4);
+ })
+
+test('XXXL uses 18 desktop columns and maps to mobile XXL in both orientations', () => {
+  const media = [{...image(8,2),desktopSpan:18,mobileSpan:5}]
+  const v = {version:2,desktop:{mode:'center'},mobile:{auto:true,mode:'center',orientation:'portrait'}}
+  const before = JSON.stringify([media,v])
+  const desktop = resolveDesktopLayout(media,1280,720,20,v)
+  assert.equal(desktop.valid,true)
+  assert.deepEqual(desktop.spans,[18])
+  assert.equal(desktop.items[0].width,961)
+  for (const stacked of [false,true]) {
+    const mobile = resolveMobileLayout(media,390,844,20,stacked,v)
+    assert.equal(mobile.valid,true)
+    assert.deepEqual(mobile.spans,[8])
+    const manual = resolveMobileLayout(media,390,844,20,stacked,{...v,mobile:{...v.mobile,auto:false}})
+    assert.deepEqual(manual.spans,[5])
+    const pair = [...media,{...image(6,2),desktopSpan:6,mobileSpan:3}]
+    assert.equal(resolveDesktopLayout(pair,1280,720,20,v).valid,true)
+    const pairedMobile = resolveMobileLayout(pair,390,844,20,stacked,v)
+    assert.equal(pairedMobile.valid,true)
+    assert.deepEqual(pairedMobile.spans,[8,3])
+    pair[1].desktopSpan=8
+    assert.equal(resolveDesktopLayout(pair,1280,720,20,v).valid,false)
+    assert.equal(resolveMobileLayout(pair,390,844,20,stacked,v).valid,false)
+  }
+  assert.equal(JSON.stringify([media,v]),before)
+  assert.deepEqual(resolveDesktopLayout([image(18)],1280,720,20).spans,[16])
+  assert.equal(centeredSize(20),16)
 })
