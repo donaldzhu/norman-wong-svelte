@@ -97,13 +97,22 @@ export interface ProjectSlideData {
   slides: SlideData[]
 }
 
+export interface SlideLayoutV2 {
+  version: 2
+  desktop: { mode: "center" | "justify" }
+  mobile: { auto: boolean; orientation: Orientation; mode: "center" | "justify" }
+}
+
 export interface SlideData {
+  layoutV2?: SlideLayoutV2
   media: SlideMediaData[]
   mobileOrientation: Orientation
 }
 
 export type SlideMediaData = MediaData & {
   _key: string
+  desktopSpan?: number
+  mobileSpan?: number
   desktopStart: number
   desktopEnd: number
   mobileStart: number

@@ -1,31 +1,30 @@
 <script lang="ts">
+  import type { DesktopMediaLayout } from "$lib/utils/projectSlideLayout"
   import Media from "$lib/components/media.svelte"
   import type { SlideMediaData } from "$lib/types/sanity"
   import { Orientation } from "$lib/utils/dom"
-  import {
-    DESKTOP_GRID_COUNT,
-    MOBILE_GRID_COUNT,
-  } from "../../projects/[project]/_components/configs"
 
   let {
     media,
+    desktopLayout,
+    mobileLayout,
     orientation,
     preview,
     showMuteButton,
   }: {
     media: SlideMediaData
+    desktopLayout: DesktopMediaLayout
+    mobileLayout: DesktopMediaLayout
     orientation: Orientation
     preview?: boolean
     showMuteButton?: boolean
   } = $props()
-  const { desktopStart, desktopEnd, mobileStart, mobileEnd } = $derived(media)
 
-  const isLandscape = $derived(orientation === Orientation.Landscape)
   const desktopPercentage = $derived(
-    ((desktopEnd - desktopStart) / DESKTOP_GRID_COUNT) * 1.2,
+    desktopLayout.sourceFraction,
   )
   const mobilePercentage = $derived(
-    (mobileEnd - mobileStart) / MOBILE_GRID_COUNT,
+    mobileLayout.sourceFraction,
   )
   const hasMobileMedia = $derived(
     ("mobileImage" in media && !!media.mobileImage) ||
@@ -34,15 +33,18 @@
 </script>
 
 <div
+  class="project-slide-media"
+  style:--mobile-media-width="{mobileLayout.width}px"
+  style:--mobile-media-height="{mobileLayout.height}px"
+  style:--desktop-media-width="{desktopLayout.width}px"
+  style:--desktop-media-height="{desktopLayout.height}px"
   class:portrait={orientation === Orientation.Portrait}
   class:landscape={orientation === Orientation.Landscape}
-  style:--desktop-grid-layout="{desktopStart} / {desktopEnd}"
-  style:--mobile-grid-layout="{mobileStart} / {mobileEnd}"
 >
   <Media
     {media}
     mediaStyle="object-fit: contain;"
-    srcSettings={[isLandscape ? mobilePercentage : 1, desktopPercentage]}
+    srcSettings={[mobilePercentage, desktopPercentage]}
     {orientation}
     {preview}
     {hasMobileMedia}
@@ -59,19 +61,6 @@
     position: relative;
     pointer-events: none;
 
-    @include desktop {
-      grid-column: var(--desktop-grid-layout);
-    }
 
-    @include mobile {
-      &.portrait {
-        max-width: 100dvw;
-        grid-row: var(--mobile-grid-layout);
-      }
-
-      &.landscape {
-        grid-column: var(--mobile-grid-layout);
-      }
-    }
   }
 </style>

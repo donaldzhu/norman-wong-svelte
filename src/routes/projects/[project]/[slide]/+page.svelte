@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation"
-  import type { ProjectSlideData } from "$lib/types/sanity"
+  import type { ProjectSlideData, SelectedWorksData } from "$lib/types/sanity"
   import { wrap } from "$lib/utils/common"
   import ProjectSlide from "../../../_components/projectSlides/projectSlide.svelte"
 
@@ -8,13 +8,16 @@
     data,
     params,
   }: {
-    data: { project: ProjectSlideData }
+    data: { project: ProjectSlideData; selectedWorks?: SelectedWorksData }
     params: { project: string; slide: string }
   } = $props()
 
   const { project: projectSlug, slide: slideNumber } = $derived(params)
   const { slides } = $derived(data.project)
   const slide = $derived(slides[parseInt(slideNumber) - 1])
+  const isSelectedWork = $derived(
+    data.selectedWorks?.projects?.some(project => project?.slug?.current === projectSlug) ?? false,
+  )
 
   const onclick = (increment: 1 | -1) => {
     if (slides.length === 1) return
@@ -28,7 +31,7 @@
   }
 </script>
 
-{#if slideNumber !== "1"}
+{#if slideNumber !== "1" || !isSelectedWork}
   <ProjectSlide {slide} />
 {/if}
 {#if slides.length > 1}

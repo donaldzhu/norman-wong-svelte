@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from "$app/state"
   import { beforeNavigate } from "$app/navigation"
   import { pageIsProjectPage, pageIsSelectedWorksPage } from "$lib/utils/url.js"
   import "../app.css"
@@ -10,7 +11,11 @@
   let infoIsVisible = $state(false)
   let selectedWorksKey = $state(Date.now())
   let shouldShowProjectSlide = $derived(
-    pageIsSelectedWorksPage() || pageIsProjectPage(),
+    pageIsSelectedWorksPage() ||
+      (pageIsProjectPage() &&
+        (data?.selectedWorks?.projects ?? []).some(
+          project => project?.slug?.current === page.params.project,
+        )),
   )
 
   beforeNavigate(({ to }) => {
