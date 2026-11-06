@@ -5,7 +5,7 @@ import ts from 'typescript'
 
 const source = readFileSync(new URL('../src/lib/utils/imageFraming.ts', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/lib/utils/projectSlideLayout.ts', import.meta.url), 'utf8').replace(/import .* from '\.\/imageFraming'\n/, '')
 const { outputText } = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } })
-const { desktopSpan, centeredSize, resolveDesktopLayout, resolveMobileLayout } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`)
+const { desktopSpan, centeredSize, resolveDesktopLayout, resolveMobileLayout, mobileOrientationFor } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`)
 const image = (span, ratio = 1) => ({ _key: String(span), desktopStart: 1, desktopEnd: span + 1, mediaType: 'image', image: { asset: { metadata: { dimensions: { aspectRatio: ratio } } } } })
 
 test('legacy mapping and valid sizes', () => {
@@ -241,4 +241,16 @@ test('XXXL uses 18 desktop columns and maps to mobile XXL in both orientations',
   assert.equal(JSON.stringify([media,v]),before)
   assert.deepEqual(resolveDesktopLayout([image(18)],1280,720,20).spans,[16])
   assert.equal(centeredSize(20),16)
+})
+
+
+test('Auto mobile uses portrait even for saved landscape; manual orientation remains selectable', () => {
+  const slide = {media:[{...image(8),desktopSpan:8,mobileSpan:4}],mobileOrientation:'landscape',layoutV2:{version:2,desktop:{mode:'center'},mobile:{auto:true,mode:'center',orientation:'landscape'}}}
+  const before = JSON.stringify(slide)
+  assert.equal(mobileOrientationFor(slide),'portrait')
+  assert.equal(JSON.stringify(slide),before)
+  slide.layoutV2.mobile.auto = false
+  assert.equal(mobileOrientationFor(slide),'landscape')
+  slide.layoutV2.mobile.orientation = 'portrait'
+  assert.equal(mobileOrientationFor(slide),'portrait')
 })

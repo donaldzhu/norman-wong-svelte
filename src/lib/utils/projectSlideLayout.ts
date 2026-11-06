@@ -1,4 +1,5 @@
 import { croppedRatio } from './imageFraming'
+import type { Orientation } from './dom'
 import type { SlideMediaData, SlideLayoutV2, SlideData } from "$lib/types/sanity"
 
 const LEGACY_SIZES = [6, 8, 10, 12, 14, 16] as const
@@ -125,7 +126,8 @@ export function validSlideV2(media: SlideMediaData[], v?: SlideLayoutV2): v is S
     (v.mobile.auto || (v.mobile.mode === 'justify' ? media.length === 1 : media.reduce((n,m) => n + m.mobileSpan!,0) <= 12))
 }
 export function mobileOrientationFor(slide: SlideData) {
-  return validSlideV2(slide.media, slide.layoutV2) ? slide.layoutV2.mobile.orientation : slide.mobileOrientation
+  if (validSlideV2(slide.media, slide.layoutV2)) return slide.layoutV2.mobile.auto ? 'portrait' as Orientation.Portrait : slide.layoutV2.mobile.orientation
+  return slide.mobileOrientation
 }
 
 export function resolveDesktopLayout(media: SlideMediaData[], width: number, height: number, gap: number, layoutV2?: SlideLayoutV2) {
