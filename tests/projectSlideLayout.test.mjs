@@ -169,7 +169,7 @@ test('explicit V2 spans and modes override legacy fields without re-inferring Au
   assert.equal(manual.mode,'custom')
   assert.deepEqual(manual.spans,[8])
   const auto = resolveMobileLayout(media,390,844,20,true,{...v,mobile:{...v.mobile,auto:true}})
-  assert.deepEqual(auto.spans,[5])
+  assert.deepEqual(auto.spans,[6])
   const cover = resolveDesktopLayout(media,1280,720,20,{...v,desktop:{mode:'justify'}})
   assert.equal(cover.justified,true)
 })
@@ -253,4 +253,29 @@ test('Auto mobile uses portrait even for saved landscape; manual orientation rem
   assert.equal(mobileOrientationFor(slide),'landscape')
   slide.layoutV2.mobile.orientation = 'portrait'
   assert.equal(mobileOrientationFor(slide),'portrait')
+})
+
+
+test('single-image Auto increases one mobile size, capped at eight; other layouts stay unchanged', () => {
+  const v={version:2,desktop:{mode:'center'},mobile:{auto:true,mode:'center',orientation:'portrait'}}
+  for (const [desktopSpan,expected] of [[6,4],[8,5],[10,6],[12,7],[14,8],[16,8],[18,8]]) {
+    const media=[{...image(8),desktopSpan,mobileSpan:3}]
+    const before=JSON.stringify(media)
+    const auto=resolveMobileLayout(media,390,844,20,true,v)
+    assert.deepEqual(auto.spans,[expected])
+    assert.equal(auto.valid,true)
+    assert.deepEqual(resolveDesktopLayout(media,1280,720,20,v).spans,[desktopSpan])
+    const manual={...v,mobile:{...v.mobile,auto:false}}
+    assert.deepEqual(resolveMobileLayout(media,390,844,20,true,manual).spans,[3])
+    const justified={...v,desktop:{mode:'justify'}}
+    const cover=resolveMobileLayout(media,390,844,20,true,justified)
+    assert.equal(cover.justified,true)
+    assert.equal(cover.items[0].width,390)
+    assert.equal(cover.items[0].height,844)
+    const video=[{...media[0],mediaType:'video',video:{asset:{data:{aspect_ratio:'1:1'}}}}]
+    assert.deepEqual(resolveMobileLayout(video,390,844,20,true,v).spans,[Math.min(8,desktopSpan/2)])
+    const pair=[...media,{...image(6),_key:'second',desktopSpan:6,mobileSpan:3}]
+    assert.deepEqual(resolveMobileLayout(pair,390,844,20,true,v).spans,[Math.min(8,desktopSpan/2),3])
+    assert.equal(JSON.stringify(media),before)
+  }
 })

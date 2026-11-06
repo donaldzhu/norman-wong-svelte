@@ -4,7 +4,8 @@ import type { SlideMediaData, SlideLayoutV2, SlideData } from "$lib/types/sanity
 
 const LEGACY_SIZES = [6, 8, 10, 12, 14, 16] as const
 const SIZES = [...LEGACY_SIZES, 18] as const
-export const autoMobileSpan = (desktopSpan: number): number => desktopSpan === 18 ? 8 : desktopSpan / 2
+export const autoMobileSpan = (desktopSpan: number, singleImage = false): number =>
+  Math.min(8, desktopSpan / 2 + (singleImage ? 1 : 0))
 const DESKTOP_COLUMNS = 24
 // Preserve the previous grid container's `100vw + 8px` sizing reference.
 const LEGACY_GRID_BUFFER = 8
@@ -140,7 +141,8 @@ export function resolveDesktopLayout(media: SlideMediaData[], width: number, hei
 export function resolveMobileLayout(media: SlideMediaData[], width: number, height: number, gap: number, stacked: boolean, layoutV2?: SlideLayoutV2) {
   if (validSlideV2(media, layoutV2)) {
     const auto = layoutV2.mobile.auto
-    const spans = media.map(m => auto ? autoMobileSpan(m.desktopSpan!) : m.mobileSpan!)
+    const singleCenteredImage = layoutV2.desktop.mode === 'center' && media.length === 1 && media[0].mediaType === 'image'
+    const spans = media.map(m => auto ? autoMobileSpan(m.desktopSpan!, singleCenteredImage) : m.mobileSpan!)
     const justified = (auto ? layoutV2.desktop.mode : layoutV2.mobile.mode) === 'justify'
     return {...resolveGeometry({media, width, height, gap, tracks: 12, stacked, mobile: true, spans, justified, issues: []}), mode: auto ? 'auto' : 'custom'}
   }
