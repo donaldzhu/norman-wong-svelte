@@ -169,7 +169,7 @@ test('explicit V2 spans and modes override legacy fields without re-inferring Au
   assert.equal(manual.mode,'custom')
   assert.deepEqual(manual.spans,[8])
   const auto = resolveMobileLayout(media,390,844,20,true,{...v,mobile:{...v.mobile,auto:true}})
-  assert.deepEqual(auto.spans,[6])
+  assert.deepEqual(auto.spans,[7])
   const cover = resolveDesktopLayout(media,1280,720,20,{...v,desktop:{mode:'justify'}})
   assert.equal(cover.justified,true)
 })
@@ -197,7 +197,7 @@ test('Auto uses desktop halves despite retained manual overage or Justify', () =
       assert.equal(mobile.valid,true)
       assert.equal(mobile.mode,'auto')
       assert.equal(mobile.justified,false)
-      assert.deepEqual(mobile.spans,[3,3])
+      assert.deepEqual(mobile.spans,[5,5])
     }
     assert.equal(JSON.stringify([media,v]),before)
     const manual = {...v,mobile:{...v.mobile,auto:false}}
@@ -233,7 +233,7 @@ test('XXXL uses 18 desktop columns and maps to mobile XXL in both orientations',
     assert.equal(resolveDesktopLayout(pair,1280,720,20,v).valid,true)
     const pairedMobile = resolveMobileLayout(pair,390,844,20,stacked,v)
     assert.equal(pairedMobile.valid,true)
-    assert.deepEqual(pairedMobile.spans,[8,3])
+    assert.deepEqual(pairedMobile.spans,[8,4])
     pair[1].desktopSpan=8
     assert.equal(resolveDesktopLayout(pair,1280,720,20,v).valid,false)
     assert.equal(resolveMobileLayout(pair,390,844,20,stacked,v).valid,false)
@@ -256,26 +256,22 @@ test('Auto mobile uses portrait even for saved landscape; manual orientation rem
 })
 
 
-test('single-image Auto increases one mobile size, capped at eight; other layouts stay unchanged', () => {
+test('Auto chooses a shared bump under the twelve-column budget', () => {
   const v={version:2,desktop:{mode:'center'},mobile:{auto:true,mode:'center',orientation:'portrait'}}
-  for (const [desktopSpan,expected] of [[6,4],[8,5],[10,6],[12,7],[14,8],[16,8],[18,8]]) {
-    const media=[{...image(8),desktopSpan,mobileSpan:3}]
-    const before=JSON.stringify(media)
-    const auto=resolveMobileLayout(media,390,844,20,true,v)
-    assert.deepEqual(auto.spans,[expected])
-    assert.equal(auto.valid,true)
-    assert.deepEqual(resolveDesktopLayout(media,1280,720,20,v).spans,[desktopSpan])
-    const manual={...v,mobile:{...v.mobile,auto:false}}
-    assert.deepEqual(resolveMobileLayout(media,390,844,20,true,manual).spans,[3])
-    const justified={...v,desktop:{mode:'justify'}}
-    const cover=resolveMobileLayout(media,390,844,20,true,justified)
-    assert.equal(cover.justified,true)
-    assert.equal(cover.items[0].width,390)
-    assert.equal(cover.items[0].height,844)
-    const video=[{...media[0],mediaType:'video',video:{asset:{data:{aspect_ratio:'1:1'}}}}]
-    assert.deepEqual(resolveMobileLayout(video,390,844,20,true,v).spans,[Math.min(8,desktopSpan/2)])
-    const pair=[...media,{...image(6),_key:'second',desktopSpan:6,mobileSpan:3}]
-    assert.deepEqual(resolveMobileLayout(pair,390,844,20,true,v).spans,[Math.min(8,desktopSpan/2),3])
-    assert.equal(JSON.stringify(media),before)
+  for (const [desktop,expected] of [[[6],[5]],[[8],[6]],[[10],[7]],[[12],[8]],[[14],[8]],[[16],[8]],[[18],[8]],[[8,8],[6,6]],[[10,10],[6,6]],[[8,10],[5,6]],[[6,6,6],[4,4,4]],[[6,6,6,6],[3,3,3,3]],[[18,6],[8,4]]]) {
+    for (const mediaType of ['image','video']) {
+      const media=desktop.map((desktopSpan,i)=>({...image(8),_key:String(i),desktopSpan,mobileSpan:3,mediaType,video:{asset:{data:{aspect_ratio:'1:1'}}}}))
+      const before=JSON.stringify(media)
+      const result=resolveMobileLayout(media,390,844,20,true,v)
+      assert.deepEqual(result.spans,expected)
+      assert.equal(result.valid,true)
+      assert.deepEqual(resolveMobileLayout(media,390,844,20,true,{...v,mobile:{...v.mobile,auto:false}}).spans,desktop.map(()=>3))
+      if(media.length===1) {
+        const cover=resolveMobileLayout(media,390,844,20,true,{...v,desktop:{mode:'justify'}})
+        assert.equal(cover.justified,true)
+        assert.equal(cover.items[0].height,844)
+      }
+      assert.equal(JSON.stringify(media),before)
+    }
   }
 })
