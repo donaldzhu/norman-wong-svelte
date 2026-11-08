@@ -90,9 +90,7 @@
         scrollTop: scrollContainerRef.scrollTop + centerOffset,
         duration: ANIMATION_DURATION,
         ease: ANIMATION_EASE,
-        onComplete: () => {
-          centerAdjustTween = undefined
-        },
+        onComplete: () => (centerAdjustTween = undefined),
       })
     }, CENTER_ADJUST_DELAY_MS)
   }
@@ -222,9 +220,7 @@
 
     scrollTween?.kill()
     scrollTween = gsap.timeline({
-      onComplete: () => {
-        goto(`/projects/${project.slug.current}/1`)
-      },
+      onComplete: () => goto(`/projects/${project.slug.current}/1`),
     })
 
     if (!isCenterProject)

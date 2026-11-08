@@ -13,11 +13,9 @@
   let {
     mediaData,
     hoverProjectId = $bindable<string | undefined>(),
-    tempCopyIndex,
   }: {
     mediaData: AllThumbnailData
     hoverProjectId: string | undefined
-    tempCopyIndex: number
   } = $props()
 
   const MOUSEOUT_DEBOUNCE_MS = 300
@@ -27,8 +25,6 @@
   const { anchor, projectId } = $derived(
     thumbnailData || { anchor: undefined, projectId: undefined },
   )
-
-  const copySpecificProjectId = $derived(`${projectId}-${tempCopyIndex}`)
 
   const clearMouseoutTimer = () => {
     if (mouseoutTimer !== undefined) {
@@ -41,7 +37,7 @@
     clearMouseoutTimer()
     mouseoutTimer = setTimeout(() => {
       mouseoutTimer = undefined
-      if (!projectId || hoverProjectId === copySpecificProjectId)
+      if (!projectId || hoverProjectId === projectId)
         hoverProjectId = undefined
     }, MOUSEOUT_DEBOUNCE_MS)
   }
@@ -50,10 +46,10 @@
 
   const onmouseover = () => {
     clearMouseoutTimer()
-    hoverProjectId = copySpecificProjectId
+    hoverProjectId = projectId
   }
   const onmouseout = () => {
-    if (!projectId || hoverProjectId === copySpecificProjectId) scheduleHoverClear()
+    if (!projectId || hoverProjectId === projectId) scheduleHoverClear()
   }
 
   let thumbnailRef = $state<HTMLDivElement>()
@@ -69,7 +65,7 @@
 </script>
 
 <a
-  style:opacity={!hoverProjectId ? 1 : hoverProjectId === copySpecificProjectId ? 0.6 : 1}
+  style:opacity={!hoverProjectId ? 1 : hoverProjectId === projectId ? 0.6 : 1}
   href={anchor}
   {onmouseover}
   {onmouseout}

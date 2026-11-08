@@ -13,7 +13,7 @@
     children: Snippet
   } = $props()
 
-  onMount(() => {
+  onMount(() =>
     filterFalsey(
       data.project.slides
         .map((slide) =>
@@ -22,8 +22,8 @@
           ),
         )
         .flat(),
-    ).forEach((image) => preloadImage(image))
-  })
+    ).forEach((image) => preloadImage(image)),
+  )
 </script>
 
 {@render children()}

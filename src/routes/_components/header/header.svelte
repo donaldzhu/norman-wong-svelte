@@ -55,12 +55,10 @@
   const SELECTED_WORKS_LINK = "/"
   const ALL_PROJECTS_LINK = "/index"
 
-  const getLinks = (device: Device) => {
-    return {
-      [getCopy(device).selectedWorks]: SELECTED_WORKS_LINK,
-      [getCopy(device).allProjects]: ALL_PROJECTS_LINK,
-    }
-  }
+  const getLinks = (device: Device) => ({
+    [getCopy(device).selectedWorks]: SELECTED_WORKS_LINK,
+    [getCopy(device).allProjects]: ALL_PROJECTS_LINK,
+  })
 
   const onInfoClick = () => {
     isInfoVisible = !isInfoVisible

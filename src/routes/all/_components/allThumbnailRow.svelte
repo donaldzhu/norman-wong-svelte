@@ -2,7 +2,7 @@
   import { withDebounce, type TimeOut } from "$lib/utils/animation"
   import { fitToHeight, isMobile, stretchToContainer, vw, vwRamp } from "$lib/utils/dom"
   import { getMediaAspectRatio } from "$lib/utils/media"
-  import { onMount } from "svelte"
+  import { untrack } from "svelte"
   import { ALL_PROJECTS_ROW_MOBILE_GAPS } from "./configs"
   import {
     ALL_PROJECTS_MAX_GAP,
@@ -18,12 +18,10 @@
 
   let {
     rowData,
-    tempCopyIndex,
     hoverProjectId = $bindable<string | undefined>(),
     isUnfilled = false,
   }: {
     rowData: AllThumbnailData[]
-    tempCopyIndex: number
     hoverProjectId: string | undefined
     isUnfilled: boolean
   } = $props()
@@ -62,7 +60,10 @@
     })
   }
 
-  onMount(adjustSize)
+  $effect(() => {
+    rowData
+    untrack(adjustSize)
+  })
 
   let adjustSizeDebounceTimer: TimeOut | undefined = $state(undefined)
   const adjustSizeDebounce = () =>
@@ -87,7 +88,7 @@
   inert={!!adjustSizeDebounceTimer}
 >
   {#each rowData as mediaData}
-    <AllThumbnail {mediaData} {tempCopyIndex} bind:hoverProjectId />
+    <AllThumbnail {mediaData} bind:hoverProjectId />
   {/each}
 </div>
 

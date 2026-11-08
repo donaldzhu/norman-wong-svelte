@@ -3,8 +3,8 @@ import type { Orientation } from './dom'
 import type { SlideMediaData, SlideLayoutV2, SlideData } from "$lib/types/sanity"
 
 const SIZES = [6, 8, 10, 12, 14, 16, 18] as const
-export const autoMobileSpan = (desktopSpan: number): number => Math.min(8, desktopSpan / 2)
-export function autoMobileSpans(desktopSpans: number[]): number[] {
+export const autoMobileSpan = (desktopSpan: number) => Math.min(8, desktopSpan / 2)
+export const autoMobileSpans = (desktopSpans: number[]) => {
   const base = desktopSpans.map(autoMobileSpan)
   for (const bump of [2, 1, 0]) {
     const spans = base.map(span => Math.min(8, span + bump))
@@ -43,7 +43,7 @@ interface GeometryInput {
   issues: string[]
 }
 
-function resolveGeometry({ media, spans, width, height, gap, tracks, isStacked, isJustified, isMobile, issues }: GeometryInput) {
+const resolveGeometry = ({ media, spans, width, height, gap, tracks, isStacked, isJustified, isMobile, issues }: GeometryInput) => {
   const isReady = Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0
   const safeWidth = isReady ? width : 1
   const safeHeight = isReady ? height : 1
@@ -92,14 +92,14 @@ function resolveGeometry({ media, spans, width, height, gap, tracks, isStacked, 
   }
 }
 
-export function isValidSlideV2(media: SlideMediaData[], v?: SlideLayoutV2): v is SlideLayoutV2 {
+export const isValidSlideV2 = (media: SlideMediaData[], v?: SlideLayoutV2): v is SlideLayoutV2 => {
   if (!v || v.version !== 2 || !media.length || media.length > 4 || media.some(m => !m._key) || new Set(media.map(m => m._key)).size !== media.length) return false
   if (!['center', 'justify'].includes(v.desktop?.mode) || !['center', 'justify'].includes(v.mobile?.mode) || typeof v.mobile?.auto !== 'boolean' || !['portrait', 'landscape'].includes(v.mobile?.orientation)) return false
   if (!media.every(m => SIZES.includes(m.desktopSpan as typeof SIZES[number]) && Number.isInteger(m.mobileSpan) && m.mobileSpan! >= 1 && m.mobileSpan! <= 11)) return false
   return (v.desktop.mode === 'justify' ? media.length === 1 : media.reduce((n, m) => n + m.desktopSpan!, 0) <= 24) &&
     (v.mobile.auto || (v.mobile.mode === 'justify' ? media.length === 1 : media.reduce((n, m) => n + m.mobileSpan!, 0) <= 12))
 }
-function unavailableLayout(layoutV2?: SlideLayoutV2) {
+const unavailableLayout = (layoutV2?: SlideLayoutV2) => {
   const issue = !layoutV2 ? 'Slide layout settings incomplete.' : layoutV2.version !== 2 ? 'Unsupported slide layout version.' : 'Invalid slide layout settings.'
   return {
     isReady: false, isJustified: false, spans: [] as number[], total: 0, isValid: false,
@@ -108,17 +108,17 @@ function unavailableLayout(layoutV2?: SlideLayoutV2) {
   }
 }
 
-export function mobileOrientationFor(slide: SlideData) {
+export const mobileOrientationFor = (slide: SlideData) => {
   if (!isValidSlideV2(slide.media, slide.layoutV2)) return undefined
   return slide.layoutV2.mobile.auto ? 'portrait' as Orientation.Portrait : slide.layoutV2.mobile.orientation
 }
 
-export function resolveDesktopLayout(media: SlideMediaData[], width: number, height: number, gap: number, layoutV2?: SlideLayoutV2) {
+export const resolveDesktopLayout = (media: SlideMediaData[], width: number, height: number, gap: number, layoutV2?: SlideLayoutV2) => {
   if (!isValidSlideV2(media, layoutV2)) return unavailableLayout(layoutV2)
   return resolveGeometry({ media, width, height, gap, tracks: DESKTOP_COLUMNS, isStacked: false, isMobile: false, spans: media.map(m => m.desktopSpan!), isJustified: layoutV2.desktop.mode === 'justify', issues: [] })
 }
 
-export function resolveMobileLayout(media: SlideMediaData[], width: number, height: number, gap: number, isStacked: boolean, layoutV2?: SlideLayoutV2) {
+export const resolveMobileLayout = (media: SlideMediaData[], width: number, height: number, gap: number, isStacked: boolean, layoutV2?: SlideLayoutV2) => {
   if (!isValidSlideV2(media, layoutV2)) return { ...unavailableLayout(layoutV2), mode: 'unavailable' }
   const isAuto = layoutV2.mobile.auto
   const desktopSpans = media.map(m => m.desktopSpan!)

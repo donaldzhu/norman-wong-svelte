@@ -40,7 +40,7 @@ test('Auto chooses the largest whole-layout bump within twelve tracks',()=>{
  }
 })
 test('all valid current desktop combinations fit Auto; no fields are mutated',()=>{
- function check(spans) {
+ const check = (spans) => {
   if(spans.reduce((a,b)=>a+b,0)>24)return
   const media=spans.map((s,i)=>image(s,1.5,String(i))),before=structuredClone(media)
   assert.equal(desktop(media).isValid,true)

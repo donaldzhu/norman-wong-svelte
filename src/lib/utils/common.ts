@@ -9,7 +9,7 @@ export const wrap = (value: number, min: number, max: number) => {
 export const quickArray = <T = number>(length: number, mapFunction: (index: number) => T = i => i as T) =>
   Array(length).fill(0).map((_, i) => mapFunction(i))
 
-export const filterFalsey = <T>(array: (T | Falsey)[]): T[] => array.filter(Boolean) as T[]
+export const filterFalsey = <T>(array: (T | Falsey)[]) => array.filter(Boolean) as T[]
 
 export const getProjectDisplayTitle = ({ title, subtitle, }: Pick<ProjectData, 'title' | 'subtitle'>) =>
   `${title}${subtitle ? `, ${subtitle}` : ''}`

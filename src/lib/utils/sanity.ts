@@ -41,7 +41,7 @@ export const srcSetFor = (image: SanityImageObjectWithAsset, vwSettings: SrcSett
 
 const PLACEHOLDER_WIDTH = 50
 
-export const getPlaceholderSrc = (image: SanityImageObjectWithAsset): string | undefined => {
+export const getPlaceholderSrc = (image: SanityImageObjectWithAsset) => {
   const lqip = image.asset?.metadata?.lqip
   if (lqip && !image.crop) return lqip
 

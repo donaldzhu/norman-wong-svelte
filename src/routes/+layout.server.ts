@@ -36,12 +36,26 @@ export const load = async () => {
         rowSettings
       },
       projects[] {
+        _key,
+        includeAllMedia,
+        includeAllMedia == true => {
+          "sourceSlides": project->slides[] {
+            _key,
+            media[] {
+              _key,
+              mediaType,
+              image { ${HYDRATE_IMAGE_QUERY} },
+              video { asset-> }
+            }
+          }
+        },
         project-> {
           _id,
           slug,
           ${hydrateSlideIds}
         },
         media[] {
+          _key,
           mediaType,
           image {
             ...,

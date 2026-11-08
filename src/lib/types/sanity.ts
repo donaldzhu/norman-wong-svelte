@@ -125,7 +125,10 @@ export interface AllProjectsLayoutData {
 }
 
 export interface AllProjectsProjectData {
-  media: AllProjectsMediaData[]
+  _key?: string
+  includeAllMedia?: boolean
+  sourceSlides?: { _key?: string; media?: AllProjectsMediaData[] }[]
+  media?: AllProjectsMediaData[]
   project: {
     _id: string
     slug: Slug
@@ -134,5 +137,6 @@ export interface AllProjectsProjectData {
 }
 
 export type AllProjectsMediaData = MediaData & {
-  hideOnMobile: boolean
+  _key?: string
+  hideOnMobile?: boolean
 }
