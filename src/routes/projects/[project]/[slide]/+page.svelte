@@ -16,7 +16,9 @@
   const { slides } = $derived(data.project)
   const slide = $derived(slides[parseInt(slideNumber) - 1])
   const isSelectedWork = $derived(
-    data.selectedWorks?.projects?.some(project => project?.slug?.current === projectSlug) ?? false,
+    data.selectedWorks?.projects?.some(
+      (project) => project?.slug?.current === projectSlug,
+    ) ?? false,
   )
 
   const onclick = (increment: 1 | -1) => {
@@ -35,16 +37,18 @@
   <ProjectSlide {slide} />
 {/if}
 {#if slides.length > 1}
-  <div
+  <button
+    type="button"
     class="project-slide__button project-slide__button--previous"
-    onclick={() => onclick(-1)}
     aria-label="Previous slide"
-  ></div>
-  <div
+    onclick={() => onclick(-1)}
+  ></button>
+  <button
+    type="button"
     class="project-slide__button project-slide__button--next"
-    onclick={() => onclick(1)}
     aria-label="Next slide"
-  ></div>
+    onclick={() => onclick(1)}
+  ></button>
 {/if}
 
 <svelte:window on:keydown={onkeydown} />
@@ -54,13 +58,17 @@
 
   .project-slide__button {
     all: unset;
-    position: fixed;
     width: 35vw;
     height: 100dvh;
-    cursor: pointer;
+
+    position: fixed;
     z-index: 99;
-    pointer-events: all;
     top: 0;
+
+    cursor: pointer;
+    pointer-events: all;
+
+    @include keyboard-focus;
 
     &--previous {
       left: 0;

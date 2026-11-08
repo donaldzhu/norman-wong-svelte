@@ -9,9 +9,9 @@
 }
 
 @mixin fullscreen {
-  @include fix;
   width: 100dvw;
   height: 100dvh;
+  @include fix;
 }
 
 @mixin flex {
@@ -30,10 +30,11 @@
 }
 
 @mixin hide-scrollbars {
-  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
+
+  overscroll-behavior: contain;
 
   &::-webkit-scrollbar {
     display: none;
@@ -50,49 +51,58 @@
   }
 }
 
-@mixin text-button {
+@mixin text-button($active-selector) {
   @include button-all-modes {
     $factor: 0.5;
     padding: calc(#{$factor} * var(--button-padding));
     margin: calc(-#{$factor} * var(--button-padding));
   }
 
-  &.active {
+  &#{$active-selector} {
     color: $gray;
   }
 }
 
-@mixin auto-fit-media {
+@mixin auto-fit-media($block) {
   @include desktop {
     width: 100%;
   }
 
-  &.portrait {
+  &.#{$block}--portrait {
     height: 100%;
   }
 
-  &.landscape {
+  &.#{$block}--landscape {
     width: 100%;
   }
 
-  &:not(.portrait):not(.landscape) {
+  &:not(.#{$block}--portrait):not(.#{$block}--landscape) {
     width: 100%;
     height: 100%;
   }
 }
 
-@mixin demarcate-media {
-  &.has-mobile-media {
-    &:not(.is-mobile-media) {
+@mixin demarcate-media($block) {
+  &.#{$block}--has-mobile-media {
+    &:not(.#{$block}--mobile-media) {
       @include mobile {
         display: none;
       }
     }
 
-    &.is-mobile-media {
+    &.#{$block}--mobile-media {
       @include desktop {
         display: none;
       }
     }
+  }
+}
+
+// A two-tone indicator stays visible over white pages and dark full-bleed media.
+@mixin keyboard-focus {
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 5px black;
   }
 }

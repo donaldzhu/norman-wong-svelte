@@ -2,23 +2,26 @@
 
 @font-face {
   font-family: "Kunst Grotesk";
-  src: url("/fonts/FTKunstGroteskUnlicensedTrial-Regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
+
+  src: url("/fonts/FTKunstGroteskUnlicensedTrial-Regular.otf") format("opentype");
 }
 
 @font-face {
   font-family: "Items";
-  src: url("/fonts/Items-CondensedThin.otf") format("opentype");
   font-weight: 100;
   font-style: normal;
+
+  src: url("/fonts/Items-CondensedThin.otf") format("opentype");
 }
 
 @font-face {
   font-family: "Items";
-  src: url("/fonts/Items-CondensedThinItalic.otf") format("opentype");
   font-weight: 100;
   font-style: italic;
+
+  src: url("/fonts/Items-CondensedThinItalic.otf") format("opentype");
 }
 
 :root,
@@ -36,10 +39,12 @@ button,
 [role="button"] {
   @include button-all-modes {
     all: unset;
-    cursor: pointer;
     padding: var(--button-padding);
+
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
+
+    cursor: pointer;
   }
 
   &:hover {
@@ -77,10 +82,8 @@ p {
 
   // typography
   --ui-font-size: 1.3rem;
-
   --info-font-size: 4.5rem;
   --selected-works-font-size: 11rem;
-
   --selected-works-line-height: 0.95;
 
   @include mobile {
@@ -89,7 +92,6 @@ p {
     --y-margin-bottom: 1.75rem;
     --page-spacing-top: 8.5rem;
     --all-projects-row-height: 10rem;
-
     --ui-font-size: 1.25rem;
     --info-font-size: 3.8rem;
     --selected-works-font-size: 6.8rem;
@@ -100,4 +102,10 @@ p {
   @include wide-desktop {
     --ui-font-size: 1.4rem;
   }
+}
+// Apply after the shared reset; component resets include this mixin locally too.
+a,
+button,
+[role="button"] {
+  @include keyboard-focus;
 }

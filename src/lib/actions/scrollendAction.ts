@@ -6,17 +6,17 @@ export const scrollend: Action<HTMLElement> = node => {
   if ('onscrollend' in window) return
 
   let timeout: TimeOut
-  const onScroll = () => {
+  const onscroll = () => {
     clearTimeout(timeout)
     timeout = setTimeout(() => {
       node.dispatchEvent(new Event('scrollend', { bubbles: true }))
     }, SHORT_DEBOUNCE_MS)
   }
-  node.addEventListener('scroll', onScroll, { passive: true })
+  node.addEventListener('scroll', onscroll, { passive: true })
   return {
     destroy() {
       clearTimeout(timeout)
-      node.removeEventListener('scroll', onScroll)
+      node.removeEventListener('scroll', onscroll)
     },
   }
 }

@@ -1,20 +1,20 @@
 @font-face {
   font-family: "Kunst Grotesk";
-  src: url("/fonts/FTKunstGroteskUnlicensedTrial-Regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
+  src: url("/fonts/FTKunstGroteskUnlicensedTrial-Regular.otf") format("opentype");
 }
 @font-face {
   font-family: "Items";
-  src: url("/fonts/Items-CondensedThin.otf") format("opentype");
   font-weight: 100;
   font-style: normal;
+  src: url("/fonts/Items-CondensedThin.otf") format("opentype");
 }
 @font-face {
   font-family: "Items";
-  src: url("/fonts/Items-CondensedThinItalic.otf") format("opentype");
   font-weight: 100;
   font-style: italic;
+  src: url("/fonts/Items-CondensedThinItalic.otf") format("opentype");
 }
 :root,
 body {
@@ -38,10 +38,10 @@ button:visited,
 [role=button]:active,
 [role=button]:visited {
   all: unset;
-  cursor: pointer;
   padding: var(--button-padding);
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  cursor: pointer;
 }
 a:hover,
 button:hover,
@@ -97,4 +97,12 @@ p {
   :root {
     --ui-font-size: 1.4rem;
   }
+}
+
+a:focus-visible,
+button:focus-visible,
+[role=button]:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px black;
 }

@@ -14,8 +14,8 @@
   @use "$lib/styles/_entry.scss" as *;
 
   div {
-    @include flex;
     @include fullscreen;
+    @include flex;
   }
 
   h2 {

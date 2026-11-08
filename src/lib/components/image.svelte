@@ -7,23 +7,23 @@
   import { onMount } from "svelte"
 
   let {
-    ref = $bindable<HTMLDivElement | null>(),
-    image,
     style,
     mediaStyle,
+    image,
     srcSettings,
     orientation,
+    ref = $bindable<HTMLDivElement | null>(),
     hasMobileMedia,
     isMobileMedia,
   }: {
-    ref?: HTMLDivElement | null
+    style: string | undefined
+    mediaStyle: string | undefined
     image: SanityImageObjectWithAsset
-    style?: string
-    mediaStyle?: string
-    srcSettings?: SrcSettings
-    orientation?: Orientation
-    hasMobileMedia?: boolean
-    isMobileMedia?: boolean
+    srcSettings: SrcSettings | undefined
+    orientation: Orientation | undefined
+    ref: HTMLDivElement | null | undefined
+    hasMobileMedia: boolean | undefined
+    isMobileMedia: boolean | undefined
   } = $props()
 
   const alt = $derived(image?.asset?.altText)
@@ -31,14 +31,16 @@
   const height = $derived(image?.asset?.metadata?.dimensions?.height)
   const ratio = $derived(croppedRatio(width && height ? width / height : 1, image))
   let frame = $state({ width: 0, height: 0 })
-  const objectPosition = $derived(hotspotPosition(image, ratio, frame.width, frame.height))
+  const objectPosition = $derived(
+    hotspotPosition(image, ratio, frame.width, frame.height),
+  )
   const imgSrc = $derived(getImageSrc(image, srcSettings))
   const placeholderSrc = $derived(getPlaceholderSrc(image))
-  let windowIsMobile = $state<boolean>()
+  let isMobileViewport = $state<boolean>()
 
   const imageId = $derived(image?.asset?._id)
   let loadedImageId = $state<string>()
-  const loaded = $derived(imageId !== undefined && loadedImageId === imageId)
+  const isLoaded = $derived(imageId !== undefined && loadedImageId === imageId)
 
   let imgElement = $state<HTMLImageElement>()
 
@@ -50,16 +52,18 @@
     if (!imgElement || !imageId) return
     if (
       hasMobileMedia &&
-      windowIsMobile !== undefined &&
-      windowIsMobile !== isMobileMedia
+      isMobileViewport !== undefined &&
+      isMobileViewport !== isMobileMedia
     )
       return
     if (imgElement.complete && imgElement.naturalWidth > 0) onload()
   })
 
   onMount(() => {
-    windowIsMobile = isMobile()
-    const measure = () => { if (ref) frame = { width: ref.clientWidth, height: ref.clientHeight } }
+    isMobileViewport = isMobile()
+    const measure = () => {
+      if (ref) frame = { width: ref.clientWidth, height: ref.clientHeight }
+    }
     const observer = new ResizeObserver(measure)
     if (ref) observer.observe(ref)
     measure()
@@ -68,18 +72,18 @@
 </script>
 
 <div
-  bind:this={ref}
   {style}
-  class:portrait={orientation === Orientation.Portrait}
-  class:landscape={orientation === Orientation.Landscape}
-  class:has-mobile-media={hasMobileMedia}
-  class:is-mobile-media={isMobileMedia}
+  class:image--portrait={orientation === Orientation.Portrait}
+  class:image--landscape={orientation === Orientation.Landscape}
+  class:image--has-mobile-media={hasMobileMedia}
+  class:image--mobile-media={isMobileMedia}
   style:aspect-ratio={ratio}
+  bind:this={ref}
 >
   {#if placeholderSrc}
     <img
-      class="placeholder"
-      style:opacity={loaded ? 0 : 1}
+      class="image__placeholder"
+      style:opacity={isLoaded ? 0 : 1}
       style={mediaStyle}
       style:object-position={objectPosition}
       src={placeholderSrc}
@@ -90,38 +94,42 @@
   <img
     bind:this={imgElement}
     {...imgSrc}
-    {alt}
-    style:opacity={loaded ? 1 : 0}
+    style:opacity={isLoaded ? 1 : 0}
     style={mediaStyle}
     style:object-position={objectPosition}
+    {alt}
     {onload}
   />
 </div>
 
-<svelte:window on:resize={() => (windowIsMobile = isMobile())} />
+<svelte:window on:resize={() => (isMobileViewport = isMobile())} />
 
 <style lang="scss">
   @use "$lib/styles/_entry.scss" as *;
 
   div {
-    @include auto-fit-media;
-    @include demarcate-media;
+    @include auto-fit-media("image");
+    @include demarcate-media("image");
     position: relative;
   }
 
   img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+
     display: flex;
+
+    object-fit: cover;
     background-color: $light-gray;
+
     transform: translateZ(0);
   }
 
-  .placeholder {
-    @include fade-in-out;
+  .image__placeholder {
     position: absolute;
     inset: 0;
     z-index: 2;
+
+    @include fade-in-out;
   }
 </style>

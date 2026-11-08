@@ -16,8 +16,8 @@
     tempCopyIndex,
   }: {
     mediaData: AllThumbnailData
-    hoverProjectId?: string
-    tempCopyIndex: number // TODO
+    hoverProjectId: string | undefined
+    tempCopyIndex: number
   } = $props()
 
   const MOUSEOUT_DEBOUNCE_MS = 300
@@ -53,8 +53,7 @@
     hoverProjectId = copySpecificProjectId
   }
   const onmouseout = () => {
-    if (!projectId || hoverProjectId === copySpecificProjectId)
-      scheduleHoverClear()
+    if (!projectId || hoverProjectId === copySpecificProjectId) scheduleHoverClear()
   }
 
   let thumbnailRef = $state<HTMLDivElement>()
@@ -70,16 +69,12 @@
 </script>
 
 <a
+  style:opacity={!hoverProjectId ? 1 : hoverProjectId === copySpecificProjectId ? 0.6 : 1}
   href={anchor}
   {onmouseover}
   {onmouseout}
   onfocus={onmouseover}
   onblur={onmouseout}
-  style:opacity={!hoverProjectId
-    ? 1
-    : hoverProjectId === copySpecificProjectId
-      ? 0.6
-      : 1}
 >
   <Media
     {media}
@@ -106,7 +101,7 @@
   }
 
   a {
-    @include fade-in-out;
     cursor: pointer;
+    @include fade-in-out;
   }
 </style>

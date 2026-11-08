@@ -6,9 +6,9 @@ export const withDebounce = (
   getDebounce: () => TimeOut | undefined,
   setDebounce: (debounce: TimeOut | undefined) => any,
   callback: () => any,
-  prevIsMobile: boolean | null,
+  wasMobileViewport: boolean | null,
 ) => {
-  if (prevIsMobile !== null && prevIsMobile === isMobile()) return
+  if (wasMobileViewport !== null && wasMobileViewport === isMobile()) return
   const debounce = getDebounce()
   if (debounce) clearTimeout(debounce)
   setDebounce(setTimeout(() => {

@@ -11,10 +11,10 @@
 
   let {
     data,
-    infoIsVisible = $bindable(),
-  }: { data: SanityData; infoIsVisible: boolean } = $props()
+    isInfoVisible = $bindable(),
+  }: { data: SanityData; isInfoVisible: boolean } = $props()
 
-  const onclick = () => (infoIsVisible = false)
+  const onclick = () => (isInfoVisible = false)
   const headerData = $derived(data.header)
   const {
     selectedWorksDisplayTextDesktop,
@@ -29,15 +29,11 @@
     const projectSlug = page.url.pathname.split("/")[2]
     if (!projectSlug) return null
 
-    const project = data.projects.find(
-      project => project.slug.current === projectSlug,
-    )
+    const project = data.projects.find((project) => project.slug.current === projectSlug)
     return project ? getProjectDisplayTitle(project) : null
   }
 
-  const currentProject = $derived(
-    navigation.pendingProjectTitle ?? getCurrentProject(),
-  )
+  const currentProject = $derived(navigation.pendingProjectTitle ?? getCurrentProject())
 
   afterNavigate(() => (navigation.pendingProjectTitle = null))
 
@@ -67,22 +63,22 @@
   }
 
   const onInfoClick = () => {
-    infoIsVisible = !infoIsVisible
-    document.documentElement.style.overflow = infoIsVisible ? "hidden" : "auto"
+    isInfoVisible = !isInfoVisible
+    document.documentElement.style.overflow = isInfoVisible ? "hidden" : "auto"
   }
 </script>
 
-{#each [Device.Mobile, Device.Desktop] as device (device)}
+{#each [Device.Mobile, Device.Desktop] as device}
   <header
-    class:info-visible={infoIsVisible}
-    class:mobile={device === Device.Mobile}
+    class:header--info-visible={isInfoVisible}
+    class:header--mobile={device === Device.Mobile}
   >
     <nav>
       <div class="header__primary-links">
-        {#each Object.entries(getLinks(device)) as [text, href], index (href)}
+        {#each Object.entries(getLinks(device)) as [text, href], index}
           <a
-            class:active={page.url.pathname === href &&
-              !infoIsVisible &&
+            class:header__control--active={page.url.pathname === href &&
+              !isInfoVisible &&
               !currentProject}
             {href}
             {onclick}
@@ -99,16 +95,17 @@
         {/each}
       </div>
       {#if currentProject}
-        <div
-          class="header__current-project"
-          in:fade={{ duration: FADE_DURATION_MS }}
-        >
+        <div class="header__current-project" in:fade={{ duration: FADE_DURATION_MS }}>
           <span>/</span>
-          <a href={page.url.pathname} class="active">{currentProject}</a>
+          <a class="header__control--active" href={page.url.pathname}>{currentProject}</a>
         </div>
       {/if}
     </nav>
-    <button onclick={onInfoClick} class:active={infoIsVisible}>
+    <button
+      class:header__control--active={isInfoVisible}
+      aria-expanded={isInfoVisible}
+      onclick={onInfoClick}
+    >
       {getCopy(device).information}
     </button>
   </header>
@@ -119,16 +116,20 @@
 
   header {
     @include fullscreen;
-    @include ui;
     height: initial;
+    box-sizing: border-box;
+
+    padding: var(--y-margin-top) var(--x-margin) 0;
+
+    z-index: 99999999;
+
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    padding: var(--y-margin-top) var(--x-margin) 0;
-    box-sizing: border-box;
-    z-index: 99999999;
 
-    &.info-visible {
+    @include ui;
+
+    &.header--info-visible {
       color: white;
     }
 
@@ -136,7 +137,7 @@
       display: none;
     }
 
-    &.mobile {
+    &.header--mobile {
       display: none;
       @include mobile {
         display: flex;
@@ -183,6 +184,6 @@
 
   a,
   button {
-    @include text-button;
+    @include text-button(".header__control--active");
   }
 </style>

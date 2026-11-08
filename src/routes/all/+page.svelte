@@ -15,13 +15,9 @@
   const layout = $derived(data.allProjects?.desktopLayout)
 
   const projects = $derived(data.allProjects?.projects)
-  const projectList = $derived(projects?.flatMap(project => project.media))
-  const desktopRowSettings = $derived(
-    data.allProjects?.desktopLayout?.rowSettings,
-  )
-  const mobileRowSettings = $derived(
-    data.allProjects?.mobileLayout?.rowSettings,
-  )
+  const projectList = $derived(projects?.flatMap((project) => project.media))
+  const desktopRowSettings = $derived(data.allProjects?.desktopLayout?.rowSettings)
+  const mobileRowSettings = $derived(data.allProjects?.mobileLayout?.rowSettings)
 
   const getThumbnailData = (media: MediaData, index: number) => {
     if (!layout || !projects) return
@@ -34,7 +30,7 @@
           const { project } = projectData
           const { slug } = project
 
-          const slideIndex = project.slideMediaIds.findIndex(ids =>
+          const slideIndex = project.slideMediaIds.findIndex((ids) =>
             ids.includes(getMediaId(media)),
           )
           return {
@@ -46,17 +42,17 @@
       }
   }
 
-  let prevIsMobile = $state(false)
+  let wasMobileViewport = $state(false)
   const getRows = () => {
     if (!layout || !projectList) rows = []
-    const windowIsMobile = isMobile()
-    prevIsMobile = windowIsMobile
+    const isMobileViewport = isMobile()
+    wasMobileViewport = isMobileViewport
 
     const filteredProjectList = projectList.filter(
-      project => !windowIsMobile || !project.hideOnMobile,
+      (project) => !isMobileViewport || !project.hideOnMobile,
     )
     let mediaIndex = 0
-    const rowSettings = windowIsMobile ? mobileRowSettings : desktopRowSettings
+    const rowSettings = isMobileViewport ? mobileRowSettings : desktopRowSettings
 
     const isUnfilled = filteredProjectList.length % _.sum(rowSettings) > 0
     rows = rowSettings?.map((rowCellCount, rowIndex) => {
@@ -84,9 +80,9 @@
   const getRowWithDebounce = () =>
     withDebounce(
       () => getRowDebounceTimer,
-      debounce => (getRowDebounceTimer = debounce),
+      (debounce) => (getRowDebounceTimer = debounce),
       getRows,
-      prevIsMobile,
+      wasMobileViewport,
     )
 </script>
 
@@ -95,9 +91,9 @@
 </svelte:head>
 
 <div
-  class="all-projects"
   style:opacity={getRowDebounceTimer ? 0 : 1}
   style:transition={!getRowDebounceTimer ? DEBOUNCE_TRANSITION : undefined}
+  inert={!!getRowDebounceTimer}
 >
   {#each quickArray(2) as tempCopyIndex}
     {#each rows as rowData}
@@ -105,7 +101,7 @@
         {rowData}
         {tempCopyIndex}
         bind:hoverProjectId
-        isUnfilled={rowData.some(data => data.isUnfilled)}
+        isUnfilled={rowData.some((data) => data.isUnfilled)}
       />
     {/each}
   {/each}
@@ -116,13 +112,16 @@
 <style lang="scss">
   @use "$lib/styles/_entry.scss" as *;
 
-  .all-projects {
-    @include flex-column;
+  div {
     @include fullscreen;
-    gap: var(--all-projects-row-gap);
-    padding: var(--page-spacing-top) 0 var(--y-margin-bottom);
-    justify-content: flex-start;
     box-sizing: border-box;
+
+    padding: var(--page-spacing-top) 0 var(--y-margin-bottom);
+
+    @include flex-column;
+    gap: var(--all-projects-row-gap);
+    justify-content: flex-start;
+
     overflow-y: auto;
     @include hide-scrollbars;
   }

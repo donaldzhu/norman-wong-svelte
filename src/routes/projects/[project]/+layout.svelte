@@ -6,23 +6,23 @@
   import { onMount, type Snippet } from "svelte"
 
   let {
-    children,
     data,
+    children,
   }: {
-    children: Snippet
     data: { project: ProjectSlideData }
+    children: Snippet
   } = $props()
 
   onMount(() => {
     filterFalsey(
       data.project.slides
-        .map(slide =>
-          slide.media.map(media =>
+        .map((slide) =>
+          slide.media.map((media) =>
             media.mediaType === MediaType.Image ? media.image : undefined,
           ),
         )
         .flat(),
-    ).forEach(image => preloadImage(image))
+    ).forEach((image) => preloadImage(image))
   })
 </script>
 

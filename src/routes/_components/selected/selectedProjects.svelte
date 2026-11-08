@@ -7,7 +7,7 @@
   import type { TimeOut } from "$lib/utils/animation.js"
   import { getProjectDisplayTitle, quickArray } from "$lib/utils/common"
   import { getTitle } from "$lib/utils/meta"
-  import { pageIsProjectPage } from "$lib/utils/url"
+  import { isProjectRoute } from "$lib/utils/url"
   import gsap from "gsap"
   import { onDestroy, onMount, tick } from "svelte"
   import type { PageData } from "../../$types"
@@ -29,7 +29,7 @@
   let { data }: { data: PageData } = $props()
 
   const projects = $derived(data?.selectedWorks?.projects ?? [])
-  const isProjectPage = $derived(pageIsProjectPage())
+  const isProjectPage = $derived(isProjectRoute())
 
   const CENTER_INDEX = (SELECTED_WORKS_INFINITE_SCROLL_COPY_COUNT - 1) / 2 + 1
   const copyIndices = quickArray(SELECTED_WORKS_INFINITE_SCROLL_COPY_COUNT)
@@ -51,16 +51,14 @@
   let isNavigating = $state(false)
   let isMounted = $state(false)
   let lastOffset = $state(0)
-  let requiresSoftAdjustment = $state(false)
+  let shouldAdjustCenter = $state(false)
 
-  let userHasScrolled = $state(false)
+  let hasUserScrolled = $state(false)
 
   const getAllRows = () =>
     !scrollTrackRef
       ? []
-      : Array.from(scrollTrackRef.children).flatMap(row =>
-          Array.from(row.children),
-        )
+      : Array.from(scrollTrackRef.children).flatMap((row) => Array.from(row.children))
 
   const getOffset = () => {
     if (centerProjectIndex === undefined) return 0
@@ -80,10 +78,10 @@
 
   const scheduleCenterAdjust = () => {
     cancelCenterAdjust()
-    if (!requiresSoftAdjustment) return
+    if (!shouldAdjustCenter) return
     centerAdjustTimeout = setTimeout(() => {
       centerAdjustTimeout = undefined
-      if (!scrollContainerRef || userHasScrolled) return
+      if (!scrollContainerRef || hasUserScrolled) return
 
       const centerOffset = getOffset()
       if (Math.abs(centerOffset) <= SHOULD_BLEND_THRESHOLD / 2) return
@@ -105,19 +103,17 @@
     const offset = scrollContainerRef.scrollTop % scrollSegmentHeight
     const target = CENTER_INDEX * scrollSegmentHeight + offset
 
-    if (
-      Math.abs(lastOffset) > SELECTED_WORKS_REQUIRES_SOFT_ADJUSTMENT_THRESHOLD
-    )
-      requiresSoftAdjustment = true
+    if (Math.abs(lastOffset) > SELECTED_WORKS_REQUIRES_SOFT_ADJUSTMENT_THRESHOLD)
+      shouldAdjustCenter = true
 
     const minDelta = SELECTED_WORKS_RECENTER_MIN_MULTIPLES * scrollSegmentHeight
     if (Math.abs(scrollContainerRef.scrollTop - target) < minDelta) return
 
     isRecentering = true
-    userHasScrolled = false
+    hasUserScrolled = false
 
     tick().then(() => {
-      if (!scrollContainerRef || userHasScrolled) return
+      if (!scrollContainerRef || hasUserScrolled) return
       scrollContainerRef.scrollTop = Math.round(target)
     })
 
@@ -128,17 +124,14 @@
     if (!scrollContainerRef) return false
     const { scrollTop, clientHeight, scrollHeight } = scrollContainerRef
     const maxScrollTop = scrollHeight - clientHeight
-    const edgeCushion =
-      scrollSegmentHeight * SELECTED_WORKS_EDGE_CUSHION_MULTIPLES
+    const edgeCushion = scrollSegmentHeight * SELECTED_WORKS_EDGE_CUSHION_MULTIPLES
     return scrollTop < edgeCushion || scrollTop > maxScrollTop - edgeCushion
   }
 
   const shouldHighlightCenter = (index: number) => {
-    if (!isRecentering || centerProjectIndex === undefined || isNavigating)
-      return false
+    if (!isRecentering || centerProjectIndex === undefined || isNavigating) return false
     const isCenter = Math.floor(index / projects.length) - 1 === CENTER_INDEX
-    const isSelected =
-      index % projects.length === centerProjectIndex % projects.length
+    const isSelected = index % projects.length === centerProjectIndex % projects.length
     return isCenter && isSelected
   }
 
@@ -165,7 +158,7 @@
     const allRows = getAllRows()
     centerProjectIndex =
       allRows.findIndex(
-        child => child.getBoundingClientRect().top > window.innerHeight / 2,
+        (child) => child.getBoundingClientRect().top > window.innerHeight / 2,
       ) - 1
   }
 
@@ -182,7 +175,7 @@
     if (isProjectPage) return
     isRecentering = false
     hasInitialized = true
-    userHasScrolled = true
+    hasUserScrolled = true
     cancelCenterAdjust()
   }
 
@@ -192,7 +185,7 @@
 
     if (hasInitialized) updateCenterProjectIndex()
     isSettled = false
-    userHasScrolled = false
+    hasUserScrolled = false
     if (!isRecentering) lastOffset = getOffset()
     if (isNearTrueEdge()) return recenter()
   }
@@ -215,8 +208,8 @@
     e.preventDefault()
     const target = e.currentTarget as HTMLElement
 
-    const index = getAllRows().findIndex(child =>
-      Array.from(child.children).find(anchor => anchor === target),
+    const index = getAllRows().findIndex((child) =>
+      Array.from(child.children).find((anchor) => anchor === target),
     )
 
     const isCenterProject = index === centerProjectIndex
@@ -255,18 +248,17 @@
 
     if (isProjectPage && !centerProjectIndex) {
       centerProjectIndex = projects.findIndex(
-        project => project.slug.current === page.url.pathname.split("/")[2],
+        (project) => project.slug.current === page.url.pathname.split("/")[2],
       )
     }
   })
 
   afterNavigate(({ to }) => {
     isMounted = true
-    if (pageIsProjectPage(to)) return
+    if (isProjectRoute(to)) return
 
     tick().then(() => {
-      if (!scrollTrackRef || !scrollContainerRef || pageIsProjectPage(to))
-        return
+      if (!scrollTrackRef || !scrollContainerRef || isProjectRoute(to)) return
       resizeObserver = new ResizeObserver(() => onObserverResize())
       resizeObserver.observe(scrollTrackRef)
       onObserverResize(true)
@@ -284,24 +276,25 @@
 <div
   class="selected-works__scroll"
   role="region"
+  aria-label="Selected Works"
   {onscroll}
   {onscrollend}
   onwheel={onuserscroll}
   ontouchmove={onuserscroll}
   bind:this={scrollContainerRef}
-  use:scrollend
   style:opacity={isMounted ? 1 : 0}
   style:pointer-events={isNavigating || isProjectPage ? "none" : "auto"}
-  style:scroll-snap-type={(isRecentering && requiresSoftAdjustment) ||
-  isNavigating
+  style:scroll-snap-type={(isRecentering && shouldAdjustCenter) || isNavigating
     ? "none"
     : `y ${SELECTED_WORKS_SNAP_STRICTNESS}`}
   style:--snap-stop={SELECTED_WORKS_SNAP_STOP}
+  use:scrollend
+  inert={!isMounted}
 >
-  <div class="selected-works__scroll__track" bind:this={scrollTrackRef}>
-    {#each copyIndices as copyIndex, i (copyIndex)}
-      <div class="selected-works__scroll__segment">
-        {#each projects as project, ii (project._id)}
+  <div class="selected-works__scroll-track" bind:this={scrollTrackRef}>
+    {#each copyIndices as copyIndex, i}
+      <div class="selected-works__scroll-segment">
+        {#each projects as project, ii}
           {@const flatIndex = i * projects.length + ii}
           {@const isSelected = flatIndex === centerProjectIndex}
           <SelectedProjectSection
@@ -331,14 +324,17 @@
     @include fade-in-out;
     @include hide-scrollbars;
     height: 100dvh;
-    overflow: hidden auto;
+
+    padding: 15px;
+
     z-index: 999999;
     position: relative;
-    padding: 15px;
+
+    overflow: hidden auto;
   }
 
-  .selected-works__scroll__track,
-  .selected-works__scroll__segment {
+  .selected-works__scroll-track,
+  .selected-works__scroll-segment {
     @include flex-column;
   }
 </style>

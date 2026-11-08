@@ -4,9 +4,9 @@
   let { data }: { data: InfoData } = $props()
 </script>
 
-<div class="info-container">
+<div class="information">
   {#each data.contacts as contact}
-    <div class="contact-container">
+    <div class="information__contact">
       <h3>{contact.displayName}</h3>
       {#if contact.email}
         <a href={`mailto:${contact.email}`}>{contact.email}</a>
@@ -21,19 +21,22 @@
 <style lang="scss">
   @use "$lib/styles/_entry.scss" as *;
 
-  .info-container {
+  .information {
     @include fullscreen;
-    @include serif;
-    @include flex-column;
 
-    background-color: black;
+    z-index: 9999999;
+
+    @include flex-column;
+    gap: 1em;
+
+    @include serif;
     color: white;
     font-size: var(--info-font-size);
-    gap: 1em;
-    z-index: 9999999;
+
+    background-color: black;
   }
 
-  .contact-container {
+  .information__contact {
     @include flex-column;
   }
 

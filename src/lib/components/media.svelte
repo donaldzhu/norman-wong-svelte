@@ -10,36 +10,33 @@
   import Video from "./video.svelte"
 
   let {
-    media,
     style,
     mediaStyle,
-    ref = $bindable<HTMLDivElement | HTMLVideoElement | null>(),
+    media,
     srcSettings,
     orientation,
-    preview,
+    ref = $bindable<HTMLDivElement | HTMLVideoElement | null>(),
+    isPreview,
     hasMobileMedia,
-    showMuteButton,
+    shouldShowMuteButton,
   }: {
-    media: MediaData
     style?: string
     mediaStyle?: string
-    ref?: HTMLDivElement | HTMLVideoElement | null
-    srcSettings?: SrcSettings
+    media: MediaData
+    srcSettings: SrcSettings
     orientation?: Orientation
-    preview?: boolean
+    ref?: HTMLDivElement | HTMLVideoElement | null
+    isPreview?: boolean
     hasMobileMedia?: boolean
-    showMuteButton?: boolean
+    shouldShowMuteButton?: boolean
   } = $props()
 </script>
 
-{#snippet image(
-  imageAsset: SanityImageObjectWithAsset,
-  isMobileMedia?: boolean,
-)}
+{#snippet image(imageAsset: SanityImageObjectWithAsset, isMobileMedia: boolean)}
   <Image
     bind:ref={ref as HTMLDivElement | null}
-    image={imageAsset}
     {style}
+    image={imageAsset}
     {mediaStyle}
     {srcSettings}
     {orientation}
@@ -48,17 +45,17 @@
   />
 {/snippet}
 
-{#snippet video(videoAsset: SanityVideoObject, isMobileMedia?: boolean)}
+{#snippet video(videoAsset: SanityVideoObject, isMobileMedia: boolean)}
   <Video
     bind:ref={ref as HTMLVideoElement | null}
-    video={videoAsset}
     {style}
+    video={videoAsset}
     {mediaStyle}
     {orientation}
-    {preview}
+    {isPreview}
     {hasMobileMedia}
     {isMobileMedia}
-    {showMuteButton}
+    {shouldShowMuteButton}
   />
 {/snippet}
 

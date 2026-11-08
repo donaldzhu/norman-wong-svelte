@@ -3,16 +3,26 @@
   import { FADE_DURATION_MS } from "../../routes/_components/config"
 
   let {
-    muted = $bindable(),
+    isMuted = $bindable(),
   }: {
-    muted: boolean
+    isMuted: boolean
   } = $props()
 </script>
 
 <div in:fade={{ duration: FADE_DURATION_MS }}>
-  <button onclick={() => (muted = true)} class:active={muted}> MUTE </button>
+  <button
+    class:mute__button--active={isMuted}
+    aria-pressed={isMuted}
+    onclick={() => (isMuted = true)}
+  >
+    MUTE
+  </button>
   /
-  <button onclick={() => (muted = false)} class:active={!muted}>
+  <button
+    class:mute__button--active={!isMuted}
+    aria-pressed={!isMuted}
+    onclick={() => (isMuted = false)}
+  >
     UNMUTE
   </button>
 </div>
@@ -21,19 +31,22 @@
   @use "$lib/styles/_entry.scss" as *;
 
   div {
-    @include flex;
-    @include ui;
-    gap: var(--text-button-gap);
-    position: absolute;
-
     --offset: 1em;
+
+    position: absolute;
     top: calc(100% + var(--offset));
     left: 0;
     z-index: 999999;
+
+    @include flex;
+    gap: var(--text-button-gap);
+
+    @include ui;
+
     pointer-events: all;
   }
 
   button {
-    @include text-button;
+    @include text-button(".mute__button--active");
   }
 </style>

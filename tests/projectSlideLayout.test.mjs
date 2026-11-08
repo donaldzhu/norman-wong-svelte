@@ -14,7 +14,7 @@ const mobile=(media,v=layout(),stacked=true,width=390,height=844,gap=20)=>resolv
 test('explicit desktop sizes preserve grid track widths and internal gutters',()=>{
  for(const [span,width] of [[6,307],[8,416],[10,525],[12,634],[14,743],[16,852],[18,961]]) {
   const r=desktop([image(span,2)])
-  assert.equal(r.valid,true);assert.equal(r.items[0].width,width);assert.equal(r.items[0].height,width/2)
+  assert.equal(r.isValid,true);assert.equal(r.items[0].width,width);assert.equal(r.items[0].height,width/2)
  }
  assert.equal(desktop([image(8)],layout(),1280,720,32).items[0].width,408)
  assert.equal(desktop([image(8)],layout(),1280,720,8).items[0].width,424)
@@ -34,7 +34,7 @@ test('Auto chooses the largest whole-layout bump within twelve tracks',()=>{
    const media=spans.map((s,i)=>({...image(s,0.5,String(i)),...(video?{mediaType:'video',video:{asset:{data:{aspect_ratio:'1:2'}}}}:{})}))
    const before=structuredClone(media)
    assert.deepEqual(mobile(media).spans,expected)
-   assert.equal(mobile(media).valid,true)
+   assert.equal(mobile(media).isValid,true)
    assert.deepEqual(media,before)
   }
  }
@@ -43,10 +43,10 @@ test('all valid current desktop combinations fit Auto; no fields are mutated',()
  function check(spans) {
   if(spans.reduce((a,b)=>a+b,0)>24)return
   const media=spans.map((s,i)=>image(s,1.5,String(i))),before=structuredClone(media)
-  assert.equal(desktop(media).valid,true)
+  assert.equal(desktop(media).isValid,true)
   for(const stacked of [false,true]) {
    const r=mobile(media,layout(),stacked)
-   assert.equal(r.valid,true);assert.ok(r.total<=12)
+   assert.equal(r.isValid,true);assert.ok(r.total<=12)
    assert.ok(r.items.every(m=>m.width<=390.00001&&m.height<=844.00001))
   }
   assert.deepEqual(media,before)
@@ -67,10 +67,10 @@ test('retained manual overage and Justify do not invalidate active Auto',()=>{
  const media=[image(6,2,'a',8),image(6,2,'b',8)]
  for(const mode of ['center','justify']) {
   const v=layout();v.mobile.mode=mode
-  assert.equal(desktop(media,v).valid,true)
+  assert.equal(desktop(media,v).isValid,true)
   assert.deepEqual(mobile(media,v).spans,[5,5])
   v.mobile.auto=false
-  assert.equal(desktop(media,v).valid,false)
+  assert.equal(desktop(media,v).isValid,false)
   assert.deepEqual(mobile(media,v).items,[])
  }
 })
@@ -81,10 +81,10 @@ test('Justified fills the viewport; manual Justify is independent of desktop',()
  assert.ok(Math.abs(desktop(media,v).items[0].sourceFraction-1.35)<1e-8)
  for(const stacked of [false,true]) {
   const r=mobile(media,v,stacked)
-  assert.equal(r.justified,true);assert.equal(r.items[0].width,390);assert.equal(r.items[0].height,844)
+  assert.equal(r.isJustified,true);assert.equal(r.items[0].width,390);assert.equal(r.items[0].height,844)
  }
  v.desktop.mode='center';v.mobile.auto=false;v.mobile.mode='justify'
- assert.equal(desktop(media,v).justified,false);assert.equal(mobile(media,v).justified,true)
+ assert.equal(desktop(media,v).isJustified,false);assert.equal(mobile(media,v).isJustified,true)
 })
 test('crop, mobile image overrides and mobile video ratios are preserved',()=>{
  const item=image(6,2);item.image.crop={left:0.25,right:0.25,top:0,bottom:0}
@@ -96,11 +96,11 @@ test('crop, mobile image overrides and mobile video ratios are preserved',()=>{
 })
 test('missing proportions and unmeasured viewports remain finite',()=>{
  const item={...image(6),image:undefined}
- assert.equal(desktop([item],layout(),0,NaN,NaN).ready,false)
+ assert.equal(desktop([item],layout(),0,NaN,NaN).isReady,false)
  assert.ok(Object.values(desktop([item]).items[0]).every(Number.isFinite))
  assert.ok(desktop([item]).issues.some(i=>i.includes('missing aspect ratio')))
  const tiny=mobile([image(6)],layout(),false,50,80,200)
- assert.equal(tiny.gapAdjusted,true);assert.ok(tiny.items[0].width>0)
+ assert.equal(tiny.isGapAdjusted,true);assert.ok(tiny.items[0].width>0)
 })
 test('dormant positions and orientation cannot change valid current layout',()=>{
  const media=[image(18,2)],v=layout(),expected=[desktop(media,v),mobile(media,v)]
@@ -114,7 +114,7 @@ test('missing, unsupported and malformed layouts are unavailable without old-gri
  for(const [media,v] of badCases) {
   const before=structuredClone([media,v])
   for(const r of [resolveDesktopLayout(media,1280,720,20,v),resolveMobileLayout(media,390,844,20,true,v)]) {
-   assert.equal(r.ready,false);assert.equal(r.valid,false);assert.equal(r.justified,false)
+   assert.equal(r.isReady,false);assert.equal(r.isValid,false);assert.equal(r.isJustified,false)
    assert.deepEqual(r.items,[]);assert.deepEqual(r.spans,[]);assert.ok(r.issues.length)
   }
   assert.equal(mobileOrientationFor({media,layoutV2:v,mobileOrientation:'landscape'}),undefined)

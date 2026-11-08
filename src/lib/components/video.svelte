@@ -5,50 +5,50 @@
   import "@mux/mux-player"
   import { onMount } from "svelte"
   import MuteButton from "./mute.svelte"
-  import { pageIsProjectPage } from "$lib/utils/url"
+  import { isProjectRoute } from "$lib/utils/url"
 
   let {
-    video,
     style,
     mediaStyle,
+    video,
     orientation,
-    preview,
+    ref = $bindable<HTMLVideoElement | null>(),
+    isPreview,
     hasMobileMedia,
     isMobileMedia,
-    showMuteButton,
-    ref = $bindable<HTMLVideoElement | null>(),
+    shouldShowMuteButton,
   }: {
-    video?: SanityVideoObject
-    style?: string
-    mediaStyle?: string
-    orientation?: Orientation
-    preview?: boolean
-    hasMobileMedia?: boolean
-    isMobileMedia?: boolean
-    showMuteButton?: boolean
-    ref?: HTMLVideoElement | null
+    style: string | undefined
+    mediaStyle: string | undefined
+    video: SanityVideoObject
+    orientation: Orientation | undefined
+    ref: HTMLVideoElement | null | undefined
+    isPreview: boolean | undefined
+    hasMobileMedia: boolean | undefined
+    isMobileMedia: boolean | undefined
+    shouldShowMuteButton: boolean | undefined
   } = $props()
 
   const asset = $derived(video?.asset)
   const playbackId = $derived(asset?.playbackId)
   const isReady = $derived(asset?.status === "ready")
   const aspectRatio = $derived(asset?.data.aspect_ratio)
-  let windowIsMobile = $state<boolean>()
-  let paused = $state(false)
-  let muted = $state(true)
+  let isMobileViewport = $state<boolean>()
+  let isPaused = $state(false)
+  let isMuted = $state(true)
   let hasPlayed = $state(false)
-  let hasAudio = $derived(asset?.data?.tracks?.some(t => t.type === "audio"))
-  let isProjectPage = $derived(pageIsProjectPage())
-  let shouldShowMuteButton = $derived(
-    (showMuteButton || isProjectPage) && hasAudio,
+  const hasAudio = $derived(asset?.data?.tracks?.some((t) => t.type === "audio"))
+  const isProjectPage = $derived(isProjectRoute())
+  const shouldShowMuteControl = $derived(
+    (shouldShowMuteButton || isProjectPage) && hasAudio,
   )
 
   onMount(() => {
-    windowIsMobile = isMobile()
+    isMobileViewport = isMobile()
     if (!ref) return
-    if (!preview) {
+    if (!isPreview) {
       ref.play().catch((error: Error) => {
-        if (error.name === "NotAllowedError") paused = true
+        if (error.name === "NotAllowedError") isPaused = true
       })
     }
   })
@@ -56,10 +56,10 @@
   $effect(() => {
     if (!ref) return
     if (
-      preview ||
+      isPreview ||
       (hasMobileMedia &&
-        windowIsMobile !== undefined &&
-        windowIsMobile !== isMobileMedia)
+        isMobileViewport !== undefined &&
+        isMobileViewport !== isMobileMedia)
     )
       ref.pause()
     else ref.play()
@@ -68,63 +68,70 @@
 
 {#if isReady && playbackId}
   <button
-    class="video"
+    type="button"
     style:--aspect-ratio={aspectRatio?.replace(":", "/")}
-    class:video-paused={paused}
-    class:portrait={orientation === Orientation.Portrait}
-    class:landscape={orientation === Orientation.Landscape}
-    class:has-mobile-media={hasMobileMedia}
-    class:is-mobile-media={isMobileMedia}
-    class:is-project-page={isProjectPage}
+    class:video--paused={isPaused}
+    class:video--portrait={orientation === Orientation.Portrait}
+    class:video--landscape={orientation === Orientation.Landscape}
+    class:video--has-mobile-media={hasMobileMedia}
+    class:video--mobile-media={isMobileMedia}
+    class:video--project-page={isProjectPage}
+    aria-label="Play video"
+    tabindex={isPaused && !isPreview ? 0 : -1}
     onclick={() => {
-      if (paused) ref?.play()
+      if (isPaused) ref?.play()
     }}
   >
-    {#if paused && !preview}
+    {#if isPaused && !isPreview}
       <PlayIcon />
     {/if}
     <mux-player
       style:--controls="none"
+      style="{style} {mediaStyle}"
       playback-id={playbackId}
-      {muted}
+      thumbnail-time="0"
+      muted={isMuted}
       loop
       playsinline
-      autoplay={!preview}
-      thumbnail-time="0"
-      onpause={() => (paused = true)}
+      autoplay={!isPreview}
+      onpause={() => (isPaused = true)}
       onplay={() => {
-        paused = false
+        isPaused = false
         hasPlayed = true
       }}
-      style="{style} {mediaStyle}"
       bind:this={ref}
     ></mux-player>
   </button>
-  {#if hasPlayed && hasAudio && shouldShowMuteButton}
-    <MuteButton bind:muted />
+  {#if hasPlayed && hasAudio && shouldShowMuteControl}
+    <MuteButton bind:isMuted />
   {/if}
 {/if}
 
-<svelte:window on:resize={() => (windowIsMobile = isMobile())} />
+<svelte:window on:resize={() => (isMobileViewport = isMobile())} />
 
 <style lang="scss">
   @use "$lib/styles/_entry.scss" as *;
 
-  .video {
-    @include auto-fit-media;
-    @include demarcate-media;
+  button {
+    @include auto-fit-media("video");
+    @include demarcate-media("video");
     all: unset;
     width: 100%;
-    display: flex;
     aspect-ratio: var(--aspect-ratio);
-    object-fit: cover;
+
     position: relative;
-    &.is-project-page {
+
+    display: flex;
+
+    object-fit: cover;
+    @include keyboard-focus;
+
+    &.video--project-page {
       pointer-events: all;
     }
   }
 
-  .video-paused {
+  .video--paused {
     cursor: pointer;
   }
 

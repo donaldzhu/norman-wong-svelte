@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state"
   import type { ProjectData } from "$lib/types/sanity"
-  import { pageIsProjectPage } from "$lib/utils/url"
+  import { isProjectRoute } from "$lib/utils/url"
   import ProjectSlide from "../projectSlides/projectSlide.svelte"
 
   let {
@@ -13,13 +13,13 @@
     onNavigate,
   }: {
     project: ProjectData
-    isSelected?: boolean
+    isSelected: boolean
     isNavigating: boolean
     isSettled: boolean
     isHighlighted: boolean
     onNavigate: (e: MouseEvent, project: ProjectData) => void
   } = $props()
-  const isProjectPage = $derived(pageIsProjectPage())
+  const isProjectPage = $derived(isProjectRoute())
   const isNotFirstSlide = $derived(
     isProjectPage && page.url.pathname.split("/")[3] !== "1", // TODO: use enum
   )
@@ -28,15 +28,16 @@
 </script>
 
 <section
-  class:is-selected={isSelected}
-  class:is-navigating={isNavigating}
-  class:is-highlighted={isHighlighted}
-  class:is-hidden={isNotFirstSlide}
+  class:selected-project--selected={isSelected}
+  class:selected-project--navigating={isNavigating}
+  class:selected-project--highlighted={isHighlighted}
+  class:selected-project--hidden={isNotFirstSlide}
 >
   {#if !isProjectPage}
     <a
-      href="/projects/${project.slug.current}/1"
-      onclick={e => onNavigate(e, project)}
+      href="/projects/{project.slug.current}/1"
+      inert={isNavigating}
+      onclick={(e) => onNavigate(e, project)}
     >
       <h2>
         {title}{#if subtitle}, <i>{subtitle}</i>{/if}
@@ -44,11 +45,11 @@
     </a>
   {/if}
   {#if isSelected}
-    <div class="selected-works__slide">
+    <div>
       <ProjectSlide
         slide={project.slides[0]}
-        preview={!isSettled && !isProjectPage}
-        showMuteButton={isNavigating}
+        isPreview={!isSettled && !isProjectPage}
+        shouldShowMuteButton={isNavigating}
       />
     </div>
   {/if}
@@ -58,34 +59,36 @@
   @use "$lib/styles/_entry.scss" as *;
 
   section {
-    @include flex-column;
-    scroll-snap-align: center;
-    scroll-snap-stop: var(--snap-stop, normal);
-    gap: var(--selected-works-inner-gap);
     max-width: 100vw;
     box-sizing: border-box;
 
-    &.is-navigating {
-      &:not(.is-selected) {
+    @include flex-column;
+    gap: var(--selected-works-inner-gap);
+
+    scroll-snap-align: center;
+    scroll-snap-stop: var(--snap-stop, normal);
+
+    &.selected-project--navigating {
+      &:not(.selected-project--selected) {
         h2 {
           opacity: 0;
         }
       }
 
-      &.is-selected {
+      &.selected-project--selected {
         h2 {
           transition: none;
         }
       }
     }
 
-    &.is-selected {
+    &.selected-project--selected {
       $bottom-margin: 1.5rem;
       padding: 0 0.25rem $bottom-margin;
       margin-bottom: -$bottom-margin;
     }
 
-    &.is-highlighted {
+    &.selected-project--highlighted {
       h2 {
         color: $gray;
       }
@@ -99,8 +102,8 @@
       }
     }
 
-    &.is-selected,
-    &.is-highlighted {
+    &.selected-project--selected,
+    &.selected-project--highlighted {
       h2 {
         z-index: 999;
       }
@@ -108,19 +111,23 @@
   }
 
   h2 {
-    @include serif;
-    @include fade-in-out;
-    display: block;
     max-width: 100%;
+
+    z-index: -1;
+
+    display: block;
+
+    @include serif;
     font-size: var(--selected-works-font-size);
     line-height: var(--selected-works-line-height);
     text-align: center;
-    z-index: -1;
+
+    @include fade-in-out;
   }
 
   a {
-    @include flex;
     max-width: 100%;
+    @include flex;
 
     &,
     &:hover {
@@ -129,12 +136,12 @@
     }
   }
 
-  .selected-works__slide {
+  div {
     @include fullscreen;
     pointer-events: none;
   }
 
-  .is-hidden {
+  .selected-project--hidden {
     display: none;
   }
 </style>

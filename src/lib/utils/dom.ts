@@ -40,7 +40,7 @@ export const stretchToContainer = ({
   itemCount,
 }: StretchToContainerConfig) => {
   const gapCount = itemCount - 1
-  let remainingGap = (containerWidth - contentWidth) / gapCount
+  const remainingGap = (containerWidth - contentWidth) / gapCount
   const gap = _.clamp(remainingGap, minGap, maxGap)
 
   return (containerWidth - gap * gapCount) / contentWidth
