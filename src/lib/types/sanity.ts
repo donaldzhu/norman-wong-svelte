@@ -106,17 +106,12 @@ export interface SlideLayoutV2 {
 export interface SlideData {
   layoutV2?: SlideLayoutV2
   media: SlideMediaData[]
-  mobileOrientation: Orientation
 }
 
 export type SlideMediaData = MediaData & {
   _key: string
   desktopSpan?: number
   mobileSpan?: number
-  desktopStart: number
-  desktopEnd: number
-  mobileStart: number
-  mobileEnd: number
 }
 
 export interface AllProjectsData {

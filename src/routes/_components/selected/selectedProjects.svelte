@@ -334,6 +334,7 @@
     overflow: hidden auto;
     z-index: 999999;
     position: relative;
+    padding: 15px;
   }
 
   .selected-works__scroll__track,

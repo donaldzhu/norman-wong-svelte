@@ -25,8 +25,8 @@
 
   $effect(() => {
     const layout = bounds.width <= 768 ? mobile : desktop
-    if (import.meta.env.DEV && layout.ready && layout.issues.length) {
-      console.warn("Project slide layout compatibility fallback", slide.media.map(item => item._key), layout.issues)
+    if (import.meta.env.DEV && layout.issues.length) {
+      console.warn("Project slide layout unavailable or missing media metadata", slide.media.map(item => item._key), layout.issues)
     }
   })
 
@@ -60,6 +60,7 @@
     class:landscape={mobileOrientation === Orientation.Landscape}
     class:portrait={mobileOrientation === Orientation.Portrait}
   >
+    {#if mobileOrientation && desktop.items.length && mobile.items.length}
     {#each slide.media as media, index (media._key)}
       <ProjectSlideMedia
         {media}
@@ -70,7 +71,11 @@
         {showMuteButton}
       />
     {/each}
+    {/if}
   </div>
+  {#if desktop.issues.length && !desktop.items.length}
+    <p class="project-slide__unavailable" role="status">Slide unavailable.</p>
+  {/if}
 </div>
 
 <style lang="scss">
@@ -81,6 +86,15 @@
     @include flex-column;
     pointer-events: none;
     z-index: 999;
+  }
+
+  .project-slide__unavailable {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
   }
 
   .project-slide__gap-reference {

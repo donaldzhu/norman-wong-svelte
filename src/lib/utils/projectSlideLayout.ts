@@ -2,8 +2,7 @@ import { croppedRatio } from './imageFraming'
 import type { Orientation } from './dom'
 import type { SlideMediaData, SlideLayoutV2, SlideData } from "$lib/types/sanity"
 
-const LEGACY_SIZES = [6, 8, 10, 12, 14, 16] as const
-const SIZES = [...LEGACY_SIZES, 18] as const
+const SIZES = [6, 8, 10, 12, 14, 16, 18] as const
 export const autoMobileSpan = (desktopSpan: number): number => Math.min(8, desktopSpan / 2)
 export function autoMobileSpans(desktopSpans: number[]): number[] {
   const base = desktopSpans.map(autoMobileSpan)
@@ -15,21 +14,9 @@ export function autoMobileSpans(desktopSpans: number[]): number[] {
 }
 const DESKTOP_COLUMNS = 24
 // Preserve the previous grid container's `100vw + 8px` sizing reference.
-const LEGACY_GRID_BUFFER = 8
+const GEOMETRY_BUFFER = 8
 
-export function desktopSpan(start: number, end: number): number {
-  if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end > 25 || end <= start) return 8
-  return end - start
-}
-
-export function centeredSize(span: number): number {
-  if (span === 4) return 6
-  if (span === 9) return 8
-  if (span === 18 || span === 24) return 16
-  return LEGACY_SIZES.reduce<number>((best, size) => Math.abs(size - span) < Math.abs(best - span) ? size : best, 6)
-}
-
-function aspectRatio(media: SlideMediaData, mobile = false): number | undefined {
+const aspectRatio = (media: SlideMediaData, mobile = false) => {
   let ratio: number | undefined
   if (media.mediaType === "image") {
     const image = mobile ? media.mobileImage ?? media.image : media.image
@@ -41,12 +28,6 @@ function aspectRatio(media: SlideMediaData, mobile = false): number | undefined 
     ratio = parts?.length === 2 ? parts[0] / parts[1] : undefined
   }
   return ratio && Number.isFinite(ratio) && ratio > 0 ? ratio : undefined
-}
-
-// Mobile spans retain the existing 12-track grid, including internal gutters.
-export function mobileSpan(start: number, end: number): number {
-  if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end > 13 || end <= start) return 8
-  return end - start
 }
 
 interface GeometryInput {
@@ -62,7 +43,7 @@ interface GeometryInput {
   issues: string[]
 }
 
-function resolveGeometry({media, spans, width, height, gap, tracks, stacked, justified, mobile, issues}: GeometryInput) {
+function resolveGeometry({ media, spans, width, height, gap, tracks, stacked, justified, mobile, issues }: GeometryInput) {
   const ready = Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0
   const safeWidth = ready ? width : 1
   const safeHeight = ready ? height : 1
@@ -71,7 +52,7 @@ function resolveGeometry({media, spans, width, height, gap, tracks, stacked, jus
   const requestedGap = Math.max(0, Number.isFinite(gap) ? gap : 0)
   // Leave positive space for tracks even on unusually small viewports.
   const gridGap = Math.min(requestedGap, main / tracks)
-  const track = (main + LEGACY_GRID_BUFFER - (tracks - 1) * gridGap) / tracks
+  const track = (main + GEOMETRY_BUFFER - (tracks - 1) * gridGap) / tracks
   const sourceRatios = media.map(item => aspectRatio(item, mobile))
   const ratios = sourceRatios.map(ratio => ratio ?? 1)
   const lengths = spans.map(span => span * track + (span - 1) * gridGap)
@@ -98,7 +79,7 @@ function resolveGeometry({media, spans, width, height, gap, tracks, stacked, jus
     gap: resolvedGap,
     gapAdjusted: gridGap !== requestedGap,
     scale: justified ? 1 : scale,
-    fitReason: justified || scale >= 1 ? null : resolvedIssues.length ? 'legacy-compatibility' : mobile && crossScale < mainScale ? 'cross-axis' : 'boundary',
+    fitReason: justified || scale >= 1 ? null : resolvedIssues.length ? 'metadata' : mobile && crossScale < mainScale ? 'cross-axis' : 'boundary',
     items: media.map((_, i) => {
       const itemWidth = justified ? safeWidth : (stacked ? breadths[i] : lengths[i]) * scale
       const itemHeight = justified ? safeHeight : (stacked ? lengths[i] : breadths[i]) * scale
@@ -111,58 +92,39 @@ function resolveGeometry({media, spans, width, height, gap, tracks, stacked, jus
   }
 }
 
-function validLines(start: number, end: number, tracks: number) {
-  return Number.isInteger(start) && Number.isInteger(end) && start >= 1 && end <= tracks + 1 && end > start
-}
-
-function desktopResolution(media: SlideMediaData[]) {
-  const issues: string[] = []
-  const justified = media.length === 1 && validLines(media[0].desktopStart, media[0].desktopEnd, 24) && desktopSpan(media[0].desktopStart, media[0].desktopEnd) === 24
-  const spans = media.map((item, i) => {
-    const raw = desktopSpan(item.desktopStart, item.desktopEnd)
-    if (!validLines(item.desktopStart, item.desktopEnd, 24) || ![4, 6, 8, 9, 10, 12, 14, 16, 18, 24].includes(raw)) issues.push(`Media ${i + 1}: unsupported desktop span`)
-    return justified ? 24 : centeredSize(raw)
-  })
-  return {spans, justified, issues}
-}
-
 export function validSlideV2(media: SlideMediaData[], v?: SlideLayoutV2): v is SlideLayoutV2 {
   if (!v || v.version !== 2 || !media.length || media.length > 4 || media.some(m => !m._key) || new Set(media.map(m => m._key)).size !== media.length) return false
-  if (!['center','justify'].includes(v.desktop?.mode) || !['center','justify'].includes(v.mobile?.mode) || typeof v.mobile?.auto !== 'boolean' || !['portrait','landscape'].includes(v.mobile?.orientation)) return false
+  if (!['center', 'justify'].includes(v.desktop?.mode) || !['center', 'justify'].includes(v.mobile?.mode) || typeof v.mobile?.auto !== 'boolean' || !['portrait', 'landscape'].includes(v.mobile?.orientation)) return false
   if (!media.every(m => SIZES.includes(m.desktopSpan as typeof SIZES[number]) && Number.isInteger(m.mobileSpan) && m.mobileSpan! >= 1 && m.mobileSpan! <= 11)) return false
-  return (v.desktop.mode === 'justify' ? media.length === 1 : media.reduce((n,m) => n + m.desktopSpan!,0) <= 24) &&
-    (v.mobile.auto || (v.mobile.mode === 'justify' ? media.length === 1 : media.reduce((n,m) => n + m.mobileSpan!,0) <= 12))
+  return (v.desktop.mode === 'justify' ? media.length === 1 : media.reduce((n, m) => n + m.desktopSpan!, 0) <= 24) &&
+    (v.mobile.auto || (v.mobile.mode === 'justify' ? media.length === 1 : media.reduce((n, m) => n + m.mobileSpan!, 0) <= 12))
 }
+function unavailableLayout(layoutV2?: SlideLayoutV2) {
+  const issue = !layoutV2 ? 'Slide layout settings incomplete.' : layoutV2.version !== 2 ? 'Unsupported slide layout version.' : 'Invalid slide layout settings.'
+  return {
+    ready: false, justified: false, spans: [] as number[], total: 0, valid: false,
+    issues: [issue], gap: 0, gapAdjusted: false, scale: 0, fitReason: null,
+    items: [] as { width: number; height: number; sourceFraction: number }[],
+  }
+}
+
 export function mobileOrientationFor(slide: SlideData) {
-  if (validSlideV2(slide.media, slide.layoutV2)) return slide.layoutV2.mobile.auto ? 'portrait' as Orientation.Portrait : slide.layoutV2.mobile.orientation
-  return slide.mobileOrientation
+  if (!validSlideV2(slide.media, slide.layoutV2)) return undefined
+  return slide.layoutV2.mobile.auto ? 'portrait' as Orientation.Portrait : slide.layoutV2.mobile.orientation
 }
 
 export function resolveDesktopLayout(media: SlideMediaData[], width: number, height: number, gap: number, layoutV2?: SlideLayoutV2) {
-  if (validSlideV2(media, layoutV2)) return resolveGeometry({media, width, height, gap, tracks: 24, stacked: false, mobile: false, spans: media.map(m => m.desktopSpan!), justified: layoutV2.desktop.mode === 'justify', issues: []})
-  const legacy = desktopResolution(media)
-  if (layoutV2) legacy.issues.push('Invalid V2 layout; using legacy layout')
-  return resolveGeometry({media, width, height, gap, tracks: DESKTOP_COLUMNS, stacked: false, mobile: false, ...legacy})
+  if (!validSlideV2(media, layoutV2)) return unavailableLayout(layoutV2)
+  return resolveGeometry({ media, width, height, gap, tracks: DESKTOP_COLUMNS, stacked: false, mobile: false, spans: media.map(m => m.desktopSpan!), justified: layoutV2.desktop.mode === 'justify', issues: [] })
 }
 
 export function resolveMobileLayout(media: SlideMediaData[], width: number, height: number, gap: number, stacked: boolean, layoutV2?: SlideLayoutV2) {
-  if (validSlideV2(media, layoutV2)) {
-    const auto = layoutV2.mobile.auto
-    const desktopSpans = media.map(m => m.desktopSpan!)
-    const spans = auto ? layoutV2.desktop.mode === 'center' ? autoMobileSpans(desktopSpans) : desktopSpans.map(autoMobileSpan) : media.map(m => m.mobileSpan!)
-    const justified = (auto ? layoutV2.desktop.mode : layoutV2.mobile.mode) === 'justify'
-    return {...resolveGeometry({media, width, height, gap, tracks: 12, stacked, mobile: true, spans, justified, issues: []}), mode: auto ? 'auto' : 'custom'}
-  }
-  const preset = ({1: 8, 2: 6, 3: 4, 4: 3} as Record<number, number>)[media.length]
-  const absent = media.every(item => item.mobileStart == null && item.mobileEnd == null)
-  const defaults = media.length > 0 && media.every(item => validLines(item.mobileStart, item.mobileEnd, 12) && item.mobileEnd - item.mobileStart === preset)
-  const mode = absent || defaults ? 'auto' : 'custom'
-  const desktop = desktopResolution(media)
-  const issues = mode === 'auto' ? [...desktop.issues] : media.flatMap((item, i) => validLines(item.mobileStart, item.mobileEnd, 12) ? [] : [`Media ${i + 1}: invalid mobile span`])
-  if (layoutV2) issues.push('Invalid V2 layout; using legacy layout')
-  const spans = mode === 'auto' ? desktop.spans.map(span => span / 2) : media.map(item => mobileSpan(item.mobileStart, item.mobileEnd))
-  const justified = mode === 'auto' ? desktop.justified : media.length === 1 && validLines(media[0].mobileStart, media[0].mobileEnd, 12) && spans[0] === 12
-  return {...resolveGeometry({media, spans, width, height, gap, tracks: 12, stacked, mobile: true, justified, issues}), mode}
+  if (!validSlideV2(media, layoutV2)) return { ...unavailableLayout(layoutV2), mode: 'unavailable' }
+  const auto = layoutV2.mobile.auto
+  const desktopSpans = media.map(m => m.desktopSpan!)
+  const spans = auto ? layoutV2.desktop.mode === 'center' ? autoMobileSpans(desktopSpans) : desktopSpans.map(autoMobileSpan) : media.map(m => m.mobileSpan!)
+  const justified = (auto ? layoutV2.desktop.mode : layoutV2.mobile.mode) === 'justify'
+  return { ...resolveGeometry({ media, width, height, gap, tracks: 12, stacked, mobile: true, spans, justified, issues: [] }), mode: auto ? 'auto' : 'custom' }
 }
 
 export type DesktopMediaLayout = ReturnType<typeof resolveDesktopLayout>["items"][number]
